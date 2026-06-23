@@ -1,22 +1,11 @@
 {
-  "version": 2,
   "cleanUrls": true,
-  "routes": [
-    {
-      "src": "/style.css",
-      "dest": "/src/style.css"
-    },
-    {
-      "src": "/app.js",
-      "dest": "/src/app.js"
-    },
-    {
-      "src": "/(index.html)?",
-      "dest": "/src/index.html"
-    },
-    {
-      "src": "/(.*)",
-      "dest": "/src/$1"
-    }
+  "rewrites": [
+    { "source": "/", "destination": "/src/index.html" },
+    { "source": "/index.html", "destination": "/src/index.html" },
+    { "source": "/app.js", "destination": "/src/app.js" },
+    { "source": "/style.css", "destination": "/src/style.css" },
+    { "source": "/shared/:path*", "destination": "/src/shared/:path*" },
+    { "source": "/pages/:path*", "destination": "/src/pages/:path*" }
   ]
 }
