@@ -1227,9 +1227,21 @@ input:focus, select:focus {
     .layout-double-grid {
         grid-template-columns: 1fr;
     }
+    /* Horizontal scroll for HubSpot CRM Kanban on tablets & small screens */
+    .kanban-wrapper {
+        display: flex !important;
+        overflow-x: auto !important;
+        gap: 16px !important;
+        padding-bottom: 14px !important;
+        -webkit-overflow-scrolling: touch;
+    }
+    .kanban-wrapper .kanban-column {
+        flex: 0 0 290px !important;
+        min-width: 290px !important;
+    }
 }
 
-@media (max-width: 768px) {
+@media (max-width: 576px) {
     .navbar {
         height: auto;
         flex-direction: column;
@@ -1251,9 +1263,6 @@ input:focus, select:focus {
         padding: 16px;
         gap: 12px;
         align-items: flex-start;
-    }
-    .kanban-wrapper {
-        grid-template-columns: 1fr;
     }
 }
 
@@ -2000,7 +2009,7 @@ input:focus, select:focus {
 .kanban-card-drag { transform: rotate(2deg); cursor: grabbing; }
 
 @media (max-width: 768px) {
-    .kanban-column { flex: 0 0 78vw; min-width: 78vw; }
+    .kanban-column { flex: 0 0 290px !important; min-width: 290px !important; }
     .ks-hint { display: none; }
 }
 
