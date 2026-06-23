@@ -4584,3 +4584,57 @@ document.addEventListener('click', () => {
 
 // Start the application
 window.addEventListener('DOMContentLoaded', init);
+
+// --- PWA (Progressive Web App) Setup ---
+let deferredPrompt;
+
+if ('serviceWorker' in navigator) {
+    window.addEventListener('load', () => {
+        navigator.serviceWorker.register('/sw.js')
+            .then((registration) => {
+                console.log('ServiceWorker muvaffaqiyatli ro\'yxatdan o\'tdi. Qamrov (scope): ', registration.scope);
+            }, (err) => {
+                console.log('ServiceWorker ro\'yxatdan o\'tishda xatolik: ', err);
+            });
+    });
+}
+
+window.addEventListener('beforeinstallprompt', (e) => {
+    // Brauzerning standart so'rovini to'xtatish
+    e.preventDefault();
+    // Hodisani saqlab qolish
+    deferredPrompt = e;
+    
+    // O'rnatish tugmasini ko'rsatish
+    const installBtn = document.getElementById('btn-install-app');
+    if (installBtn) {
+        installBtn.style.display = 'inline-block';
+        
+        installBtn.addEventListener('click', () => {
+            // Tugmani yashirish
+            installBtn.style.display = 'none';
+            // O'rnatish oynasini chiqarish
+            deferredPrompt.prompt();
+            
+            // Foydalanuvchi qarorini kutish
+            deferredPrompt.userChoice.then((choiceResult) => {
+                if (choiceResult.outcome === 'accepted') {
+                    console.log('Foydalanuvchi PWA o\'rnatishga ruxsat berdi');
+                } else {
+                    console.log('Foydalanuvchi PWA o\'rnatishni bekor qildi');
+                    // Tugmani qayta ko'rsatish mumkin, lekin foydalanuvchi o'zi xohlamadi
+                }
+                deferredPrompt = null;
+            });
+        });
+    }
+});
+
+// Agar ilova allaqachon o'rnatilgan bo'lsa (Standalone rejimda ishlayotgan bo'lsa)
+window.addEventListener('appinstalled', (evt) => {
+    console.log('Eco Sports muvaffaqiyatli o\'rnatildi!');
+    const installBtn = document.getElementById('btn-install-app');
+    if (installBtn) {
+        installBtn.style.display = 'none';
+    }
+});

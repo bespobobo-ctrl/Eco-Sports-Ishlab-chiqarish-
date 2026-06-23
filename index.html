@@ -13,6 +13,11 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <!-- CSS Style -->
     <link rel="stylesheet" href="style.css?v=2.1">
+    
+    <!-- PWA Manifest & Meta -->
+    <link rel="manifest" href="manifest.json">
+    <meta name="theme-color" content="#0b0c10">
+    <link rel="apple-touch-icon" href="icons/icon.svg">
 </head>
 <body>
     <div class="app-wrapper">
@@ -67,6 +72,9 @@
                 <div class="status-dot-wrapper" title="Sinxronizatsiya faol">
                     <span class="status-dot"></span>
                 </div>
+                <!-- PWA Install Button -->
+                <button class="btn btn-primary" id="btn-install-app" style="display: none; padding: 6px 12px; font-size: 0.85rem;"><i class="fa-solid fa-download"></i> O'rnatish</button>
+                
                 <button class="btn btn-icon-reset" id="btn-system-reset" title="Tizimni tozalash (LocalStorage)">
                     <i class="fa-solid fa-arrows-rotate"></i>
                 </button>
