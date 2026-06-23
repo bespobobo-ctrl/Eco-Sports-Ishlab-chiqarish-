@@ -251,6 +251,7 @@ body {
 
 /* --- Sub-Header Section --- */
 .subheader {
+    width: 100%;
     height: 64px;
     background-color: var(--bg-main);
     border-bottom: 1px solid var(--border-color);
@@ -343,23 +344,27 @@ body {
 
 /* --- Main Content Layout --- */
 .content-container {
+    width: 100%;
     flex-grow: 1;
     overflow-y: auto;
     padding: 24px;
 }
 
 .tab-pane {
+    width: 100%;
     display: none;
     height: 100%;
 }
 
 .tab-pane.active {
+    width: 100%;
     display: block;
 }
 
 
 /* --- 1. SOTUV TAB (Kanban layout) --- */
 .sales-dashboard-layout {
+    width: 100%;
     display: grid;
     grid-template-columns: 1fr 300px;
     gap: 24px;
@@ -688,6 +693,7 @@ body {
 
 /* --- Layout Double Grid (Premium details layout) --- */
 .layout-double-grid {
+    width: 100%;
     display: grid;
     grid-template-columns: 3fr 1fr;
     gap: 24px;
@@ -1307,10 +1313,12 @@ input:focus, select:focus {
 /* --- AI Calculator Results Styling --- */
 .sub-pane {
     display: none;
+    width: 100%;
 }
 
 .sub-pane.active {
     display: block;
+    width: 100%;
 }
 
 .ai-output-placeholder {
