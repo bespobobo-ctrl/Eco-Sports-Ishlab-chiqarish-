@@ -3,8 +3,8 @@
   "version": "1.0.0",
   "description": "Eco Sports Ishlab Chiqarish Boshqaruv Tizimi",
   "scripts": {
-    "dev": "npx -y serve src",
-    "start": "npx -y serve src"
+    "dev": "npx -y serve .",
+    "start": "npx -y serve ."
   },
   "keywords": [],
   "author": "",

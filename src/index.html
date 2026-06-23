@@ -12,11 +12,11 @@
     <!-- Font Awesome Icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <!-- CSS Style -->
-    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="style.css?v=2.1">
 </head>
 <body>
     <div class="app-wrapper">
-        <!-- Top Navigation Bar (HubSpot CRM Style) -->
+        <!-- Top Navigation Bar (SPA — barcha tablar) -->
         <header class="navbar">
             <div class="navbar-left">
                 <div class="brand-logo">
@@ -27,7 +27,7 @@
                     <span>CRM & Ishlab Chiqarish</span>
                 </div>
             </div>
-            
+
             <nav class="navbar-menu" id="main-nav">
                 <a href="#" class="nav-link active" data-tab="sales">
                     <i class="fa-solid fa-square-poll-vertical"></i> Sotuv
@@ -52,6 +52,9 @@
                 </a>
                 <a href="#" class="nav-link" data-tab="services">
                     <i class="fa-solid fa-handshake"></i> Uslugi
+                </a>
+                <a href="pages/settings/index.html" class="nav-link" title="Sozlamalar">
+                    <i class="fa-solid fa-gear"></i> Sozlamalar
                 </a>
             </nav>
 
@@ -106,28 +109,35 @@
                         <div class="grid-left-large">
                             <!-- Dropzone Card -->
                             <div class="card-glass" style="margin-bottom: 20px; height: auto;">
-                                <div class="card-glass-header" style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px;">
+                                <div class="card-glass-header" style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px; border-bottom: none; padding-bottom: 0;">
                                     <h3><i class="fa-solid fa-camera text-blue"></i> 1. Model Rasmini Yuklash</h3>
-                                    <div class="api-key-input-wrapper" style="display: flex; align-items: center; gap: 8px; font-size: 0.8rem; flex-wrap: wrap;">
-                                        <label style="color: var(--color-text-muted); font-weight: 500;">Gemini API Key:</label>
-                                        <input type="password" id="gemini-api-key-input" placeholder="API kalitingizni kiriting..." style="background: rgba(0,0,0,0.3); border: 1px solid var(--border-color); border-radius: 4px; padding: 4px 8px; color: white; width: 200px; font-size: 0.75rem;">
-                                        <button type="button" id="btn-test-api-key" style="background: var(--color-prospect); color: white; border: none; border-radius: 4px; padding: 4px 10px; font-size: 0.7rem; cursor: pointer; font-weight: 600; white-space: nowrap;" title="API kalitini sinash">
-                                            <i class="fa-solid fa-plug"></i> Tekshirish
+                                </div>
+                                <div style="padding: 10px 20px 15px 20px;">
+                                    <div style="display: flex; gap: 10px; background: rgba(0,0,0,0.3); padding: 5px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.05);">
+                                        <button type="button" id="mode-partial" class="mode-tab active" onclick="if(typeof setAnalysisMode==='function') setAnalysisMode('partial')" style="flex: 1; padding: 10px; border: none; border-radius: 6px; background: var(--color-prospect); color: white; cursor: pointer; font-size: 0.85rem; font-weight: 600; display: flex; align-items: center; justify-content: center; gap: 8px; transition: all 0.3s ease;">
+                                            <i class="fa-solid fa-wand-magic-sparkles"></i> Qisman (1 rasm + AI Tasavvuri)
                                         </button>
-                                        <span id="api-key-status" style="font-size: 0.7rem; font-weight: 600;"></span>
+                                        <button type="button" id="mode-full" class="mode-tab" onclick="if(typeof setAnalysisMode==='function') setAnalysisMode('full')" style="flex: 1; padding: 10px; border: none; border-radius: 6px; background: transparent; color: var(--color-text-muted); cursor: pointer; font-size: 0.85rem; font-weight: 500; display: flex; align-items: center; justify-content: center; gap: 8px; transition: all 0.3s ease;">
+                                            <i class="fa-solid fa-images"></i> To'liq (4 ta rasm yuklash)
+                                        </button>
                                     </div>
                                 </div>
                                 <div class="ai-dropzone-wrapper" id="ai-dropzone">
                                     <div class="dropzone-inner" id="dropzone-prompt">
                                         <i class="fa-solid fa-cloud-arrow-up" style="font-size: 2.5rem; color: var(--color-prospect); margin-bottom: 12px;"></i>
-                                        <h4>Mahsulot rasmini bosing yoki sudrab yuklang</h4>
-                                        <p>Formatlar: PNG, JPG, JPEG (Maks. 5MB)</p>
+                                        <h4>Mahsulot rasmini (yoki bir nechta: oldi, orqasi, detali) bosing yoki sudrab yuklang</h4>
+                                        <p>Formatlar: PNG, JPG, JPEG (Maks. 3 ta rasm)</p>
                                     </div>
-                                    <input type="file" id="ai-file-input" accept="image/*" style="display: none;">
+                                    <input type="file" id="ai-file-input" accept="image/*" multiple style="display: none;">
                                     
                                     <!-- Scan Preview container (hidden on start) -->
-                                    <div class="scan-preview-container" id="ai-scan-container" style="display: none;">
-                                        <img src="" alt="Scan preview" id="ai-scan-img" class="scan-img">
+                                    <div class="scan-preview-container" id="ai-scan-container" style="display: none; flex-direction: column; align-items: center; justify-content: center; gap: 15px; width: 100%; min-height: 250px; padding: 20px; box-sizing: border-box;">
+                                        <div id="ai-scan-images-container" style="display: flex; gap: 15px; justify-content: center; align-items: center; flex-wrap: wrap; width: 100%;">
+                                            <!-- Previews dynamically added here -->
+                                        </div>
+                                        <!-- Hidden main image for backward compatibility -->
+                                        <img src="" alt="Scan preview" id="ai-scan-img" style="display: none;">
+                                        
                                         <div class="scanner-line" id="ai-scanner-line"></div>
                                         <div class="scan-overlay-text" id="ai-scan-status">AI Modelni Tahlil Qilmoqda...</div>
                                     </div>
@@ -229,14 +239,39 @@
                                 <div class="card-glass-header">
                                     <h3><i class="fa-solid fa-coins" style="color: #fb923c;"></i> AI API Xarajatlari (Gemini)</h3>
                                 </div>
-                                <div class="eff-summary-list" style="margin-top: 10px;">
+                                <div class="eff-summary-list" style="margin-top: 10px; border-bottom: 1px dashed rgba(255,255,255,0.1); padding-bottom: 10px;">
                                     <div class="eff-summary-item">
                                         <span>Jami tahlillar soni:</span>
-                                        <strong id="api-req-count" class="text-blue">0 ta</strong>
+                                        <strong id="api-req-count" class="text-blue">0 ta so'rov</strong>
                                     </div>
                                     <div class="eff-summary-item">
-                                        <span>Taxminiy sarf ($0.0015/tahlil):</span>
-                                        <strong id="api-req-cost" class="text-red">$0.0000</strong>
+                                        <span>Jami sarflangan mablag':</span>
+                                        <strong id="api-req-cost" class="text-red">$0.00000</strong>
+                                    </div>
+                                </div>
+                                
+                                <!-- Oxirgi tahlil tafsilotlari -->
+                                <div id="api-last-detail" style="margin-top: 12px; display: none; font-size: 0.8rem; line-height: 1.5;">
+                                    <div style="font-weight: 700; color: var(--color-won); margin-bottom: 8px;">
+                                        <i class="fa-solid fa-clock-rotate-left"></i> Oxirgi tahlil hisob-kitobi:
+                                    </div>
+                                    <div style="background: rgba(0,0,0,0.2); border-radius: 6px; padding: 10px; border: 1px solid rgba(255,255,255,0.05);">
+                                        <div style="display: flex; justify-content: space-between; margin-bottom: 4px;">
+                                            <span style="color: var(--color-text-muted);">Model:</span>
+                                            <strong id="api-last-model" style="color: #60a5fa;">-</strong>
+                                        </div>
+                                        <div style="display: flex; justify-content: space-between; margin-bottom: 4px;">
+                                            <span style="color: var(--color-text-muted);">Kirish (Prompt):</span>
+                                            <span id="api-last-in-tokens" style="text-align: right;">-</span>
+                                        </div>
+                                        <div style="display: flex; justify-content: space-between; margin-bottom: 4px;">
+                                            <span style="color: var(--color-text-muted);">Chiqish (Output):</span>
+                                            <span id="api-last-out-tokens" style="text-align: right;">-</span>
+                                        </div>
+                                        <div style="border-top: 1px solid rgba(255,255,255,0.08); margin: 6px 0; padding-top: 6px; display: flex; justify-content: space-between; font-weight: 700;">
+                                            <span>Sarf (Ushbu rasm uchun):</span>
+                                            <strong id="api-last-cost" class="text-won">$0.00000</strong>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
@@ -464,54 +499,107 @@
                             <div class="card-glass-header">
                                 <h3>Matolarni Bichish Buyruqlari</h3>
                             </div>
-                            <div class="table-scroll">
-                                <table class="table-premium" id="table-cutting-logs">
-                                    <thead>
-                                        <tr>
-                                            <th>Sana</th>
-                                            <th>Bichuv buyrug'i</th>
-                                            <th>Turi</th>
-                                            <th>Ishlatilgan mato</th>
-                                            <th>Og'irligi (sarf)</th>
-                                            <th>Bichilgan detallar</th>
-                                            <th>Chiqindi foizi</th>
-                                            <th>Mas'ul shaxs</th>
-                                            <th>Holati</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody id="tbody-cutting">
-                                        <!-- Loaded by JS -->
-                                    </tbody>
-                                </table>
+                            <div class="cutting-cards-grid" id="container-cutting-cards" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 15px; margin-top: 15px; padding-right: 5px; max-height: 600px; overflow-y: auto;">
+                                <!-- Loaded by JS -->
                             </div>
                         </div>
                     </div>
                     <div class="grid-right-small">
-                        <div class="card-glass">
-                            <div class="card-glass-header">
-                                <h3>Bichuv Samaradorligi</h3>
+                        <div class="card-glass" style="margin-bottom: 20px; border: 1px solid var(--color-prospect); box-shadow: 0 8px 32px rgba(103, 114, 229, 0.15);">
+                            <div class="card-glass-header" style="background: rgba(103, 114, 229, 0.1); border-bottom: 1px solid rgba(103, 114, 229, 0.2);">
+                                <h3><i class="fa-solid fa-scissors" style="color: var(--color-prospect);"></i> Yangi Nastil va Bichuv Buyrug'i</h3>
                             </div>
-                            <div class="efficiency-details">
-                                <div class="circular-progress-mock">
-                                    <span class="eff-value">91.4%</span>
-                                    <span class="eff-lbl">Mato unumdorligi</span>
+                            <form id="form-cutting" style="padding: 15px;">
+                                <div class="form-group">
+                                    <label>Bichiladigan mahsulot nomi *</label>
+                                    <input type="text" id="cut-name" required placeholder="Masalan: Green Eco Hoodie (Olive)">
                                 </div>
-                                <div class="eff-summary-list">
-                                    <div class="eff-summary-item">
-                                        <span>Jami sarflangan mato:</span>
-                                        <strong id="cut-total-used">0 kg</strong>
+                                <div class="form-group">
+                                    <label>Mahsulot turi *</label>
+                                    <select id="cut-type" required>
+                                        <option value="Hudi">Hudi</option>
+                                        <option value="Futbolka">Futbolka</option>
+                                        <option value="Shim">Shim</option>
+                                    </select>
+                                </div>
+                                <div class="form-row">
+                                    <div class="form-group col">
+                                        <label>Ishlatiladigan mato *</label>
+                                        <select id="cut-fabric-id" required>
+                                            <!-- Loaded from warehouse items of type 'Mato' -->
+                                        </select>
                                     </div>
-                                    <div class="eff-summary-item">
-                                        <span>Jami kesilgan dona:</span>
-                                        <strong id="cut-total-pieces">0 ta</strong>
-                                    </div>
-                                    <div class="eff-summary-item text-orange">
-                                        <span>Chiqindiga ketgani:</span>
-                                        <strong>~8.6% (O'rtacha)</strong>
+                                    <div class="form-group col">
+                                        <label>Umumiy sarf og'irligi (kg) *</label>
+                                        <input type="number" id="cut-weight" min="0" step="0.1" required readonly placeholder="Avtomatik hisoblanadi" style="background: rgba(0,0,0,0.2); cursor: not-allowed; border: 1px solid var(--border-color); color: var(--color-won); font-weight: bold;">
                                     </div>
                                 </div>
-                            </div>
-                        </div>
+                                <div class="form-row">
+                                    <div class="form-group col">
+                                        <label>Nastil uzunligi (sm) *</label>
+                                        <input type="number" id="cut-nastil-len" min="1" required placeholder="Masalan: 1200">
+                                    </div>
+                                    <div class="form-group col">
+                                        <label>Matoning eni (sm) *</label>
+                                        <input type="number" id="cut-nastil-width" min="1" required placeholder="Masalan: 180">
+                                    </div>
+                                </div>
+
+                                <!-- Nastil Rulonlari Bo'limi -->
+                                <div class="form-group" style="background: rgba(255,255,255,0.02); padding: 12px; border-radius: 6px; border: 1px solid var(--border-color); margin-bottom: 15px;">
+                                    <label style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+                                        <span><i class="fa-solid fa-layer-group" style="color: var(--color-prospect);"></i> Nastil Rulonlari (kg)</span>
+                                        <button type="button" id="btn-add-roll" class="btn btn-xs btn-primary" style="padding: 4px 8px; font-size: 0.75rem;">+ Rulon qo'shish</button>
+                                    </label>
+                                    <div id="nastil-rolls-container" style="display: flex; flex-direction: column; gap: 8px;">
+                                        <!-- Initial roll input -->
+                                        <div class="roll-input-row" style="display: flex; gap: 8px; align-items: center; flex-wrap: wrap;">
+                                            <span class="roll-label" style="font-size: 0.8rem; color: var(--color-text-muted); width: 60px;">1-Rulon:</span>
+                                            <input type="number" class="roll-weight-input" min="0.1" step="0.1" required placeholder="Og'irlik (kg)" style="flex: 1; min-width: 80px; max-width: 120px;">
+                                            <div class="color-swatch-container">
+                                                <div class="color-swatch" data-color="Qora" style="background: #111;" title="Qora"></div>
+                                                <div class="color-swatch" data-color="To'q Ko'k" style="background: #1a237e;" title="To'q Ko'k"></div>
+                                                <div class="color-swatch" data-color="Antra" style="background: #37474f;" title="Antra"></div>
+                                                <div class="color-swatch" data-color="Melanj" style="background: #9e9e9e;" title="Melanj"></div>
+                                                <div class="color-swatch" data-color="Oq" style="background: #f5f5f5;" title="Oq"></div>
+                                            </div>
+                                            <input type="hidden" class="roll-color-input" required>
+                                            <button type="button" class="btn btn-xs btn-danger btn-remove-roll" style="padding: 4px 8px;" disabled><i class="fa-solid fa-trash"></i></button>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="form-row">
+                                    <div class="form-group col" style="flex: 2;">
+                                        <label>Ranglar bo'yicha sarf va chiqadigan dona *</label>
+                                        <div id="color-qty-container" style="display: flex; flex-direction: column; gap: 10px; margin-bottom: 8px;">
+                                            <span style="font-size: 0.75rem; color: var(--color-text-muted);">Avval rulon va rangini tanlang...</span>
+                                        </div>
+                                    </div>
+                                    <div class="form-group col">
+                                        <label>Umumiy chiqadigan dona *</label>
+                                        <input type="number" id="cut-qty" min="0" required placeholder="Jami dona (Avto-hisob yoki qo'lda)">
+                                    </div>
+                                </div>
+                                <div class="form-row" style="margin-top: 15px; align-items: stretch;">
+                                    <div class="form-group col">
+                                        <label>Bitta mahsulot uchun rasxod (kg) *</label>
+                                        <input type="number" id="cut-unit-weight" min="0.01" step="0.01" required placeholder="Masalan: 0.35">
+                                    </div>
+                                    <div class="form-group col" style="display: flex; flex-direction: column; justify-content: center; background: rgba(0,0,0,0.2); padding: 10px 14px; border-radius: 8px; border: 1px dashed var(--color-orange);">
+                                        <span style="font-size: 0.75rem; color: var(--color-text-muted); margin-bottom: 4px;">Kroyga chiqib ketgan rasxod (Chiqindi)</span>
+                                        <div style="font-size: 1.1rem; font-weight: bold; color: var(--color-orange);" id="cut-waste-display">0.00 kg (0%)</div>
+                                    </div>
+                                </div>
+                                <div class="form-row">
+                                    <div class="form-group col">
+                                        <label>Bichuvchining F.I.Sh *</label>
+                                        <select id="cut-staff" required>
+                                            <!-- Filtered staff with Bichuvchi role -->
+                                        </select>
+                                    </div>
+                                </div>
+                                <button type="submit" class="btn btn-primary btn-block" style="background: linear-gradient(135deg, var(--color-prospect), #4754c4); border: none; font-size: 1.05rem; padding: 12px;"><i class="fa-solid fa-check-double"></i> Bichildi</button>
+                            </form>
                     </div>
                 </div>
             </div>
@@ -964,54 +1052,6 @@
         </div>
     </div>
 
-    <!-- Cutting Modal -->
-    <div class="modal" id="modal-cutting">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h3>Yangi Bichuv Buyrug'i</h3>
-                <span class="close-modal" id="close-cutting-modal">&times;</span>
-            </div>
-            <form id="form-cutting">
-                <div class="form-group">
-                    <label>Bichiladigan mahsulot nomi *</label>
-                    <input type="text" id="cut-name" required placeholder="Masalan: Green Eco Hoodie (Olive)">
-                </div>
-                <div class="form-group">
-                    <label>Mahsulot turi *</label>
-                    <select id="cut-type" required>
-                        <option value="Hudi">Hudi</option>
-                        <option value="Futbolka">Futbolka</option>
-                        <option value="Shim">Shim</option>
-                    </select>
-                </div>
-                <div class="form-row">
-                    <div class="form-group col">
-                        <label>Ishlatiladigan mato *</label>
-                        <select id="cut-fabric-id" required>
-                            <!-- Loaded from warehouse items of type 'Mato' -->
-                        </select>
-                    </div>
-                    <div class="form-group col">
-                        <label>Sarf og'irligi (kg) *</label>
-                        <input type="number" id="cut-weight" min="1" required placeholder="Masalan: 50">
-                    </div>
-                </div>
-                <div class="form-row">
-                    <div class="form-group col">
-                        <label>Bichilishi kutilayotgan dona *</label>
-                        <input type="number" id="cut-qty" min="1" required placeholder="100">
-                    </div>
-                    <div class="form-group col">
-                        <label>Bichuvchining F.I.Sh *</label>
-                        <select id="cut-staff" required>
-                            <!-- Filtered staff with Bichuvchi role -->
-                        </select>
-                    </div>
-                </div>
-                <button type="submit" class="btn btn-primary btn-block">Bichishni rejalashtirish</button>
-            </form>
-        </div>
-    </div>
 
     <!-- Paint Modal -->
     <div class="modal" id="modal-paint">
@@ -1038,13 +1078,6 @@
                         </select>
                     </div>
                     <div class="form-group col">
-                        <label>Bo'yoq turi *</label>
-                        <select id="paint-ink-type" required>
-                            <option value="Suv asosidagi ekologik">Suv asosidagi ekologik</option>
-                            <option value="Plastizol (Oeko-Tex)">Plastizol (Oeko-Tex)</option>
-                            <option value="Akril bo'yoq">Akril bo'yoq</option>
-                            <option value="Termofilm">Termofilm</option>
-                        </select>
                     </div>
                 </div>
                 <div class="form-row">
@@ -1206,6 +1239,16 @@
         </div>
     </div>
 
+    <!-- Cutting Details Modal -->
+    <div class="modal" id="modal-cutting-details">
+        <div class="modal-content" style="max-width: 600px;">
+            <div class="modal-header">
+                <h3>Bichuv Buyrug'i Tafsilotlari</h3>
+                <span class="close-modal" id="close-cutting-details-modal" onclick="closeModal('modal-cutting-details')">&times;</span>
+            </div>
+            <div id="cutting-details-content" style="margin-top: 15px; display: flex; flex-direction: column; gap: 15px;">
+                <!-- Dynamically filled -->
+            </div>
     <!-- Kanban: Bichuvdan ish qabul qilish modali -->
     <div class="modal" id="modal-kanban">
         <div class="modal-content">
@@ -1321,8 +1364,11 @@
     <!-- jsPDF + autotable (Mahsulot pasporti PDF) -->
     <script src="https://cdn.jsdelivr.net/npm/jspdf@2.5.1/dist/jspdf.umd.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/jspdf-autotable@3.8.2/dist/jspdf.plugin.autotable.min.js"></script>
+    <!-- Navbar (app.js dan oldin yuklanadi) -->
+    <script src="shared/navbar.js"></script>
+    <script>if (window.renderNavbar) renderNavbar('sales');</script>
+    <!-- Asosiy ilova mantig'i -->
     <script src="app.js"></script>
-
     <!-- Three.js (3D Virtual Sex) — ES modules via importmap -->
     <script type="importmap">
     {

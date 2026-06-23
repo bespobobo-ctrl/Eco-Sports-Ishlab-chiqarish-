@@ -1,0 +1,16 @@
+/* Sozlamalar sahifasi maxsus stili */
+.settings-container {
+    padding: 20px;
+    animation: fadeIn 0.5s ease;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+#btn-save-settings:hover {
+    filter: brightness(1.1);
+    transform: scale(1.02);
+    transition: all 0.2s ease;
+}
