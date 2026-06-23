@@ -1736,6 +1736,7 @@ input:focus, select:focus {
     display: flex;
     flex-direction: column;
     height: 100%;
+    width: 100%;
     gap: 16px;
 }
 
@@ -2027,7 +2028,7 @@ input:focus, select:focus {
 /* ==================================================================== */
 
 /* Production tab becomes a vertical flex container */
-#tab-production.active { display: flex; flex-direction: column; height: 100%; }
+#tab-production.active { display: flex; flex-direction: column; height: 100%; width: 100%; }
 
 .prod-subnav {
     display: inline-flex;
@@ -2644,17 +2645,20 @@ input:focus, select:focus {
 #tab-production.active {
     display: flex;
     flex-direction: column;
+    width: 100%;
 }
 
 .prodview {
     display: none;
     flex: 1;
     min-height: 0;
+    width: 100%;
 }
 
 .prodview.active {
     display: flex;
     flex-direction: column;
+    width: 100%;
 }
 
 /* Tablet screens (max-width: 1200px) */
