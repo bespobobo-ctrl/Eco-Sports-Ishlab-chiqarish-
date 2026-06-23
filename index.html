@@ -73,7 +73,7 @@
                     <span class="status-dot"></span>
                 </div>
                 <!-- PWA Install Button -->
-                <button class="btn btn-primary" id="btn-install-app" style="display: none; padding: 6px 12px; font-size: 0.85rem;"><i class="fa-solid fa-download"></i> O'rnatish</button>
+                <button class="btn btn-primary" id="btn-install-app" style="padding: 6px 12px; font-size: 0.85rem;"><i class="fa-solid fa-download"></i> O'rnatish</button>
                 
                 <button class="btn btn-icon-reset" id="btn-system-reset" title="Tizimni tozalash (LocalStorage)">
                     <i class="fa-solid fa-arrows-rotate"></i>
@@ -1391,5 +1391,34 @@
     }
     </script>
     <script type="module" src="workshop3d.js"></script>
+
+    <!-- Install Guide Modal for iOS / Manual -->
+    <div class="modal" id="modal-install-guide">
+        <div class="modal-content" style="max-width: 400px; text-align: center;">
+            <div class="modal-header">
+                <h3><i class="fa-solid fa-mobile-screen"></i> Ilovani O'rnatish</h3>
+                <span class="close-modal" onclick="closeModal('modal-install-guide')">&times;</span>
+            </div>
+            <div style="padding: 15px 0;">
+                <p style="margin-bottom: 15px; color: var(--color-text-muted);">Sizning brauzeringiz avtomatik o'rnatishni qo'llab-quvvatlamaydi (masalan iOS Safari). Ilovani o'rnatish uchun quyidagilarni bajaring:</p>
+                
+                <div style="text-align: left; background: rgba(255,255,255,0.05); padding: 15px; border-radius: 8px;">
+                    <p style="margin-bottom: 10px;"><b>iPhone / iPad (Safari) da:</b></p>
+                    <ol style="margin-left: 20px; color: var(--color-text-muted); line-height: 1.5;">
+                        <li>Pastki menyudagi <b>Ulashish (Share <i class="fa-solid fa-arrow-up-from-bracket"></i>)</b> tugmasini bosing.</li>
+                        <li>Pastga tushib, <b>"Add to Home Screen" <i class="fa-solid fa-square-plus"></i></b> ni tanlang.</li>
+                        <li>Tepada <b>"Add"</b> ni bosing.</li>
+                    </ol>
+                    
+                    <p style="margin-top: 15px; margin-bottom: 10px;"><b>Android (Chrome) da:</b></p>
+                    <ol style="margin-left: 20px; color: var(--color-text-muted); line-height: 1.5;">
+                        <li>Tepadagi <b>3 nuqtani (<i class="fa-solid fa-ellipsis-vertical"></i>)</b> bosing.</li>
+                        <li><b>"Install app"</b> yoki <b>"Add to Home screen"</b> ni tanlang.</li>
+                    </ol>
+                </div>
+            </div>
+            <button class="btn btn-secondary btn-block" onclick="closeModal('modal-install-guide')">Tushunarli</button>
+        </div>
+    </div>
 </body>
 </html>

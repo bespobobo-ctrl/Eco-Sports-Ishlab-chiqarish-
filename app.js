@@ -4604,15 +4604,13 @@ window.addEventListener('beforeinstallprompt', (e) => {
     e.preventDefault();
     // Hodisani saqlab qolish
     deferredPrompt = e;
-    
-    // O'rnatish tugmasini ko'rsatish
-    const installBtn = document.getElementById('btn-install-app');
-    if (installBtn) {
-        installBtn.style.display = 'inline-block';
-        
-        installBtn.addEventListener('click', () => {
-            // Tugmani yashirish
-            installBtn.style.display = 'none';
+});
+
+// O'rnatish tugmasi bosilganda (tugma index.html da har doim ochiq bo'ladi)
+const installBtn = document.getElementById('btn-install-app');
+if (installBtn) {
+    installBtn.addEventListener('click', () => {
+        if (deferredPrompt) {
             // O'rnatish oynasini chiqarish
             deferredPrompt.prompt();
             
@@ -4620,15 +4618,20 @@ window.addEventListener('beforeinstallprompt', (e) => {
             deferredPrompt.userChoice.then((choiceResult) => {
                 if (choiceResult.outcome === 'accepted') {
                     console.log('Foydalanuvchi PWA o\'rnatishga ruxsat berdi');
+                    installBtn.style.display = 'none';
                 } else {
                     console.log('Foydalanuvchi PWA o\'rnatishni bekor qildi');
-                    // Tugmani qayta ko'rsatish mumkin, lekin foydalanuvchi o'zi xohlamadi
                 }
                 deferredPrompt = null;
             });
-        });
-    }
-});
+        } else {
+            // Agar avtomatik o'rnatish imkoni bo'lmasa, qo'llanmani ko'rsatish
+            if (typeof window.openModal === 'function') {
+                window.openModal('modal-install-guide');
+            }
+        }
+    });
+}
 
 // Agar ilova allaqachon o'rnatilgan bo'lsa (Standalone rejimda ishlayotgan bo'lsa)
 window.addEventListener('appinstalled', (evt) => {
