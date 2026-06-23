@@ -4,6 +4,7 @@
     { "source": "/", "destination": "/src/index.html" },
     { "source": "/index.html", "destination": "/src/index.html" },
     { "source": "/app.js", "destination": "/src/app.js" },
+    { "source": "/workshop3d.js", "destination": "/src/workshop3d.js" },
     { "source": "/style.css", "destination": "/src/style.css" },
     { "source": "/shared/:path*", "destination": "/src/shared/:path*" },
     { "source": "/pages/:path*", "destination": "/src/pages/:path*" }
