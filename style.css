@@ -2619,3 +2619,65 @@ input:focus, select:focus {
 .tl-dur i { margin-right: 4px; }
 .tl-live { color: var(--color-qualified); font-weight: 600; }
 
+/* ==================================================================== */
+/*  RESPONSIVE (TABLET & MOBILE) & LAYOUT FIXES                          */
+/* ==================================================================== */
+
+/* Fix for 3D Workshop and Kanban filling the available height */
+#tab-production.active {
+    display: flex;
+    flex-direction: column;
+}
+
+.prodview {
+    display: none;
+    flex: 1;
+    min-height: 0;
+}
+
+.prodview.active {
+    display: flex;
+    flex-direction: column;
+}
+
+/* Tablet screens (max-width: 1200px) */
+@media (max-width: 1200px) {
+    .navbar {
+        padding: 0 10px;
+        gap: 10px;
+    }
+    .brand-text span {
+        display: none; /* Hide subtitle to save space */
+    }
+    .navbar-menu {
+        overflow-x: auto;
+        white-space: nowrap;
+        scrollbar-width: none; /* Firefox */
+        -ms-overflow-style: none;
+    }
+    .navbar-menu::-webkit-scrollbar {
+        display: none; /* Chrome/Safari */
+    }
+    .nav-search input {
+        width: 140px;
+    }
+    .nav-search input:focus {
+        width: 180px;
+    }
+    .sys-time {
+        display: none; /* Hide clock on tablet to save space */
+    }
+}
+
+/* Mobile screens (max-width: 768px) */
+@media (max-width: 768px) {
+    .navbar-right {
+        gap: 8px;
+    }
+    .nav-search {
+        display: none; /* Hide search bar on small screens completely */
+    }
+    .btn-install-app span {
+        display: none; /* Only show icon for install button */
+    }
+}
