@@ -1,0 +1,12 @@
+{
+  "name": "eco-sports-ishlab-chiqarish",
+  "version": "1.0.0",
+  "description": "Eco Sports Ishlab Chiqarish Boshqaruv Tizimi",
+  "scripts": {
+    "dev": "npx -y serve src",
+    "start": "npx -y serve src"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC"
+}

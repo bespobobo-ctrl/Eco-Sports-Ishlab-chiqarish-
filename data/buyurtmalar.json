@@ -1,0 +1,50 @@
+[
+  {
+    "id": "buy-101",
+    "mahsulot_nomi": "Eco Green Hoodie (Olive)",
+    "turi": "Hudi",
+    "miqdori": 300,
+    "tayyorlandi": 145,
+    "bichildi": 300,
+    "liniya": "Liniya A",
+    "boshlangan_sana": "2026-06-15",
+    "topshirish_sana": "2026-06-25",
+    "status": "Tikilmoqda"
+  },
+  {
+    "id": "buy-102",
+    "mahsulot_nomi": "Organic White T-Shirt",
+    "turi": "Futbolka",
+    "miqdori": 500,
+    "tayyorlandi": 500,
+    "bichildi": 500,
+    "liniya": "Liniya B",
+    "boshlangan_sana": "2026-06-10",
+    "topshirish_sana": "2026-06-20",
+    "status": "Tayyor"
+  },
+  {
+    "id": "buy-103",
+    "mahsulot_nomi": "Recycled Charcoal Sweatpants",
+    "turi": "Shim",
+    "miqdori": 250,
+    "tayyorlandi": 80,
+    "bichildi": 250,
+    "liniya": "Liniya C",
+    "boshlangan_sana": "2026-06-18",
+    "topshirish_sana": "2026-06-28",
+    "status": "Tikilmoqda"
+  },
+  {
+    "id": "buy-104",
+    "mahsulot_nomi": "Eco Green T-Shirt",
+    "turi": "Futbolka",
+    "miqdori": 400,
+    "tayyorlandi": 0,
+    "bichildi": 150,
+    "liniya": "Liniya B",
+    "boshlangan_sana": "2026-06-21",
+    "topshirish_sana": "2026-07-02",
+    "status": "Tikilmoqda"
+  }
+]

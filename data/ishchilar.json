@@ -1,0 +1,74 @@
+[
+  {
+    "id": "ish-001",
+    "ism": "Dilshod Karimov",
+    "lavozim": "Bichuvchi",
+    "liniya": "-",
+    "tariflar": {
+      "Hudi": 2500,
+      "Futbolka": 1200,
+      "Shim": 1800
+    },
+    "status": "Faol"
+  },
+  {
+    "id": "ish-002",
+    "ism": "Maftuna Rahimova",
+    "lavozim": "Tikuvchi",
+    "liniya": "Liniya A",
+    "tariflar": {
+      "Hudi": 8500,
+      "Futbolka": 4000,
+      "Shim": 6000
+    },
+    "status": "Faol"
+  },
+  {
+    "id": "ish-003",
+    "ism": "Shohida Olimova",
+    "lavozim": "Tikuvchi",
+    "liniya": "Liniya A",
+    "tariflar": {
+      "Hudi": 8500,
+      "Futbolka": 4000,
+      "Shim": 6000
+    },
+    "status": "Faol"
+  },
+  {
+    "id": "ish-004",
+    "ism": "Nodira Tursunova",
+    "lavozim": "Tikuvchi",
+    "liniya": "Liniya B",
+    "tariflar": {
+      "Hudi": 8500,
+      "Futbolka": 4000,
+      "Shim": 6000
+    },
+    "status": "Faol"
+  },
+  {
+    "id": "ish-005",
+    "ism": "Sarvar Ergashev",
+    "lavozim": "Tikuvchi",
+    "liniya": "Liniya C",
+    "tariflar": {
+      "Hudi": 8500,
+      "Futbolka": 4000,
+      "Shim": 6000
+    },
+    "status": "Faol"
+  },
+  {
+    "id": "ish-006",
+    "ism": "Zulayho G'ofurova",
+    "lavozim": "Qadoqlovchi",
+    "liniya": "-",
+    "tariflar": {
+      "Hudi": 1500,
+      "Futbolka": 800,
+      "Shim": 1100
+    },
+    "status": "Faol"
+  }
+]

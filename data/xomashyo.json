@@ -1,0 +1,79 @@
+[
+  {
+    "id": "mat-001",
+    "nomi": "Organik Paxta (Mato)",
+    "turi": "Mato",
+    "rangi": "Yashil (Olive Green)",
+    "miqdori": 450,
+    "birligi": "kg",
+    "narxi": 12.5,
+    "ekologik_ball": "A+",
+    "yetkazib_beruvchi": "UzTextile Eco-Cotton Ltd."
+  },
+  {
+    "id": "mat-002",
+    "nomi": "Organik Paxta (Mato)",
+    "turi": "Mato",
+    "rangi": "Oq (Natural White)",
+    "miqdori": 320,
+    "birligi": "kg",
+    "narxi": 12.0,
+    "ekologik_ball": "A+",
+    "yetkazib_beruvchi": "UzTextile Eco-Cotton Ltd."
+  },
+  {
+    "id": "mat-003",
+    "nomi": "Qayta Ishlangan Poliefir (rPET)",
+    "turi": "Mato",
+    "rangi": "To'q Kulrang (Charcoal)",
+    "miqdori": 600,
+    "birligi": "kg",
+    "narxi": 15.0,
+    "ekologik_ball": "A",
+    "yetkazib_beruvchi": "Global Recycled Fibers Corp."
+  },
+  {
+    "id": "fur-001",
+    "nomi": "Ekologik Yoki Qayta Ishlangan Iplar",
+    "turi": "Furnitura",
+    "rangi": "Turli ranglar",
+    "miqdori": 150,
+    "birligi": "g'altak",
+    "narxi": 1.8,
+    "ekologik_ball": "A",
+    "yetkazib_beruvchi": "Coats Eco Thread Co."
+  },
+  {
+    "id": "fur-002",
+    "nomi": "Qayta Ishlangan Metall Ziper (Yashirin)",
+    "turi": "Furnitura",
+    "rangi": "Qora",
+    "miqdori": 1200,
+    "birligi": "dona",
+    "narxi": 0.45,
+    "ekologik_ball": "B+",
+    "yetkazib_beruvchi": "YKK Recycled Zippers Ltd."
+  },
+  {
+    "id": "fur-003",
+    "nomi": "Qog'oz Yorliqlar (Recycled Hangtags)",
+    "turi": "Aksessuar",
+    "rangi": "Kraft Jigarrang",
+    "miqdori": 5000,
+    "birligi": "dona",
+    "narxi": 0.05,
+    "ekologik_ball": "A+",
+    "yetkazib_beruvchi": "EcoPrint Uzbekistan"
+  },
+  {
+    "id": "fur-004",
+    "nomi": "Biodegradable Polietilen Qadoq",
+    "turi": "Aksessuar",
+    "rangi": "Shaffof",
+    "miqdori": 3500,
+    "birligi": "dona",
+    "narxi": 0.08,
+    "ekologik_ball": "A",
+    "yetkazib_beruvchi": "GreenPack Solutions"
+  }
+]

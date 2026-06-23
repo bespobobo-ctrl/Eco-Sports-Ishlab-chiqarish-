@@ -1,0 +1,72 @@
+function renderNavbar(activeTab) {
+    const container = document.getElementById('navbar-container');
+    if (!container) return;
+
+    // We calculate root path depending on where the user is
+    // If they are in /pages/bichuv/index.html, root is ../../
+    const depth = window.location.pathname.split('/').length - 2;
+    const rootPath = depth > 0 ? '../'.repeat(depth) : './';
+
+    container.innerHTML = `
+        <header class="navbar">
+            <div class="navbar-left">
+                <a href="${rootPath}index.html" style="text-decoration: none; color: inherit; display: flex; align-items: center; gap: 10px;">
+                    <div class="brand-logo">
+                        <i class="fa-solid fa-leaf"></i>
+                    </div>
+                    <div class="brand-text">
+                        <h2>Eco Sports</h2>
+                        <span>CRM & Ishlab Chiqarish</span>
+                    </div>
+                </a>
+            </div>
+            
+            <nav class="navbar-menu" id="main-nav">
+                <a href="${rootPath}index.html" class="nav-link ${activeTab === 'sales' ? 'active' : ''}">
+                    <i class="fa-solid fa-square-poll-vertical"></i> Sotuv
+                </a>
+                <a href="${rootPath}index.html" class="nav-link ${activeTab === 'warehouse' ? 'active' : ''}" title="Hozircha Asosiy sahifada">
+                    <i class="fa-solid fa-warehouse"></i> Ombor-Ta'minot
+                </a>
+                <a href="${rootPath}pages/bichuv/index.html" class="nav-link ${activeTab === 'cutting' ? 'active' : ''}">
+                    <i class="fa-solid fa-scissors"></i> Bichuv
+                </a>
+                <a href="${rootPath}index.html" class="nav-link ${activeTab === 'production' ? 'active' : ''}">
+                    <i class="fa-solid fa-shirt"></i> Ishlab Chiqarish
+                </a>
+                <a href="${rootPath}index.html" class="nav-link ${activeTab === 'paint' ? 'active' : ''}">
+                    <i class="fa-solid fa-palette"></i> Pres-Kraska
+                </a>
+                <a href="${rootPath}index.html" class="nav-link ${activeTab === 'pack' ? 'active' : ''}">
+                    <i class="fa-solid fa-box-open"></i> Dazmon-Qadoqlash
+                </a>
+                <a href="${rootPath}index.html" class="nav-link ${activeTab === 'workers' ? 'active' : ''}">
+                    <i class="fa-solid fa-users"></i> Xodimlar
+                </a>
+                <a href="${rootPath}index.html" class="nav-link ${activeTab === 'services' ? 'active' : ''}">
+                    <i class="fa-solid fa-handshake"></i> Uslugi
+                </a>
+                <a href="${rootPath}pages/settings/index.html" class="nav-link ${activeTab === 'settings' ? 'active' : ''}">
+                    <i class="fa-solid fa-gear"></i> Sozlamalar
+                </a>
+            </nav>
+
+            <div class="navbar-right">
+                <div class="nav-search">
+                    <i class="fa-solid fa-magnifying-glass"></i>
+                    <input type="text" placeholder="Qidiruv..." id="global-search">
+                </div>
+                <div class="sys-time" id="clock">11:00:21</div>
+                <div class="status-dot-wrapper" title="Sinxronizatsiya faol">
+                    <span class="status-dot"></span>
+                </div>
+                <button class="btn btn-icon-reset" id="btn-system-reset" title="Tizimni tozalash (LocalStorage)">
+                    <i class="fa-solid fa-arrows-rotate"></i>
+                </button>
+                <div class="user-avatar-wrapper">
+                    <img src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=100&q=80" alt="Avatar" class="user-avatar">
+                </div>
+            </div>
+        </header>
+    `;
+}
