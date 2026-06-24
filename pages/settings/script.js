@@ -1,11 +1,11 @@
 function initSettings() {
-    // Migrate deprecated Gemini models
+    // Migrate deprecated Gemini models to 3.x series
     try {
         var m = localStorage.getItem('gemini_ai_model');
-        if (m === 'gemini-1.5-flash' || m === 'gemini-pro' || !m) {
-            localStorage.setItem('gemini_ai_model', 'gemini-2.5-flash');
-        } else if (m === 'gemini-1.5-pro') {
-            localStorage.setItem('gemini_ai_model', 'gemini-2.5-pro');
+        if (m === 'gemini-1.5-flash' || m === 'gemini-2.5-flash' || m === 'gemini-pro' || !m) {
+            localStorage.setItem('gemini_ai_model', 'gemini-3.5-flash');
+        } else if (m === 'gemini-1.5-pro' || m === 'gemini-2.5-pro') {
+            localStorage.setItem('gemini_ai_model', 'gemini-3.1-pro');
         }
     } catch(e) {}
 
@@ -25,12 +25,12 @@ function initSettings() {
 
     if (savedKey) apiKeyInput.value = savedKey;
     if (savedModel && aiModelSelect) aiModelSelect.value = savedModel;
-    else if (aiModelSelect) aiModelSelect.value = 'gemini-2.5-flash';
+    else if (aiModelSelect) aiModelSelect.value = 'gemini-3.5-flash';
 
     // Saqlash bosilganda
     saveBtn.addEventListener('click', () => {
         const key = apiKeyInput.value.trim();
-        const model = aiModelSelect ? aiModelSelect.value : 'gemini-2.5-flash';
+        const model = aiModelSelect ? aiModelSelect.value : 'gemini-3.5-flash';
 
         if (!key) {
             statusDiv.style.color = '#ff4d4f'; // red

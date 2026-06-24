@@ -1,11 +1,11 @@
-// Migrate deprecated Gemini models
+// Migrate deprecated Gemini models to 3.x series
 (function() {
     try {
         var m = localStorage.getItem('gemini_ai_model');
-        if (m === 'gemini-1.5-flash' || m === 'gemini-pro' || !m) {
-            localStorage.setItem('gemini_ai_model', 'gemini-2.5-flash');
-        } else if (m === 'gemini-1.5-pro') {
-            localStorage.setItem('gemini_ai_model', 'gemini-2.5-pro');
+        if (m === 'gemini-1.5-flash' || m === 'gemini-2.5-flash' || m === 'gemini-pro' || !m) {
+            localStorage.setItem('gemini_ai_model', 'gemini-3.5-flash');
+        } else if (m === 'gemini-1.5-pro' || m === 'gemini-2.5-pro') {
+            localStorage.setItem('gemini_ai_model', 'gemini-3.1-pro');
         }
     } catch(e) {
         console.error('LocalStorage migration error:', e);
@@ -1549,7 +1549,7 @@ Javobni quyidagi JSON formatida qaytar:
             }
         };
 
-        const AI_MODEL = localStorage.getItem('gemini_ai_model') || 'gemini-2.5-flash';
+        const AI_MODEL = localStorage.getItem('gemini_ai_model') || 'gemini-3.5-flash';
         const GEMINI_API_KEY = localStorage.getItem('gemini_api_key') || '';
 
         try {
@@ -1649,10 +1649,10 @@ Javobni quyidagi JSON formatida qaytar:
                 inTokens = data.usageMetadata.promptTokenCount || 0;
                 outTokens = data.usageMetadata.candidatesTokenCount || 0;
                 
-                if (AI_MODEL === 'gemini-2.5-pro' || AI_MODEL === 'gemini-1.5-pro' || AI_MODEL === 'gemini-pro') {
+                if (AI_MODEL === 'gemini-3.1-pro' || AI_MODEL === 'gemini-2.5-pro' || AI_MODEL === 'gemini-1.5-pro' || AI_MODEL === 'gemini-pro') {
                     inCost = (inTokens / 1000000) * 1.25;
                     outCost = (outTokens / 1000000) * 10.00;
-                } else if (AI_MODEL === 'gemini-2.5-flash') {
+                } else if (AI_MODEL === 'gemini-3.5-flash' || AI_MODEL === 'gemini-2.5-flash') {
                     inCost = (inTokens / 1000000) * 0.30;
                     outCost = (outTokens / 1000000) * 2.50;
                 } else {
