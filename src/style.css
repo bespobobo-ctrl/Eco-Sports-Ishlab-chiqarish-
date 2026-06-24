@@ -2772,3 +2772,27 @@ input:focus, select:focus {
         display: none; /* Only show icon for install button */
     }
 }
+
+/* WMS Rack styles */
+.wms-rack-cell {
+    position: relative;
+    overflow: hidden;
+}
+.wms-rack-cell::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(circle at top left, rgba(255,255,255,0.06), transparent);
+    pointer-events: none;
+}
+.wms-rack-cell:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+    border-color: var(--color-prospect) !important;
+}
+.wms-rack-cell.active {
+    border-color: var(--color-prospect) !important;
+    box-shadow: 0 0 10px rgba(56, 189, 248, 0.3) !important;
+    background: linear-gradient(135deg, rgba(56, 189, 248, 0.25), rgba(56, 189, 248, 0.05)) !important;
+    color: white !important;
+}

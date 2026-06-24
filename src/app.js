@@ -15,12 +15,12 @@
 // --- Default Data Sets (Initial Mock Database) ---
 
 const defaultMaterials = [
-  { "id": "mat-001", "nomi": "Organik Paxta Mato (Green)", "turi": "Mato", "rangi": "Olive Green", "miqdori": 450, "birligi": "kg", "narxi": 12.5, "ekologik_ball": "A+" },
-  { "id": "mat-002", "nomi": "Organik Paxta Mato (White)", "turi": "Mato", "rangi": "Natural White", "miqdori": 320, "birligi": "kg", "narxi": 12.0, "ekologik_ball": "A+" },
-  { "id": "mat-003", "nomi": "Qayta Ishlangan Poliefir (rPET)", "turi": "Mato", "rangi": "Charcoal Black", "miqdori": 12, "birligi": "kg", "narxi": 15.0, "ekologik_ball": "A" }, // low stock
-  { "id": "mat-004", "nomi": "Ekologik Bo'yoq (Suvli)", "turi": "Bo'yoq", "rangi": "Yashil", "miqdori": 45, "birligi": "litr", "narxi": 8.50, "ekologik_ball": "A+" },
-  { "id": "mat-005", "nomi": "Qayta Ishlangan Iplar", "turi": "Furnitura", "rangi": "Turli ranglar", "miqdori": 150, "birligi": "g'altak", "narxi": 1.8, "ekologik_ball": "A" },
-  { "id": "mat-006", "nomi": "Kraft Qog'oz Qutisi", "turi": "Aksessuar", "rangi": "Kraft", "miqdori": 8, "birligi": "dona", "narxi": 0.25, "ekologik_ball": "A+" } // low stock
+  { "id": "mat-001", "nomi": "Organik Paxta Mato (Green)", "turi": "Mato", "rangi": "Olive Green", "miqdori": 450, "birligi": "kg", "narxi": 12.5, "ekologik_ball": "A+", "zona": "A", "qator": 1, "tokcha": 3 },
+  { "id": "mat-002", "nomi": "Organik Paxta Mato (White)", "turi": "Mato", "rangi": "Natural White", "miqdori": 320, "birligi": "kg", "narxi": 12.0, "ekologik_ball": "A+", "zona": "A", "qator": 2, "tokcha": 2 },
+  { "id": "mat-003", "nomi": "Qayta Ishlangan Poliefir (rPET)", "turi": "Mato", "rangi": "Charcoal Black", "miqdori": 12, "birligi": "kg", "narxi": 15.0, "ekologik_ball": "A", "zona": "A", "qator": 3, "tokcha": 1 }, // low stock
+  { "id": "mat-004", "nomi": "Ekologik Bo'yoq (Suvli)", "turi": "Bo'yoq", "rangi": "Yashil", "miqdori": 45, "birligi": "litr", "narxi": 8.50, "ekologik_ball": "A+", "zona": "B", "qator": 1, "tokcha": 3 },
+  { "id": "mat-005", "nomi": "Qayta Ishlangan Iplar", "turi": "Furnitura", "rangi": "Turli ranglar", "miqdori": 150, "birligi": "g'altak", "narxi": 1.8, "ekologik_ball": "A", "zona": "B", "qator": 2, "tokcha": 2 },
+  { "id": "mat-006", "nomi": "Kraft Qog'oz Qutisi", "turi": "Aksessuar", "rangi": "Kraft", "miqdori": 8, "birligi": "dona", "narxi": 0.25, "ekologik_ball": "A+", "zona": "B", "qator": 3, "tokcha": 1 } // low stock
 ];
 
 const defaultCuts = [];
@@ -136,6 +136,16 @@ async function init() {
             state.orders = state.orders.filter(o => !['buy-101', 'buy-102', 'buy-103'].includes(o.id));
             saveState();
         }
+
+        // Ensure all materials have WMS location coordinates
+        state.materials.forEach((mat, idx) => {
+            if (!mat.zona) {
+                mat.zona = mat.turi === 'Mato' ? 'A' : 'B';
+                mat.qator = (idx % 4) + 1;
+                mat.tokcha = (Math.floor(idx / 4) % 3) + 1;
+            }
+        });
+        saveState();
 
         if (!state.showroomCatalog) {
             state.showroomCatalog = [];
@@ -1920,11 +1930,13 @@ function renderWarehouse(query = "") {
         else if (mat.ekologik_ball === 'B+') ecoBadgeClass = 'badge-eco-bplus';
 
         const tr = document.createElement('tr');
+        const locId = `${mat.zona || 'A'}-${String(mat.qator || 1).padStart(2, '0')}-${String(mat.tokcha || 1).padStart(2, '0')}`;
         tr.innerHTML = `
             <td><code>${mat.id}</code></td>
             <td><strong>${mat.nomi}</strong></td>
             <td><span class="badge-row" style="background:rgba(255,255,255,0.05);">${mat.turi}</span></td>
             <td>${mat.rangi || '-'}</td>
+            <td><span class="badge-row" style="background:rgba(56, 189, 248, 0.1); color:var(--color-prospect); font-weight:bold; font-size:0.75rem;">${locId}</span></td>
             <td><strong style="${mat.miqdori < 15 ? 'color:var(--color-red)' : ''}">${mat.miqdori}</strong></td>
             <td>${mat.birligi}</td>
             <td>$${mat.narxi.toFixed(2)}</td>
@@ -1952,12 +1964,209 @@ function renderWarehouse(query = "") {
     if (lowStockContainer.innerHTML === '') {
         lowStockContainer.innerHTML = '<div class="low-stock-info" style="border:none;"><p>Barcha zaxiralar me\'yorida.</p></div>';
     }
+
+    // Virtual yacheykalar xaritasini chizish
+    renderWmsRacks();
 }
 
 window.switchWarehouseSubTab = function(subtabId) {
     state.activeWarehouseSubTab = subtabId;
     saveState();
     renderWarehouse();
+};
+
+function renderWmsRacks() {
+    const grid = document.getElementById('wms-racks-grid');
+    const activeSub = state.activeWarehouseSubTab || 'mato';
+    const zone = activeSub === 'mato' ? 'A' : 'B';
+    const zoneBadge = document.getElementById('wms-active-zone-badge');
+    if (zoneBadge) {
+        zoneBadge.innerText = `Zona ${zone} (${activeSub === 'mato' ? 'Matolar' : 'Aksessuarlar'})`;
+    }
+
+    if (!grid) return;
+    grid.innerHTML = '';
+
+    // Tokchalar (shelves) yuqoridan pastga (3 -> 2 -> 1)
+    for (let shelf = 3; shelf >= 1; shelf--) {
+        const rowDiv = document.createElement('div');
+        rowDiv.className = 'rack-shelf-row';
+        rowDiv.style.display = 'grid';
+        rowDiv.style.gridTemplateColumns = 'repeat(4, 1fr)';
+        rowDiv.style.gap = '10px';
+
+        for (let col = 1; col <= 4; col++) {
+            const locId = `${zone}-${String(col).padStart(2, '0')}-${String(shelf).padStart(2, '0')}`;
+            // Ushbu yacheykadagi xomashyoni topamiz
+            const mat = state.materials.find(m => m.zona === zone && parseInt(m.qator || 1) === col && parseInt(m.tokcha || 1) === shelf);
+
+            const cell = document.createElement('div');
+            cell.className = 'wms-rack-cell';
+            cell.dataset.loc = locId;
+            cell.style.padding = '10px 8px';
+            cell.style.borderRadius = '8px';
+            cell.style.fontSize = '0.72rem';
+            cell.style.fontWeight = '600';
+            cell.style.textAlign = 'center';
+            cell.style.cursor = 'pointer';
+            cell.style.transition = 'all 0.2s ease';
+
+            if (mat) {
+                const isLow = mat.miqdori < 15;
+                cell.style.background = isLow 
+                    ? 'linear-gradient(135deg, rgba(251, 146, 60, 0.15), rgba(251, 146, 60, 0.03))' 
+                    : 'linear-gradient(135deg, rgba(52, 211, 153, 0.1), rgba(52, 211, 153, 0.02))';
+                cell.style.border = isLow 
+                    ? '1px solid rgba(251, 146, 60, 0.3)' 
+                    : '1px solid rgba(52, 211, 153, 0.2)';
+                cell.style.color = isLow ? 'var(--color-qualified)' : 'var(--color-won)';
+                cell.innerHTML = `
+                    <div style="font-size:0.58rem; opacity:0.6;">${locId}</div>
+                    <div style="text-overflow:ellipsis; overflow:hidden; white-space:nowrap; margin-top:2px;">${mat.nomi}</div>
+                    <div style="font-size:0.64rem; font-weight:bold; margin-top:1px;">${mat.miqdori} ${mat.birligi}</div>
+                `;
+                cell.onclick = () => showWmsRackDetails(mat, locId);
+            } else {
+                cell.style.background = 'rgba(255,255,255,0.01)';
+                cell.style.border = '1px dashed rgba(255,255,255,0.1)';
+                cell.style.color = 'var(--color-text-muted)';
+                cell.innerHTML = `
+                    <div style="font-size:0.58rem; opacity:0.4;">${locId}</div>
+                    <div style="margin-top:6px; font-size:0.62rem; font-style:italic; opacity:0.5;">Bo'sh</div>
+                `;
+                cell.onclick = () => showWmsRackEmpty(locId);
+            }
+            rowDiv.appendChild(cell);
+        }
+        grid.appendChild(rowDiv);
+    }
+}
+
+function showWmsRackDetails(mat, locId) {
+    document.querySelectorAll('.wms-rack-cell').forEach(c => c.classList.remove('active'));
+    const clickedCell = document.querySelector(`.wms-rack-cell[data-loc="${locId}"]`);
+    if (clickedCell) clickedCell.classList.add('active');
+
+    const detailCard = document.getElementById('wms-rack-details');
+    if (!detailCard) return;
+
+    let statusLabel = 'Etarli';
+    let statusColor = 'var(--color-won)';
+    if (mat.miqdori < 15) {
+        statusLabel = 'Zaxira Kam';
+        statusColor = 'var(--color-qualified)';
+    }
+
+    detailCard.style.textAlign = 'left';
+    detailCard.style.alignItems = 'flex-start';
+    detailCard.innerHTML = `
+        <div style="display:flex; justify-content:space-between; width:100%; align-items:center; margin-bottom:12px;">
+            <span class="badge" style="background:rgba(56, 189, 248, 0.1); color:var(--color-prospect); font-weight:bold; font-size:0.75rem;">Yacheyka: ${locId}</span>
+            <span class="badge" style="background:rgba(255,255,255,0.05); color:${statusColor}; font-weight:bold; font-size:0.75rem;">${statusLabel}</span>
+        </div>
+        <h4 style="font-size:0.95rem; font-weight:700; color:white; margin-bottom:8px; line-height:1.2;">${mat.nomi}</h4>
+        
+        <div style="display:flex; flex-direction:column; gap:6px; width:100%; font-size:0.78rem; border-top:1px solid var(--border-color); border-bottom:1px solid var(--border-color); padding:8px 0; margin-bottom:12px;">
+            <div style="display:flex; justify-content:space-between;">
+                <span style="color:var(--color-text-muted);">Zaxira Miqdori:</span>
+                <strong style="color:white;">${mat.miqdori} ${mat.birligi}</strong>
+            </div>
+            <div style="display:flex; justify-content:space-between;">
+                <span style="color:var(--color-text-muted);">Mavjudligi:</span>
+                <strong style="color:${statusColor};">${mat.miqdori > 0 ? 'Mavjud' : 'Tugagan'}</strong>
+            </div>
+            <div style="display:flex; justify-content:space-between;">
+                <span style="color:var(--color-text-muted);">Narxi:</span>
+                <strong style="color:white;">$${mat.narxi.toFixed(2)}</strong>
+            </div>
+            <div style="display:flex; justify-content:space-between;">
+                <span style="color:var(--color-text-muted);">Qiymati:</span>
+                <strong style="color:white;">$${(mat.miqdori * mat.narxi).toFixed(2)}</strong>
+            </div>
+            <div style="display:flex; justify-content:space-between;">
+                <span style="color:var(--color-text-muted);">Eco ball:</span>
+                <strong style="color:var(--color-prospect);">${mat.ekologik_ball}</strong>
+            </div>
+        </div>
+        
+        <div style="display:flex; gap:8px; width:100%;">
+            <button class="btn btn-xs btn-primary" onclick="openWmsAuditModal('${mat.id}')" style="flex:1; padding:6px 0; font-size:0.72rem;"><i class="fa-solid fa-calculator"></i> Audit</button>
+            <button class="btn btn-xs btn-secondary" onclick="openWmsTransferModal('${mat.id}')" style="flex:1; padding:6px 0; font-size:0.72rem;"><i class="fa-solid fa-arrows-up-down-left-right"></i> Ko'chirish</button>
+        </div>
+    `;
+}
+
+function showWmsRackEmpty(locId) {
+    document.querySelectorAll('.wms-rack-cell').forEach(c => c.classList.remove('active'));
+    const clickedCell = document.querySelector(`.wms-rack-cell[data-loc="${locId}"]`);
+    if (clickedCell) clickedCell.classList.add('active');
+
+    const detailCard = document.getElementById('wms-rack-details');
+    if (!detailCard) return;
+
+    detailCard.style.textAlign = 'center';
+    detailCard.style.alignItems = 'center';
+    detailCard.innerHTML = `
+        <i class="fa-solid fa-circle-plus" style="font-size: 2rem; color: var(--color-won); opacity: 0.8; margin-bottom: 12px;"></i>
+        <h4 style="font-size: 0.85rem; margin-bottom: 4px; color: var(--color-text-main);">Yacheyka Bo'sh: ${locId}</h4>
+        <p style="font-size: 0.72rem; color: var(--color-text-muted); margin-bottom: 12px;">Bu yacheykaga yangi xomashyo joylashingiz mumkin.</p>
+        <button class="btn btn-xs btn-primary" onclick="openWmsAddAtLocation('${locId}')" style="font-size:0.72rem; padding:4px 10px;"><i class="fa-solid fa-plus"></i> Joylash</button>
+    `;
+}
+
+window.openWmsAuditModal = function(id) {
+    const mat = state.materials.find(m => m.id === id);
+    if (!mat) return;
+    const newQty = prompt(`[${mat.nomi}] yangi zaxira miqdori:`, mat.miqdori);
+    if (newQty !== null) {
+        const qtyVal = parseFloat(newQty);
+        if (!isNaN(qtyVal)) {
+            mat.miqdori = qtyVal;
+            saveState();
+            updateUI();
+            showWmsRackDetails(mat, `${mat.zona}-${String(mat.qator).padStart(2, '0')}-${String(mat.tokcha).padStart(2, '0')}`);
+        }
+    }
+};
+
+window.openWmsTransferModal = function(id) {
+    const mat = state.materials.find(m => m.id === id);
+    if (!mat) return;
+    const zone = prompt(`Yangi Zona (A yoki B):`, mat.zona);
+    if (zone !== 'A' && zone !== 'B') return;
+    const qator = prompt(`Yangi Qator (1-4):`, mat.qator);
+    const colVal = parseInt(qator);
+    if (colVal < 1 || colVal > 4) return;
+    const tokcha = prompt(`Yangi Tokcha (1-3):`, mat.tokcha);
+    const rowVal = parseInt(tokcha);
+    if (rowVal < 1 || rowVal > 3) return;
+
+    // Yacheyka bandligini tekshirish
+    const occupied = state.materials.find(m => m.zona === zone && parseInt(m.qator) === colVal && parseInt(m.tokcha) === rowVal && m.id !== id);
+    if (occupied) {
+        alert(`Xatolik: Joylashuv band! Unda [${occupied.nomi}] joylashgan.`);
+        return;
+    }
+
+    mat.zona = zone;
+    mat.qator = colVal;
+    mat.tokcha = rowVal;
+    saveState();
+    updateUI();
+    showWmsRackDetails(mat, `${zone}-${String(colVal).padStart(2, '0')}-${String(rowVal).padStart(2, '0')}`);
+};
+
+window.openWmsAddAtLocation = function(locId) {
+    const parts = locId.split('-');
+    const zone = parts[0];
+    const col = parseInt(parts[1]);
+    const row = parseInt(parts[2]);
+
+    openModal('modal-warehouse');
+
+    document.getElementById('ware-zone').value = zone;
+    document.getElementById('ware-rack-col').value = String(col);
+    document.getElementById('ware-rack-row').value = String(row);
 };
 
 window.deleteMaterial = function(id) {
@@ -3890,6 +4099,16 @@ function setupFormsAndModals() {
             const unit = document.getElementById('ware-unit').value;
             const price = parseFloat(document.getElementById('ware-price').value) || 0;
             const eco = document.getElementById('ware-eco').value;
+            const zone = document.getElementById('ware-zone').value;
+            const qator = parseInt(document.getElementById('ware-rack-col').value) || 1;
+            const tokcha = parseInt(document.getElementById('ware-rack-row').value) || 1;
+
+            // Yacheyka bandligini tekshirish
+            const occupied = state.materials.find(m => m.zona === zone && parseInt(m.qator || 1) === qator && parseInt(m.tokcha || 1) === tokcha);
+            if (occupied) {
+                alert(`Xatolik: ${zone}-${String(qator).padStart(2, '0')}-${String(tokcha).padStart(2, '0')} yacheykasi band! Unda [${occupied.nomi}] joylashgan.`);
+                return;
+            }
 
             const newItem = {
                 id: 'mat-' + String(state.materials.length + 1).padStart(3, '0'),
@@ -3899,7 +4118,10 @@ function setupFormsAndModals() {
                 miqdori: qty,
                 birligi: unit,
                 narxi: price,
-                ekologik_ball: eco
+                ekologik_ball: eco,
+                zona: zone,
+                qator: qator,
+                tokcha: tokcha
             };
             state.materials.push(newItem);
             saveState();

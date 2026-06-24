@@ -12,7 +12,7 @@
     <!-- Font Awesome Icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <!-- CSS Style -->
-    <link rel="stylesheet" href="style.css?v=4.6">
+    <link rel="stylesheet" href="style.css?v=4.7">
     
     <!-- PWA Manifest & Meta -->
     <link rel="manifest" href="manifest.json">
@@ -468,6 +468,46 @@
                     </button>
                 </div>
 
+                <!-- WMS - Virtual Racks Visualizer -->
+                <div class="card-glass" style="margin-bottom: 24px; padding: 20px;">
+                    <div class="card-glass-header" style="border-bottom: none; padding-bottom: 8px;">
+                        <h3><i class="fa-solid fa-cubes text-blue"></i> WMS - Virtual Yacheykalar Xaritasi</h3>
+                        <span class="badge" style="background: rgba(56, 189, 248, 0.1); color: var(--color-prospect);" id="wms-active-zone-badge">Zona A (Matolar)</span>
+                    </div>
+                    <div style="font-size: 0.75rem; color: var(--color-text-muted); margin-bottom: 16px;">
+                        Yacheykani tanlash orqali undagi xomashyoni ko'rishingiz, audit (miqdorini yangilash) qilishingiz yoki boshqa yacheykaga ko'chirishingiz mumkin.
+                    </div>
+                    
+                    <div class="rack-explorer-container" style="display: flex; gap: 20px; align-items: stretch; flex-wrap: wrap;">
+                        <!-- Left: rack rows grid -->
+                        <div class="rack-grid-wrap" style="flex: 2; min-width: 320px; background: rgba(0,0,0,0.2); border: 1px solid var(--border-color); border-radius: 12px; padding: 16px; display: flex; flex-direction: column; gap: 14px;">
+                            <div class="rack-labels" style="display: flex; justify-content: space-between; font-size: 0.7rem; color: var(--color-text-muted); font-weight: bold; text-transform: uppercase;">
+                                <span>Qator 1</span>
+                                <span>Qator 2</span>
+                                <span>Qator 3</span>
+                                <span>Qator 4</span>
+                            </div>
+                            
+                            <div class="rack-rows-grid" id="wms-racks-grid" style="display: grid; grid-template-rows: repeat(3, 1fr); gap: 12px;">
+                                <!-- Loaded dynamically by JS -->
+                            </div>
+                            
+                            <div class="rack-legend" style="display: flex; gap: 16px; font-size: 0.7rem; color: var(--color-text-muted); flex-wrap: wrap; margin-top: 5px;">
+                                <div style="display:flex; align-items:center; gap:5px;"><span style="width:10px; height:10px; border-radius:3px; background: rgba(52, 211, 153, 0.2); border: 1px solid var(--color-won);"></span> Zaxira etarli</div>
+                                <div style="display:flex; align-items:center; gap:5px;"><span style="width:10px; height:10px; border-radius:3px; background: rgba(251, 146, 60, 0.2); border: 1px solid var(--color-qualified);"></span> Kamaygan zaxira (<15)</div>
+                                <div style="display:flex; align-items:center; gap:5px;"><span style="width:10px; height:10px; border-radius:3px; background: rgba(255,255,255,0.01); border: 1px dashed rgba(255,255,255,0.1);"></span> Bo'sh yacheyka</div>
+                            </div>
+                        </div>
+                        
+                        <!-- Right: selected rack quick details -->
+                        <div class="rack-detail-card" style="flex: 1; min-width: 250px; background: rgba(255,255,255,0.01); border: 1px dashed var(--border-color); border-radius: 12px; padding: 16px; display: flex; flex-direction: column; justify-content: center; align-items: center; text-align: center;" id="wms-rack-details">
+                            <i class="fa-solid fa-box-open" style="font-size: 2.2rem; color: var(--color-text-muted); opacity: 0.3; margin-bottom: 12px;"></i>
+                            <h4 style="font-size: 0.9rem; margin-bottom: 4px; color: var(--color-text-main);">Yacheyka tanlanmagan</h4>
+                            <p style="font-size: 0.75rem; color: var(--color-text-muted);">Batafsil ma'lumot olish uchun chap tarafdagi yacheykalardan birini bosing.</p>
+                        </div>
+                    </div>
+                </div>
+
                 <div class="layout-double-grid">
                     <div class="grid-left-large">
                         <div class="card-glass">
@@ -482,6 +522,7 @@
                                             <th>Nomi</th>
                                             <th>Turi</th>
                                             <th>Rangi</th>
+                                            <th>Yacheyka (WMS)</th>
                                             <th>Zaxira soni</th>
                                             <th>O'lchov birligi</th>
                                             <th>Narxi</th>
@@ -1063,6 +1104,33 @@
                             <option value="A">A (Ekologik)</option>
                             <option value="B+">B+ (O'rtacha)</option>
                             <option value="B">B (Standart)</option>
+                        </select>
+                    </div>
+                </div>
+                <!-- WMS Location coordinates selection -->
+                <div class="form-row" style="background: rgba(255,255,255,0.01); border: 1px dashed var(--border-color); padding: 10px; border-radius: 8px; margin-bottom: 15px;">
+                    <div class="form-group col">
+                        <label>Zona (WMS Zone) *</label>
+                        <select id="ware-zone" required>
+                            <option value="A">Zona A (Matolar)</option>
+                            <option value="B">Zona B (Aksessuarlar)</option>
+                        </select>
+                    </div>
+                    <div class="form-group col">
+                        <label>Qator (Rack Column) *</label>
+                        <select id="ware-rack-col" required>
+                            <option value="1">Qator 1</option>
+                            <option value="2">Qator 2</option>
+                            <option value="3">Qator 3</option>
+                            <option value="4">Qator 4</option>
+                        </select>
+                    </div>
+                    <div class="form-group col">
+                        <label>Tokcha (Shelf Level) *</label>
+                        <select id="ware-rack-row" required>
+                            <option value="1">Tokcha 1 (Pastki)</option>
+                            <option value="2">Tokcha 2 (O'rta)</option>
+                            <option value="3">Tokcha 3 (Yuqori)</option>
                         </select>
                     </div>
                 </div>
