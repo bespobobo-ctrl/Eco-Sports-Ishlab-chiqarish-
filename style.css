@@ -708,7 +708,7 @@ body {
     width: 100%;
     min-width: 0;
     display: grid;
-    grid-template-columns: 3fr 1fr;
+    grid-template-columns: 2fr 1.1fr;
     gap: 24px;
     height: 100%;
 }
@@ -1244,11 +1244,18 @@ input:focus, select:focus {
 
 
 /* --- Responsive Adjustments --- */
-@media (max-width: 1100px) {
-    .sales-dashboard-layout {
+@media (max-width: 1300px) {
+    .layout-double-grid {
+        grid-template-columns: 1.1fr 1.2fr;
+        gap: 16px;
+    }
+}
+
+@media (max-width: 992px) {
+    .layout-double-grid {
         grid-template-columns: 1fr;
     }
-    .layout-double-grid {
+    .sales-dashboard-layout {
         grid-template-columns: 1fr;
     }
 }
@@ -2672,13 +2679,28 @@ input:focus, select:focus {
 /* Tablet screens (max-width: 1200px) */
 @media (max-width: 1200px) {
     .navbar {
-        padding: 0 10px;
+        height: 54px !important;
+        padding: 0 12px;
         gap: 10px;
+    }
+    .navbar-left {
+        gap: 8px;
+    }
+    .navbar-left .brand-logo {
+        width: 32px;
+        height: 32px;
+        font-size: 1rem;
+        border-radius: 8px;
+    }
+    .brand-text h2 {
+        font-size: 0.95rem;
     }
     .brand-text span {
         display: none; /* Hide subtitle to save space */
     }
     .navbar-menu {
+        gap: 4px;
+        height: 100%;
         overflow-x: auto;
         white-space: nowrap;
         scrollbar-width: none; /* Firefox */
@@ -2687,14 +2709,54 @@ input:focus, select:focus {
     .navbar-menu::-webkit-scrollbar {
         display: none; /* Chrome/Safari */
     }
-    .nav-search input {
-        width: 140px;
+    .nav-link {
+        height: 100%;
+        padding: 0 8px;
+        font-size: 0.72rem;
+        gap: 6px;
     }
-    .nav-search input:focus {
-        width: 180px;
+    .nav-link i {
+        font-size: 0.85rem;
+    }
+    .navbar-right {
+        gap: 10px;
+    }
+    .nav-search {
+        display: none; /* Hide search bar on tablet to save massive space */
     }
     .sys-time {
         display: none; /* Hide clock on tablet to save space */
+    }
+    .btn-install-app {
+        padding: 4px 8px;
+        font-size: 0.75rem;
+    }
+    .btn-install-app span {
+        display: none; /* Hide install text, show only icon on tablet */
+    }
+    .btn-system-reset {
+        padding: 4px 8px;
+    }
+    .user-avatar-wrapper, .user-avatar {
+        width: 30px;
+        height: 30px;
+    }
+    
+    /* Subheader compacting */
+    .subheader {
+        height: 44px !important;
+        padding: 0 16px;
+    }
+    .subheader-left h1 {
+        font-size: 0.95rem;
+    }
+    .subheader-right {
+        font-size: 0.75rem;
+    }
+    
+    /* Content padding compacting */
+    .content-container {
+        padding: 16px;
     }
 }
 
