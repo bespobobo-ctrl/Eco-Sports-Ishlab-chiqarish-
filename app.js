@@ -127,15 +127,10 @@ async function init() {
     updateClock();
 
     // 2. Load from localStorage or defaults
+    let localExists = false;
     if (localStorage.getItem('eco_crm_state_v3')) {
         state = JSON.parse(localStorage.getItem('eco_crm_state_v3'));
-        
-        // Remove old templates if they exist in existing storage
-        if(state.cuts.find(c => c.id === 'cut-001' || c.id === 'cut-002' || c.id === 'cut-003')) {
-            state.cuts = state.cuts.filter(c => !['cut-001', 'cut-002', 'cut-003'].includes(c.id));
-            state.orders = state.orders.filter(o => !['buy-101', 'buy-102', 'buy-103'].includes(o.id));
-            saveState();
-        }
+        localExists = true;
 
         // Ensure all materials have WMS location coordinates
         state.materials.forEach((mat, idx) => {
@@ -217,10 +212,502 @@ async function init() {
     const urlParams = new URLSearchParams(window.location.search);
     const activeTab = urlParams.get('tab') || state.activeTab || 'sales';
     window.activateTab(activeTab);
+
+    // 4. Background Supabase Syncing
+    if (supabaseClient) {
+        if (!localExists) {
+            // Show loading if no local state is found
+            showSyncLoading("Supabase ma'lumotlar bazasidan ma'lumotlar olinmoqda...");
+        }
+        
+        loadStateFromSupabase().then((loaded) => {
+            if (loaded) {
+                // Save loaded cloud state to local storage
+                localStorage.setItem('eco_crm_state_v3', JSON.stringify(state));
+                // Re-initialize lists and maps
+                buildSeedHistories();
+                updateUI();
+                setSyncStatus('synced');
+            } else {
+                setSyncStatus('error');
+            }
+        }).catch((err) => {
+            console.error('Supabase init load error:', err);
+            setSyncStatus('error');
+        }).finally(() => {
+            hideSyncLoading();
+        });
+    } else {
+        setSyncStatus('error');
+    }
 }
 
+// --- Supabase Config & Sync Manager ---
+const supabaseUrl = 'https://ajcrsdgerhgnkwkojpki.supabase.co';
+const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImFqY3JzZGdlcmhnbmt3a29qcGtpIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODIyNzcyNTAsImV4cCI6MjA5Nzg1MzI1MH0.rk6n6Yks_5ZeaZjmZJCZ_02Fn8TwyNTqZ2sDhge7GSc';
+let supabaseClient = null;
+if (typeof supabase !== 'undefined' && supabase && supabase.createClient) {
+    supabaseClient = supabase.createClient(supabaseUrl, supabaseKey);
+}
+
+const SUPABASE_TABLES = {
+    materials: 'materials',
+    cuts: 'cuts',
+    orders: 'orders',
+    kanban: 'kanban',
+    paintLogs: 'paint_logs',
+    packLogs: 'pack_logs',
+    workers: 'workers',
+    workLogs: 'work_logs',
+    services: 'services',
+    showroomSales: 'showroom_sales',
+    showroomStock: 'showroom_stock',
+    showroomCatalog: 'showroom_catalog'
+};
+
+const SQL_CREATION_SCRIPT = `-- ECO SPORTS - SUPABASE DATABASE STRUCTURE CREATION SCRIPT
+-- Copy this script and run it in the SQL Editor of your Supabase project (https://supabase.com)
+
+-- 1. Materials Table
+CREATE TABLE IF NOT EXISTS materials (
+    id TEXT PRIMARY KEY,
+    nomi TEXT,
+    turi TEXT,
+    miqdori NUMERIC,
+    olchov TEXT,
+    zona TEXT,
+    qator INT,
+    tokcha INT,
+    ogohlantirish_darajasi NUMERIC,
+    oxirgi_kelgan_sana TEXT,
+    yetkazib_beruvchi TEXT,
+    data JSONB,
+    updated_at TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc'::text, now()) NOT NULL
+);
+ALTER TABLE materials ENABLE ROW LEVEL SECURITY;
+CREATE POLICY "Public Read/Write Access" ON materials FOR ALL USING (true) WITH CHECK (true);
+
+-- 2. Cuts Table
+CREATE TABLE IF NOT EXISTS cuts (
+    id TEXT PRIMARY KEY,
+    sana TEXT,
+    nomi TEXT,
+    turi TEXT,
+    mato_id TEXT,
+    ogirlik NUMERIC,
+    bichilgan_dona INT,
+    chiqindi_pct NUMERIC,
+    masul TEXT,
+    status TEXT,
+    data JSONB,
+    updated_at TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc'::text, now()) NOT NULL
+);
+ALTER TABLE cuts ENABLE ROW LEVEL SECURITY;
+CREATE POLICY "Public Read/Write Access" ON cuts FOR ALL USING (true) WITH CHECK (true);
+
+-- 3. Orders Table
+CREATE TABLE IF NOT EXISTS orders (
+    id TEXT PRIMARY KEY,
+    mahsulot_nomi TEXT,
+    turi TEXT,
+    miqdori INT,
+    liniya TEXT,
+    boshlangan_sana TEXT,
+    topshirish_sana TEXT,
+    status TEXT,
+    tayyorlandi INT,
+    bichildi INT,
+    data JSONB,
+    updated_at TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc'::text, now()) NOT NULL
+);
+ALTER TABLE orders ENABLE ROW LEVEL SECURITY;
+CREATE POLICY "Public Read/Write Access" ON orders FOR ALL USING (true) WITH CHECK (true);
+
+-- 4. Kanban Table
+CREATE TABLE IF NOT EXISTS kanban (
+    id TEXT PRIMARY KEY,
+    model TEXT,
+    turi TEXT,
+    miqdori INT,
+    liniya TEXT,
+    masul TEXT,
+    deadline TEXT,
+    prio TEXT,
+    stage TEXT,
+    data JSONB,
+    updated_at TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc'::text, now()) NOT NULL
+);
+ALTER TABLE kanban ENABLE ROW LEVEL SECURITY;
+CREATE POLICY "Public Read/Write Access" ON kanban FOR ALL USING (true) WITH CHECK (true);
+
+-- 5. Workers Table
+CREATE TABLE IF NOT EXISTS workers (
+    id TEXT PRIMARY KEY,
+    ism TEXT,
+    lavozim TEXT,
+    tel TEXT,
+    balans NUMERIC,
+    data JSONB,
+    updated_at TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc'::text, now()) NOT NULL
+);
+ALTER TABLE workers ENABLE ROW LEVEL SECURITY;
+CREATE POLICY "Public Read/Write Access" ON workers FOR ALL USING (true) WITH CHECK (true);
+
+-- 6. Work Logs Table
+CREATE TABLE IF NOT EXISTS work_logs (
+    id TEXT PRIMARY KEY,
+    sana TEXT,
+    ishchi_id TEXT,
+    buyurtma_id TEXT,
+    operatsiya TEXT,
+    soni INT,
+    narxi NUMERIC,
+    jami NUMERIC,
+    data JSONB,
+    updated_at TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc'::text, now()) NOT NULL
+);
+ALTER TABLE work_logs ENABLE ROW LEVEL SECURITY;
+CREATE POLICY "Public Read/Write Access" ON work_logs FOR ALL USING (true) WITH CHECK (true);
+
+-- 7. Paint Logs Table
+CREATE TABLE IF NOT EXISTS paint_logs (
+    id TEXT PRIMARY KEY,
+    sana TEXT,
+    order_id TEXT,
+    order_name TEXT,
+    press_type TEXT,
+    qty INT,
+    status TEXT,
+    operator TEXT,
+    data JSONB,
+    updated_at TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc'::text, now()) NOT NULL
+);
+ALTER TABLE paint_logs ENABLE ROW LEVEL SECURITY;
+CREATE POLICY "Public Read/Write Access" ON paint_logs FOR ALL USING (true) WITH CHECK (true);
+
+-- 8. Pack Logs Table
+CREATE TABLE IF NOT EXISTS pack_logs (
+    id TEXT PRIMARY KEY,
+    sana TEXT,
+    order_id TEXT,
+    order_name TEXT,
+    qty INT,
+    defect_qty INT,
+    status TEXT,
+    operator TEXT,
+    data JSONB,
+    updated_at TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc'::text, now()) NOT NULL
+);
+ALTER TABLE pack_logs ENABLE ROW LEVEL SECURITY;
+CREATE POLICY "Public Read/Write Access" ON pack_logs FOR ALL USING (true) WITH CHECK (true);
+
+-- 9. Services Table
+CREATE TABLE IF NOT EXISTS services (
+    id TEXT PRIMARY KEY,
+    nomi TEXT,
+    narxi NUMERIC,
+    bajarildi INT,
+    qoldiq INT,
+    masul TEXT,
+    data JSONB,
+    updated_at TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc'::text, now()) NOT NULL
+);
+ALTER TABLE services ENABLE ROW LEVEL SECURITY;
+CREATE POLICY "Public Read/Write Access" ON services FOR ALL USING (true) WITH CHECK (true);
+
+-- 10. Showroom Sales Table
+CREATE TABLE IF NOT EXISTS showroom_sales (
+    id TEXT PRIMARY KEY,
+    sana TEXT,
+    mijoz TEXT,
+    mahsulot TEXT,
+    miqdori INT,
+    narxi NUMERIC,
+    jami NUMERIC,
+    status TEXT,
+    data JSONB,
+    updated_at TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc'::text, now()) NOT NULL
+);
+ALTER TABLE showroom_sales ENABLE ROW LEVEL SECURITY;
+CREATE POLICY "Public Read/Write Access" ON showroom_sales FOR ALL USING (true) WITH CHECK (true);
+
+-- 11. Showroom Stock Table
+CREATE TABLE IF NOT EXISTS showroom_stock (
+    id TEXT PRIMARY KEY,
+    mahsulot TEXT,
+    turi TEXT,
+    miqdori INT,
+    narxi NUMERIC,
+    oxirgi_yangilanish TEXT,
+    data JSONB,
+    updated_at TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc'::text, now()) NOT NULL
+);
+ALTER TABLE showroom_stock ENABLE ROW LEVEL SECURITY;
+CREATE POLICY "Public Read/Write Access" ON showroom_stock FOR ALL USING (true) WITH CHECK (true);
+
+-- 12. Showroom Catalog Table
+CREATE TABLE IF NOT EXISTS showroom_catalog (
+    id TEXT PRIMARY KEY,
+    nomi TEXT,
+    turi TEXT,
+    narxi NUMERIC,
+    kod TEXT,
+    tavsif TEXT,
+    data JSONB,
+    updated_at TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc'::text, now()) NOT NULL
+);
+ALTER TABLE showroom_catalog ENABLE ROW LEVEL SECURITY;
+CREATE POLICY "Public Read/Write Access" ON showroom_catalog FOR ALL USING (true) WITH CHECK (true);
+`;
+
+window.openSupabaseSetupModal = function() {
+    const codeArea = document.getElementById('supabase-sql-code');
+    if (codeArea) {
+        codeArea.value = SQL_CREATION_SCRIPT;
+    }
+    openModal('modal-supabase-setup');
+};
+
+window.copySupabaseSql = function() {
+    const codeArea = document.getElementById('supabase-sql-code');
+    if (codeArea) {
+        codeArea.select();
+        document.execCommand('copy');
+        alert("SQL skripti nusxalandi! Uni Supabase loyihangizning SQL Editor-ida ishga tushiring.");
+    }
+};
+
+function setSyncStatus(status) {
+    const dot = document.getElementById('sync-status-dot');
+    const text = document.getElementById('sync-status-text');
+    if (!dot || !text) return;
+    
+    dot.className = 'status-dot';
+    if (status === 'syncing') {
+        dot.classList.add('syncing');
+        text.innerText = 'Sinxronizatsiya...';
+        text.style.color = 'var(--color-qualified)';
+    } else if (status === 'synced') {
+        dot.classList.add('synced');
+        text.innerText = 'Bulutda saqlandi';
+        text.style.color = 'var(--color-won)';
+    } else if (status === 'error') {
+        dot.classList.add('error');
+        text.innerText = 'Xatolik!';
+        text.style.color = '#f87171';
+    }
+}
+
+// Map key-values for DB rows helper
+function mapItemToRow(tableName, item) {
+    const row = { id: item.id, data: item };
+    if (item.nomi) row.nomi = item.nomi;
+    if (item.turi) row.turi = item.turi;
+    if (item.miqdori !== undefined) row.miqdori = item.miqdori;
+    if (item.olchov) row.olchov = item.olchov;
+    if (item.zona) row.zona = item.zona;
+    if (item.qator !== undefined) row.qator = parseInt(item.qator);
+    if (item.tokcha !== undefined) row.tokcha = parseInt(item.tokcha);
+    if (item.ogirlik !== undefined) row.ogirlik = item.ogirlik;
+    if (item.bichilgan_dona !== undefined) row.bichilgan_dona = item.bichilgan_dona;
+    if (item.status) row.status = item.status;
+    if (item.sana) row.sana = item.sana;
+    if (item.mato_id) row.mato_id = item.mato_id;
+    if (item.mahsulot_nomi) row.mahsulot_nomi = item.mahsulot_nomi;
+    if (item.tayyorlandi !== undefined) row.tayyorlandi = item.tayyorlandi;
+    if (item.bichildi !== undefined) row.bichildi = item.bichildi;
+    if (item.ism) row.ism = item.ism;
+    if (item.lavozim) row.lavozim = item.lavozim;
+    if (item.tel) row.tel = item.tel;
+    if (item.balans !== undefined) row.balans = item.balans;
+    if (item.ishchi_id) row.ishchi_id = item.ishchi_id;
+    if (item.buyurtma_id) row.buyurtma_id = item.buyurtma_id;
+    if (item.operatsiya) row.operatsiya = item.operatsiya;
+    if (item.soni !== undefined) row.soni = item.soni;
+    if (item.narxi !== undefined) row.narxi = item.narxi;
+    if (item.jami !== undefined) row.jami = item.jami;
+    if (item.order_id) row.order_id = item.order_id;
+    if (item.order_name) row.order_name = item.order_name;
+    if (item.press_type) row.press_type = item.press_type;
+    if (item.qty !== undefined) row.qty = item.qty;
+    if (item.operator) row.operator = item.operator;
+    if (item.defect_qty !== undefined) row.defect_qty = item.defect_qty;
+    if (item.bajarildi !== undefined) row.bajarildi = item.bajarildi;
+    if (item.qoldiq !== undefined) row.qoldiq = item.qoldiq;
+    if (item.masul) row.masul = item.masul;
+    if (item.mijoz) row.mijoz = item.mijoz;
+    if (item.mahsulot) row.mahsulot = item.mahsulot;
+    if (item.kod) row.kod = item.kod;
+    if (item.tavsif) row.tavsif = item.tavsif;
+    if (item.deadline) row.deadline = item.deadline;
+    if (item.prio) row.prio = item.prio;
+    if (item.stage) row.stage = item.stage;
+    return row;
+}
+
+// Bulk upsert items into Supabase
+async function syncTableToSupabase(stateKey) {
+    if (!supabaseClient) return;
+    const dbTable = SUPABASE_TABLES[stateKey];
+    if (!dbTable) return;
+    
+    const items = state[stateKey];
+    if (!Array.isArray(items) || items.length === 0) {
+        return;
+    }
+    
+    const rows = items.map(item => mapItemToRow(dbTable, item));
+    
+    const { error } = await supabaseClient.from(dbTable).upsert(rows);
+    if (error) {
+        console.error(`Error syncing table ${dbTable} to Supabase:`, error);
+        throw error;
+    }
+}
+
+// Sync all state to Supabase
+async function syncStateToSupabase() {
+    if (!supabaseClient) {
+        setSyncStatus('error');
+        return;
+    }
+    
+    setSyncStatus('syncing');
+    try {
+        const promises = Object.keys(SUPABASE_TABLES).map(key => syncTableToSupabase(key));
+        await Promise.all(promises);
+        setSyncStatus('synced');
+    } catch (e) {
+        console.error('Supabase state sync error:', e);
+        setSyncStatus('error');
+    }
+}
+
+// Trigger force sync from UI
+window.triggerManualSync = async function() {
+    showSyncLoading("Bulutli ma'lumotlar bazasi bilan force-sync qilinmoqda...");
+    try {
+        await syncStateToSupabase();
+        alert("Sinxronizatsiya muvaffaqiyatli yakunlandi!");
+    } catch (e) {
+        alert("Sinxronizatsiya jarayonida xatolik yuz berdi. Iltimos, SQL skriptini Supabase console-da ishga tushirganingizni tasdiqlang.");
+    } finally {
+        hideSyncLoading();
+    }
+};
+
+// Seed table from defaults
+async function seedSupabaseTable(stateKey, defaultItems) {
+    if (!supabaseClient) return;
+    const dbTable = SUPABASE_TABLES[stateKey];
+    if (!dbTable || !defaultItems || defaultItems.length === 0) return;
+    
+    const rows = defaultItems.map(item => mapItemToRow(dbTable, item));
+    const { error } = await supabaseClient.from(dbTable).insert(rows);
+    if (error) {
+        console.error(`Error seeding table ${dbTable}:`, error);
+    }
+}
+
+// Load all tables from Supabase
+async function loadStateFromSupabase() {
+    if (!supabaseClient) return false;
+    
+    try {
+        let hasData = false;
+        let relationError = false;
+        
+        const promises = Object.keys(SUPABASE_TABLES).map(async (key) => {
+            const dbTable = SUPABASE_TABLES[key];
+            const { data, error } = await supabaseClient.from(dbTable).select('*');
+            
+            if (error) {
+                if (error.code === '42P01' || error.message.includes('does not exist')) {
+                    relationError = true;
+                }
+                throw error;
+            }
+            
+            if (data && data.length > 0) {
+                state[key] = data.map(row => ({ ...row.data, id: row.id }));
+                hasData = true;
+            } else {
+                // Seed table if empty
+                let defaults = [];
+                if (key === 'materials') defaults = defaultMaterials;
+                else if (key === 'cuts') defaults = defaultCuts;
+                else if (key === 'orders') defaults = defaultOrders;
+                else if (key === 'kanban') defaults = defaultKanban;
+                else if (key === 'paintLogs') defaults = defaultPaintLogs;
+                else if (key === 'packLogs') defaults = defaultPackLogs;
+                else if (key === 'workers') defaults = defaultWorkers;
+                else if (key === 'workLogs') defaults = defaultWorkLogs;
+                else if (key === 'services') defaults = defaultServices;
+                else if (key === 'showroomSales') defaults = defaultShowroomSales;
+                else if (key === 'showroomStock') defaults = defaultShowroomStock;
+                
+                if (defaults.length > 0) {
+                    await seedSupabaseTable(key, defaults);
+                }
+            }
+        });
+        
+        await Promise.all(promises);
+        
+        if (relationError) {
+            window.openSupabaseSetupModal();
+            return false;
+        }
+        
+        return hasData;
+    } catch (e) {
+        console.error('Failed to load state from Supabase:', e);
+        if (e.code === '42P01' || (e.message && e.message.includes('does not exist'))) {
+            setTimeout(() => {
+                window.openSupabaseSetupModal();
+            }, 1000);
+        }
+        return false;
+    }
+}
+
+function showSyncLoading(message) {
+    let overlay = document.getElementById('supabase-sync-overlay');
+    if (!overlay) {
+        overlay = document.createElement('div');
+        overlay.id = 'supabase-sync-overlay';
+        overlay.style = 'position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(12, 13, 20, 0.9); z-index: 999999; display: flex; flex-direction: column; align-items: center; justify-content: center; backdrop-filter: blur(8px);';
+        overlay.innerHTML = `
+            <div style="text-align: center; color: white;">
+                <i class="fa-solid fa-cloud-arrow-down" style="font-size: 3.5rem; color: var(--color-prospect); margin-bottom: 20px; animation: flash 2s infinite;"></i>
+                <h3 id="supabase-sync-title" style="margin: 0 0 10px; font-weight: 500; font-size: 1.2rem;">Supabase yuklanmoqda...</h3>
+                <p id="supabase-sync-text" style="margin: 0; color: var(--color-text-muted); font-size: 0.9rem; max-width: 300px; line-height: 1.4;">Tizim ma'lumotlari bulutli server bilan sinxronlashtirilmoqda, iltimos kuting...</p>
+            </div>
+        `;
+        document.body.appendChild(overlay);
+    } else {
+        overlay.style.display = 'flex';
+        document.getElementById('supabase-sync-text').innerText = message;
+    }
+}
+
+function hideSyncLoading() {
+    const overlay = document.getElementById('supabase-sync-overlay');
+    if (overlay) overlay.style.display = 'none';
+}
+
+let syncTimeout = null;
 function saveState() {
     localStorage.setItem('eco_crm_state_v3', JSON.stringify(state));
+    
+    // Debounce Supabase sync by 2 seconds to avoid overloading API
+    if (supabaseClient) {
+        setSyncStatus('syncing');
+        if (syncTimeout) clearTimeout(syncTimeout);
+        syncTimeout = setTimeout(() => {
+            syncStateToSupabase();
+        }, 2000);
+    }
 }
 
 function updateClock() {
@@ -1491,7 +1978,7 @@ Javobni quyidagi JSON formatida qaytar:
 
                 // Create Cutting Log
                 const newCut = {
-                    id: 'cut-' + String(state.cuts.length + 1).padStart(3, '0'),
+                    id: 'cut-' + Date.now() + '-' + Math.floor(Math.random()*1000),
                     sana: new Date().toISOString().split('T')[0],
                     nomi: `AI Model ${est.type} (${fabricMatch ? fabricMatch.nomi : 'Mato'})`,
                     turi: est.type,
@@ -1511,7 +1998,7 @@ Javobni quyidagi JSON formatida qaytar:
                 deliveryDate.setDate(deliveryDate.getDate() + targetDays);
 
                 const newOrder = {
-                    id: 'buy-' + String(100 + state.orders.length + 1),
+                    id: 'buy-' + Date.now() + '-' + Math.floor(Math.random()*1000),
                     mahsulot_nomi: `AI Model ${est.type} (${fabricMatch ? fabricMatch.nomi : 'Mato'})`,
                     turi: est.type,
                     miqdori: est.qty,
@@ -2186,197 +2673,7 @@ window.deleteCuttingOrder = function(id) {
     }
 };
 
-window.addModelToCut = function(cutId) {
-    const cut = state.cuts.find(c => c.id === cutId);
-    if (!cut) return;
 
-    const name = document.getElementById('model-add-name').value.trim();
-    const color = document.getElementById('model-add-color').value.trim();
-    const qty = parseInt(document.getElementById('model-add-qty').value) || 0;
-    const fileInput = document.getElementById('model-add-image');
-
-    if (!cut.models) cut.models = [];
-    let taqsimlangan = 0;
-    cut.models.forEach(m => taqsimlangan += parseInt(m.qty || 0));
-    const qoldiq = cut.bichilgan_dona - taqsimlangan;
-
-    if (!name || qty <= 0) {
-        alert('Model nomi va sonini kiriting!');
-        return;
-    }
-    if (qty > qoldiq) {
-        alert('Kiritilgan son qoldiqdan oshib ketdi!');
-        return;
-    }
-
-    const addNewModel = (base64Img) => {
-        cut.models.push({
-            id: 'mod-' + Date.now(),
-            name: name,
-            color: color,
-            qty: qty,
-            image_base64: base64Img
-        });
-        saveState();
-        openCuttingDetails(cutId); // re-render the modal
-    };
-
-    if (fileInput.files && fileInput.files[0]) {
-        const file = fileInput.files[0];
-        const reader = new FileReader();
-        reader.onload = function(e) {
-            addNewModel(e.target.result);
-        };
-        reader.readAsDataURL(file);
-    } else {
-        addNewModel(null);
-    }
-};
-
-window.removeModelFromCut = function(cutId, modelId) {
-    const cut = state.cuts.find(c => c.id === cutId);
-    if (!cut) return;
-    if (confirm("Modelni o'chirishni xohlaysizmi?")) {
-        cut.models = cut.models.filter(m => m.id !== modelId);
-        saveState();
-        openCuttingDetails(cutId);
-    }
-};
-
-window.openCuttingDetails = function(cutId) {
-    const cut = state.cuts.find(c => c.id === cutId);
-    if (!cut) return;
-
-    const modal = document.getElementById('modal-cutting-details');
-    const content = document.getElementById('modal-cutting-details-content');
-    if (!modal || !content) return;
-
-    if (!cut.models) cut.models = [];
-
-    // Calculate distributed and remaining
-    let taqsimlangan = 0;
-    cut.models.forEach(m => taqsimlangan += parseInt(m.qty || 0));
-    let qoldiq = cut.bichilgan_dona - taqsimlangan;
-    let progressPct = Math.min((taqsimlangan / cut.bichilgan_dona) * 100, 100);
-
-    let rollsHtml = '';
-    if(cut.nastil_rolls && cut.nastil_rolls.length > 0) {
-        rollsHtml = cut.nastil_rolls.map((r, i) => {
-            if(r.color) {
-                return `
-                <div style="display: flex; justify-content: space-between; padding: 8px; background: rgba(255,255,255,0.03); border-radius: 4px; margin-bottom: 5px;">
-                    <span><strong>${i+1}-Rulon</strong> (${r.color})</span>
-                    <span>${r.weight} kg &rarr; <strong style="color:var(--color-prospect);">${r.qty} dona</strong></span>
-                </div>`;
-            } else {
-                return `<div style="padding: 8px; background: rgba(255,255,255,0.03); border-radius: 4px; margin-bottom: 5px;">${i+1}-Rulon: ${r} kg</div>`;
-            }
-        }).join('');
-    } else {
-        rollsHtml = '<p style="color: var(--color-text-muted);">Rulonlar biriktirilmagan.</p>';
-    }
-
-    let colorWasteHtml = '';
-    if (cut.color_waste && cut.color_waste.length > 0) {
-        colorWasteHtml = cut.color_waste.map(cw => `
-            <div style="display: flex; justify-content: space-between; font-size: 0.85rem; margin-top: 4px; padding-left: 10px; border-left: 2px solid rgba(255,255,255,0.1);">
-                <span style="color: var(--color-text-muted);">${cw.color} rasxodi:</span>
-                <span style="${cw.wasteKg < 0 ? 'color: #ef4444;' : 'color: var(--color-text);'}">${cw.wasteKg} kg (${cw.wastePct}%)</span>
-            </div>
-        `).join('');
-    }
-
-    let modelsHtml = '';
-    if(cut.models.length > 0) {
-        modelsHtml = cut.models.map(m => `
-            <div style="display: flex; align-items: center; background: rgba(0,0,0,0.2); border: 1px solid rgba(255,255,255,0.1); border-radius: 8px; padding: 10px; margin-bottom: 10px;">
-                <div style="width: 60px; height: 60px; border-radius: 6px; overflow: hidden; margin-right: 15px; border: 1px solid rgba(255,255,255,0.2); background: #1a1a1a;">
-                    ${m.image_base64 ? `<img src="${m.image_base64}" style="width:100%; height:100%; object-fit:cover;" />` : `<div style="display:flex; align-items:center; justify-content:center; height:100%; color:#555; font-size:0.8rem; text-align:center;">Rasm yo'q</div>`}
-                </div>
-                <div style="flex: 1;">
-                    <h5 style="margin: 0; font-size: 1rem;">${m.name}</h5>
-                    <span style="font-size: 0.8rem; color: var(--color-text-muted);">Rang: ${m.color} | Ajratildi: <strong style="color:var(--color-prospect);">${m.qty} ta</strong></span>
-                </div>
-                <button class="btn btn-danger btn-sm" onclick="removeModelFromCut('${cut.id}', '${m.id}')" style="padding: 5px 10px;"><i class="fa-solid fa-times"></i></button>
-            </div>
-        `).join('');
-    } else {
-        modelsHtml = '<p style="color: var(--color-text-muted); font-size: 0.85rem;">Hali modellarga ajratilmagan.</p>';
-    }
-
-    content.innerHTML = `
-        <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 10px; margin-bottom: 15px;">
-            <div>
-                <h2 style="margin: 0; color: var(--color-won);">${cut.nomi}</h2>
-                <span style="color: var(--color-text-muted);">${cut.turi} | Sana: ${cut.sana}</span>
-            </div>
-            <span class="badge-row badge-status-bichildi" style="font-size: 1rem;">${cut.status}</span>
-        </div>
-        
-        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 15px;">
-            <div class="card-glass" style="padding: 15px;">
-                <h4 style="margin-top: 0; margin-bottom: 10px; border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 5px;">Asosiy Ko'rsatkichlar</h4>
-                <div style="display: flex; justify-content: space-between; margin-bottom: 8px;"><span>Ishlatilgan Mato:</span> <code>${cut.mato_id}</code></div>
-                <div style="display: flex; justify-content: space-between; margin-bottom: 8px;"><span>Umumiy Sarf:</span> <strong>${cut.ogirlik} kg</strong></div>
-                <div style="display: flex; justify-content: space-between; margin-bottom: 8px;"><span>Jami Chiqqan Dona:</span> <strong style="color:var(--color-prospect);">${cut.bichilgan_dona} ta</strong></div>
-                <div style="display: flex; justify-content: space-between; margin-bottom: 8px;"><span>Jami Kroy (Chiqindi):</span> <span style="color:var(--color-orange);">${cut.chiqindi_kg ? cut.chiqindi_kg + ' kg (' + cut.chiqindi_pct + '%)' : cut.chiqindi_pct + '%'}</span></div>
-                ${colorWasteHtml}
-                <div style="display: flex; justify-content: space-between; margin-top: 8px; padding-top: 8px; border-top: 1px dashed rgba(255,255,255,0.1);"><span>Mas'ul Shaxs:</span> <span>${cut.masul}</span></div>
-            </div>
-            
-            <div class="card-glass" style="padding: 15px;">
-                <h4 style="margin-top: 0; margin-bottom: 10px; border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 5px;">Nastil Parametrlari</h4>
-                <div style="display: flex; justify-content: space-between; margin-bottom: 8px;"><span>Uzunligi:</span> <strong>${cut.nastil_uzunlik || '-'} sm</strong></div>
-                <div style="display: flex; justify-content: space-between; margin-bottom: 8px;"><span>Eni:</span> <strong>${cut.nastil_eni || '-'} sm</strong></div>
-                <div style="display: flex; justify-content: space-between; margin-bottom: 8px;"><span>Rulonlar Soni:</span> <strong>${cut.nastil_rolls ? cut.nastil_rolls.length : 0} ta</strong></div>
-            </div>
-        </div>
-        
-        <!-- MODELLARGA AJRATISH SECTION -->
-        <div class="card-glass" style="padding: 15px; margin-bottom: 15px; border-color: var(--color-prospect);">
-            <h4 style="margin-top: 0; margin-bottom: 10px; border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 5px; color: var(--color-prospect);">Modellarga Taqsimlash</h4>
-            
-            <div style="display: flex; justify-content: space-between; font-size: 0.85rem; margin-bottom: 5px;">
-                <span>Jami Soni: <strong>${cut.bichilgan_dona} ta</strong></span>
-                <span>Taqsimlandi: <strong style="color: var(--color-prospect);">${taqsimlangan} ta</strong></span>
-                <span>Qoldiq: <strong style="color: var(--color-orange);">${qoldiq} ta</strong></span>
-            </div>
-            <div style="width: 100%; background: rgba(0,0,0,0.3); height: 8px; border-radius: 4px; margin-bottom: 15px; overflow: hidden;">
-                <div style="height: 100%; width: ${progressPct}%; background: var(--color-prospect); transition: width 0.3s;"></div>
-            </div>
-
-            ${qoldiq > 0 ? `
-            <div style="background: rgba(0,0,0,0.1); padding: 10px; border-radius: 6px; margin-bottom: 15px; border: 1px dashed rgba(255,255,255,0.1);">
-                <div style="display: grid; grid-template-columns: 1fr 1fr 100px; gap: 10px; margin-bottom: 10px;">
-                    <input type="text" id="model-add-name" placeholder="Model Nomi" class="form-control" style="padding: 6px 10px; font-size: 0.85rem;">
-                    <input type="text" id="model-add-color" placeholder="Rangi (masalan, Qora)" class="form-control" style="padding: 6px 10px; font-size: 0.85rem;">
-                    <input type="number" id="model-add-qty" placeholder="Soni" max="${qoldiq}" class="form-control" style="padding: 6px 10px; font-size: 0.85rem;">
-                </div>
-                <div style="display: flex; gap: 10px; align-items: center;">
-                    <div style="flex: 1;">
-                        <input type="file" id="model-add-image" accept="image/*" class="form-control" style="padding: 4px; font-size: 0.8rem;">
-                    </div>
-                    <button class="btn btn-primary btn-sm" onclick="addModelToCut('${cut.id}')" style="background: var(--color-prospect); border:none;">Model Qo'shish</button>
-                </div>
-            </div>
-            ` : `<div style="padding: 10px; background: rgba(39, 174, 96, 0.1); color: var(--color-won); border-radius: 6px; margin-bottom: 15px; font-size: 0.85rem; text-align: center;">Barcha donalar modellarga taqsimlangan.</div>`}
-
-            <div id="models-list-container">
-                ${modelsHtml}
-            </div>
-        </div>
-        
-        <div style="margin-top: 15px;">
-            <h4 style="margin-bottom: 10px;">Rulonlar Kesimi</h4>
-            ${rollsHtml}
-        </div>
-        <div style="margin-top: 25px; border-top: 1px solid rgba(255,255,255,0.1); padding-top: 15px; display: flex; justify-content: space-between;">
-            <button class="btn btn-primary" onclick="printCuttingOrder('${cut.id}')" style="background: var(--color-prospect); border: none;"><i class="fa-solid fa-file-pdf"></i> Hujjat shaklida (PDF) saqlash</button>
-            <button class="btn btn-danger" onclick="deleteCuttingOrder('${cut.id}')"><i class="fa-solid fa-trash"></i> Ushbu Buyruqni O'chirish</button>
-        </div>
-    `;
-    modal.style.display = 'flex';
-};
 
 window.printCuttingOrder = function(cutId) {
     const cut = state.cuts.find(c => c.id === cutId);
@@ -2651,6 +2948,29 @@ window.addModelToCut = function(cutId) {
         return;
     }
 
+    // Rang bo'yicha rulonlardagi jami donani hisoblash
+    let colorTotal = 0;
+    if (Array.isArray(cut.nastil_rolls)) {
+        cut.nastil_rolls.forEach(r => {
+            if (r.color === color) colorTotal += parseInt(r.qty || 0);
+        });
+    }
+
+    // Allaqachon ajratilgan miqdorni hisoblash
+    let colorAllocated = 0;
+    if (cut.models) {
+        cut.models.forEach(m => {
+            if (m.color === color) colorAllocated += parseInt(m.qty || 0);
+        });
+    }
+
+    const colorQoldiq = colorTotal - colorAllocated;
+
+    if (qty > colorQoldiq) {
+        alert(`Xatolik: Ushbu rangdan (${color}) faqat ${colorQoldiq} dona qolgan! Rulonlarda jami: ${colorTotal} dona, ajratilgan: ${colorAllocated} dona. Ortqicha miqdor ajratish imkonsiz.`);
+        return;
+    }
+
     const addModelWithImage = (base64) => {
         if (!cut.models) cut.models = [];
         cut.models.push({
@@ -2721,10 +3041,23 @@ window.sendCutToProduction = function(cutId) {
     }
     
     if (confirm("Barcha ajratilgan modellarni alohida partiya (zayavka) sifatida Tikuv bo'limiga yubormoqchimisiz?")) {
-        // Create an order for each model
+        // Find and remove any existing unsplit order cards from the Kanban board
+        let relatedOrders = state.orders.filter(o => o.cut_id === cut.id);
+        if (relatedOrders.length === 0) {
+            relatedOrders = state.orders.filter(o => o.mahsulot_nomi === cut.nomi && o.miqdori === cut.bichilgan_dona);
+        }
+        const relatedOrderIds = relatedOrders.map(o => o.id);
+        if (relatedOrderIds.length > 0 && Array.isArray(state.kanban)) {
+            state.kanban = state.kanban.filter(k => !relatedOrderIds.includes(k.orderId));
+        }
+
+        // Create an order and kanban card for each model
+        if (!Array.isArray(state.kanban)) state.kanban = [];
+
         cut.models.forEach((m, i) => {
+            const newOrderId = 'ord-' + String(state.orders.length + 1).padStart(3, '0') + '-' + Math.floor(Math.random()*1000);
             const newOrder = {
-                id: 'ord-' + String(state.orders.length + 1 + i).padStart(3, '0') + '-' + Math.floor(Math.random()*1000),
+                id: newOrderId,
                 mahsulot_nomi: m.name,
                 turi: cut.turi,
                 miqdori: m.qty,
@@ -2739,6 +3072,20 @@ window.sendCutToProduction = function(cutId) {
                 model_image: m.image_base64
             };
             state.orders.push(newOrder);
+
+            // Create Kanban card for this model
+            state.kanban.push({
+                id: 'k-' + Date.now() + '-' + i,
+                orderId: newOrderId,
+                model: m.name + (m.color ? ' (' + m.color + ')' : ''),
+                turi: cut.turi,
+                miqdori: m.qty,
+                liniya: "Liniya A",
+                masul: '—',
+                deadline: newOrder.topshirish_sana,
+                prio: 'normal',
+                stage: getStages()[0].id
+            });
         });
         
         cut.status = 'Ishlab chiqarishda';
@@ -3830,7 +4177,7 @@ window.transitionOrderStatus = function(orderId, newStatus) {
         if (newStatus === 'Bichildi') {
             order.bichildi = order.miqdori; 
             const newCut = {
-                id: 'cut-' + String(state.cuts.length + 1).padStart(3, '0'),
+                id: 'cut-' + Date.now() + '-' + Math.floor(Math.random()*1000),
                 sana: new Date().toISOString().split('T')[0],
                 nomi: order.mahsulot_nomi,
                 turi: order.turi,
@@ -4425,7 +4772,7 @@ function setupFormsAndModals() {
 
             // Create Cutting Log
             const newCut = {
-                id: 'cut-' + String(state.cuts.length + 1).padStart(3, '0'),
+                id: 'cut-' + Date.now() + '-' + Math.floor(Math.random()*1000),
                 sana: new Date().toISOString().split('T')[0],
                 nomi: name,
                 turi: type,
@@ -4451,7 +4798,7 @@ function setupFormsAndModals() {
             deliveryDate.setDate(deliveryDate.getDate() + targetDays);
 
             const newOrder = {
-                id: 'buy-' + String(100 + state.orders.length + 1),
+                id: 'buy-' + Date.now() + '-' + Math.floor(Math.random()*1000),
                 cut_id: newCut.id,
                 mahsulot_nomi: name,
                 turi: type,

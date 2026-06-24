@@ -223,6 +223,21 @@ body {
     animation: flash 2s infinite;
 }
 
+.status-dot.syncing {
+    background-color: var(--color-qualified);
+    box-shadow: 0 0 8px var(--color-qualified);
+}
+
+.status-dot.error {
+    background-color: var(--color-red);
+    box-shadow: 0 0 8px var(--color-red);
+}
+
+.status-dot.synced {
+    background-color: var(--color-won);
+    box-shadow: 0 0 8px var(--color-won);
+}
+
 @keyframes flash {
     0% { transform: scale(0.95); opacity: 0.6; }
     50% { transform: scale(1.1); opacity: 1; }

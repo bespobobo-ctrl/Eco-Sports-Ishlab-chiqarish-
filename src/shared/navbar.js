@@ -57,8 +57,9 @@ function renderNavbar(activeTab) {
                     <input type="text" placeholder="Qidiruv..." id="global-search">
                 </div>
                 <div class="sys-time" id="clock">11:00:21</div>
-                <div class="status-dot-wrapper" title="Sinxronizatsiya faol">
-                    <span class="status-dot"></span>
+                <div class="status-dot-wrapper" id="sync-status-container" title="Supabase Sinxronizatsiya holati. SQL skriptini ko'rish uchun bosing." style="cursor: pointer; display: flex; align-items: center; gap: 6px; padding: 4px 8px; background: rgba(255,255,255,0.03); border-radius: 6px;" onclick="openSupabaseSetupModal()">
+                    <span class="status-dot" id="sync-status-dot"></span>
+                    <span id="sync-status-text" style="font-size: 0.75rem; color: var(--color-text-muted);">Bulut: Kutilmoqda</span>
                 </div>
                 <button class="btn btn-icon-reset" id="btn-system-reset" title="Tizimni tozalash (LocalStorage)">
                     <i class="fa-solid fa-arrows-rotate"></i>

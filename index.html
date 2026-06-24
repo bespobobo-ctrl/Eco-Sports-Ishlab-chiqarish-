@@ -12,12 +12,14 @@
     <!-- Font Awesome Icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <!-- CSS Style -->
-    <link rel="stylesheet" href="style.css?v=4.7">
+    <link rel="stylesheet" href="style.css?v=4.9">
     
     <!-- PWA Manifest & Meta -->
     <link rel="manifest" href="manifest.json">
     <meta name="theme-color" content="#0b0c10">
     <link rel="apple-touch-icon" href="icons/icon.svg">
+    <!-- Supabase JS Client -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 </head>
 <body>
     <div class="app-wrapper">
@@ -69,8 +71,9 @@
                     <input type="text" placeholder="Qidiruv..." id="global-search">
                 </div>
                 <div class="sys-time" id="clock">11:00:21</div>
-                <div class="status-dot-wrapper" title="Sinxronizatsiya faol">
-                    <span class="status-dot"></span>
+                <div class="status-dot-wrapper" id="sync-status-container" title="Supabase Sinxronizatsiya holati. SQL skriptini ko'rish uchun bosing." style="cursor: pointer; display: flex; align-items: center; gap: 6px; padding: 4px 8px; background: rgba(255,255,255,0.03); border-radius: 6px;" onclick="openSupabaseSetupModal()">
+                    <span class="status-dot" id="sync-status-dot"></span>
+                    <span id="sync-status-text" style="font-size: 0.75rem; color: var(--color-text-muted);">Bulut: Kutilmoqda</span>
                 </div>
                 <!-- PWA Install Button -->
                 <button class="btn btn-primary" id="btn-install-app" style="padding: 6px 12px; font-size: 0.85rem;"><i class="fa-solid fa-download"></i> O'rnatish</button>
@@ -1458,7 +1461,7 @@
     <script src="shared/navbar.js"></script>
     <script>if (window.renderNavbar) renderNavbar('sales');</script>
     <!-- Asosiy ilova mantig'i -->
-    <script src="app.js"></script>
+    <script src="app.js?v=4.9"></script>
     <!-- Three.js (3D Virtual Sex) — ES modules via importmap -->
     <script type="importmap">
     {
@@ -1468,7 +1471,7 @@
       }
     }
     </script>
-    <script type="module" src="workshop3d.js"></script>
+    <script type="module" src="workshop3d.js?v=4.9"></script>
 
     <!-- Install Guide Modal for iOS / Manual -->
     <div class="modal" id="modal-install-guide">
@@ -1496,6 +1499,37 @@
                 </div>
             </div>
             <button class="btn btn-secondary btn-block" onclick="closeModal('modal-install-guide')">Tushunarli</button>
+        </div>
+    </div>
+
+    <!-- Supabase Setup Modal -->
+    <div class="modal" id="modal-supabase-setup">
+        <div class="modal-content" style="max-width: 650px;">
+            <div class="modal-header">
+                <h3><i class="fa-solid fa-database" style="color: #3ecf8e;"></i> Supabase Bulutli Tizim Sozlamalari</h3>
+                <span class="close-modal" onclick="closeModal('modal-supabase-setup')">&times;</span>
+            </div>
+            <div style="padding: 15px 0; display: flex; flex-direction: column; gap: 15px;">
+                <p style="color: var(--color-text-muted); font-size: 0.85rem; margin: 0; line-height: 1.4;">
+                    Tizim ma'lumotlarining xavfsiz saqlanishi va barcha qurilmalar o'rtasida sinxronlanishi uchun Supabase loyihangizda jadvallar yaratishingiz lozim. Quyidagi skriptni nusxalang va Supabase loyihangizning <b>SQL Editor</b> bo'limida bajarib, <b>Run</b> tugmasini bosing.
+                </p>
+                
+                <div style="background: rgba(255,255,255,0.05); padding: 12px; border-radius: 8px; border: 1px solid var(--border-color);">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+                        <span style="font-size: 0.8rem; font-weight: 600; color: white;">Jadvallarni Yaratish Skripti (SQL):</span>
+                        <button class="btn btn-xs btn-primary" onclick="copySupabaseSql()" style="font-size: 0.72rem; padding: 4px 8px; background: #3ecf8e; border: none; color: black; font-weight: 600;"><i class="fa-solid fa-copy"></i> Nusxalash</button>
+                    </div>
+                    <textarea id="supabase-sql-code" readonly style="width:100%; height: 200px; background: #0c0d14; border: 1px solid rgba(255,255,255,0.1); color: #3ecf8e; font-family: monospace; font-size: 0.75rem; padding: 10px; border-radius: 6px; resize: none;"></textarea>
+                </div>
+
+                <div style="background: rgba(62, 207, 142, 0.05); border: 1px dashed rgba(62, 207, 142, 0.3); padding: 12px; border-radius: 8px; font-size: 0.82rem; color: #3ecf8e;">
+                    <i class="fa-solid fa-circle-check" style="margin-right: 5px;"></i> Supabase integratsiyasi loyiha uchun faollashtirilgan. Ulanish parametrlari o'rnatilgan.
+                </div>
+            </div>
+            <div style="display: flex; gap: 10px;">
+                <button class="btn btn-secondary" style="flex: 1;" onclick="closeModal('modal-supabase-setup')">Yopish</button>
+                <button class="btn btn-primary" style="flex: 1.5; background: var(--color-prospect); border: none;" onclick="triggerManualSync()">Hozir Sinxronlash (Force Sync)</button>
+            </div>
         </div>
     </div>
 </body>
