@@ -12,6 +12,98 @@
     }
 })();
 
+// --- Custom Toast Notification ---
+window.showToast = function(message, type = 'success') {
+    const container = document.getElementById('custom-toast-container');
+    if (!container) {
+        console.log(`[Toast Fallback] ${type}: ${message}`);
+        return;
+    }
+    
+    const toast = document.createElement('div');
+    toast.className = `custom-toast ${type}`;
+    
+    let iconClass = 'fa-circle-check';
+    if (type === 'error') iconClass = 'fa-circle-xmark';
+    if (type === 'warning') iconClass = 'fa-triangle-exclamation';
+    if (type === 'info') iconClass = 'fa-circle-info';
+    
+    toast.innerHTML = `
+        <i class="fa-solid ${iconClass} custom-toast-icon"></i>
+        <div class="custom-toast-content">
+            <div class="custom-toast-message">${message}</div>
+        </div>
+        <button class="custom-toast-close" onclick="this.parentElement.remove()">&times;</button>
+    `;
+    
+    container.appendChild(toast);
+    
+    // Force reflow
+    toast.offsetHeight;
+    toast.classList.add('show');
+    
+    // Auto-remove after 4 seconds
+    setTimeout(() => {
+        toast.classList.remove('show');
+        setTimeout(() => {
+            toast.remove();
+        }, 400);
+    }, 4000);
+};
+
+// --- Custom Confirmation Modal ---
+window.showConfirmModal = function(title, message, onConfirm, type = 'info') {
+    const modal = document.getElementById('custom-confirm-modal');
+    const titleEl = document.getElementById('custom-confirm-title');
+    const messageEl = document.getElementById('custom-confirm-message');
+    const iconContainer = document.getElementById('custom-confirm-icon-container');
+    const iconEl = document.getElementById('custom-confirm-icon');
+    const okBtn = document.getElementById('custom-confirm-ok');
+    
+    if (!modal) {
+        if (confirm(`${title}\n\n${message}`)) {
+            if (onConfirm) onConfirm();
+        }
+        return;
+    }
+    
+    titleEl.innerText = title || "Tasdiqlash";
+    messageEl.innerText = message || "";
+    
+    // Set type-based styling
+    iconContainer.className = "custom-modal-icon-container";
+    okBtn.className = "btn-primary-modal";
+    
+    if (type === 'danger') {
+        iconContainer.classList.add('danger');
+        okBtn.classList.add('danger');
+        iconEl.className = "fa-solid fa-circle-exclamation";
+    } else if (type === 'warning') {
+        iconContainer.classList.add('warning');
+        iconEl.className = "fa-solid fa-triangle-exclamation";
+    } else {
+        iconEl.className = "fa-solid fa-circle-question";
+    }
+    
+    modal.style.display = 'flex';
+    modal.offsetHeight; // Force reflow
+    modal.classList.add('active');
+    
+    okBtn.onclick = function() {
+        closeCustomConfirm(true);
+        if (onConfirm) onConfirm();
+    };
+};
+
+window.closeCustomConfirm = function(result) {
+    const modal = document.getElementById('custom-confirm-modal');
+    if (!modal) return;
+    modal.classList.remove('active');
+    setTimeout(() => {
+        modal.style.display = 'none';
+    }, 300);
+};
+
 // --- Default Data Sets (Initial Mock Database) ---
 
 const defaultMaterials = [
@@ -2935,7 +3027,7 @@ window.addModelToCut = function(cutId) {
     const qty = parseInt(qtyInput.value) || 0;
     
     if (!name || !color || qty <= 0) {
-        alert("Iltimos, model nomi, rangi va sonini to'g'ri kiriting!");
+        showToast("Iltimos, model nomi, rangi va sonini to'g'ri kiriting!", "warning");
         return;
     }
     
@@ -2944,7 +3036,7 @@ window.addModelToCut = function(cutId) {
     let qoldiq = cut.bichilgan_dona - taqsimlangan;
     
     if (qty > qoldiq) {
-        alert("Xato! Kiritilgan son qoldiqdan katta bo'lishi mumkin emas.");
+        showToast("Xato! Kiritilgan son qoldiqdan katta bo'lishi mumkin emas.", "error");
         return;
     }
 
@@ -2967,7 +3059,7 @@ window.addModelToCut = function(cutId) {
     const colorQoldiq = colorTotal - colorAllocated;
 
     if (qty > colorQoldiq) {
-        alert(`Xatolik: Ushbu rangdan (${color}) faqat ${colorQoldiq} dona qolgan! Rulonlarda jami: ${colorTotal} dona, ajratilgan: ${colorAllocated} dona. Ortqicha miqdor ajratish imkonsiz.`);
+        showToast(`Xatolik: Ushbu rangdan (${color}) faqat ${colorQoldiq} dona qolgan! Rulonlarda jami: ${colorTotal} dona, ajratilgan: ${colorAllocated} dona.`, "error");
         return;
     }
 
@@ -3024,11 +3116,12 @@ window.addModelToCut = function(cutId) {
 window.removeModelFromCut = function(cutId, modelId) {
     const cut = state.cuts.find(c => c.id === cutId);
     if (!cut) return;
-    if (confirm("Ushbu modelni o'chirmoqchimisiz?")) {
+    showConfirmModal("Modelni o'chirish", "Ushbu modelni o'chirmoqchimisiz?", function() {
         cut.models = cut.models.filter(m => m.id !== modelId);
         saveState();
         openCuttingDetails(cutId);
-    }
+        showToast("Model o'chirildi.", "info");
+    }, 'danger');
 };
 
 window.sendCutToProduction = function(cutId) {
@@ -3036,64 +3129,81 @@ window.sendCutToProduction = function(cutId) {
     if (!cut) return;
     
     if (!cut.models || cut.models.length === 0) {
-        alert("Ishlab chiqarishga yuborish uchun avval mahsulotni modellarga ajratishingiz kerak!");
+        showToast("Ishlab chiqarishga yuborish uchun avval mahsulotni modellarga ajratishingiz kerak!", "warning");
         return;
     }
     
-    if (confirm("Barcha ajratilgan modellarni alohida partiya (zayavka) sifatida Tikuv bo'limiga yubormoqchimisiz?")) {
-        // Find and remove any existing unsplit order cards from the Kanban board
-        let relatedOrders = state.orders.filter(o => o.cut_id === cut.id);
-        if (relatedOrders.length === 0) {
-            relatedOrders = state.orders.filter(o => o.mahsulot_nomi === cut.nomi && o.miqdori === cut.bichilgan_dona);
-        }
-        const relatedOrderIds = relatedOrders.map(o => o.id);
-        if (relatedOrderIds.length > 0 && Array.isArray(state.kanban)) {
-            state.kanban = state.kanban.filter(k => !relatedOrderIds.includes(k.orderId));
-        }
+    showConfirmModal(
+        "Tikuv bo'limiga yuborish",
+        "Barcha ajratilgan modellarni alohida partiya (zayavka) sifatida Tikuv bo'limiga yubormoqchimisiz?",
+        function() {
+            // Find and remove any existing unsplit order cards from the Kanban board
+            let relatedOrders = state.orders.filter(o => o.cut_id === cut.id);
+            if (relatedOrders.length === 0) {
+                relatedOrders = state.orders.filter(o => o.mahsulot_nomi === cut.nomi && o.miqdori === cut.bichilgan_dona);
+            }
+            const relatedOrderIds = relatedOrders.map(o => o.id);
+            if (relatedOrderIds.length > 0 && Array.isArray(state.kanban)) {
+                state.kanban = state.kanban.filter(k => !relatedOrderIds.includes(k.orderId));
+            }
 
-        // Create an order and kanban card for each model
-        if (!Array.isArray(state.kanban)) state.kanban = [];
+            // Create an order and kanban card for each model
+            if (!Array.isArray(state.kanban)) state.kanban = [];
 
-        cut.models.forEach((m, i) => {
-            const newOrderId = 'ord-' + String(state.orders.length + 1).padStart(3, '0') + '-' + Math.floor(Math.random()*1000);
-            const newOrder = {
-                id: newOrderId,
-                mahsulot_nomi: m.name,
-                turi: cut.turi,
-                miqdori: m.qty,
-                liniya: "Liniya A", 
-                boshlangan_sana: new Date().toISOString().split('T')[0],
-                topshirish_sana: new Date(Date.now() + 7 * 86400000).toISOString().split('T')[0],
-                status: 'Tikilmoqda',
-                tayyorlandi: 0,
-                bichildi: m.qty,
-                cut_id: cut.id,
-                model_color: m.color,
-                model_image: m.image_base64
-            };
-            state.orders.push(newOrder);
+            cut.models.forEach((m, i) => {
+                const newOrderId = 'ord-' + String(state.orders.length + 1).padStart(3, '0') + '-' + Math.floor(Math.random()*1000);
+                const newOrder = {
+                    id: newOrderId,
+                    mahsulot_nomi: m.name,
+                    turi: cut.turi,
+                    miqdori: m.qty,
+                    liniya: "Liniya A", 
+                    boshlangan_sana: new Date().toISOString().split('T')[0],
+                    topshirish_sana: new Date(Date.now() + 7 * 86400000).toISOString().split('T')[0],
+                    status: 'Tikilmoqda',
+                    tayyorlandi: 0,
+                    bichildi: m.qty,
+                    cut_id: cut.id,
+                    model_color: m.color,
+                    model_image: m.image_base64
+                };
+                state.orders.push(newOrder);
 
-            // Create Kanban card for this model
-            state.kanban.push({
-                id: 'k-' + Date.now() + '-' + i,
-                orderId: newOrderId,
-                model: m.name + (m.color ? ' (' + m.color + ')' : ''),
-                turi: cut.turi,
-                miqdori: m.qty,
-                liniya: "Liniya A",
-                masul: '—',
-                deadline: newOrder.topshirish_sana,
-                prio: 'normal',
-                stage: getStages()[0].id
+                // Create Kanban card for this model
+                state.kanban.push({
+                    id: 'k-' + Date.now() + '-' + i,
+                    orderId: newOrderId,
+                    model: m.name + (m.color ? ' (' + m.color + ')' : ''),
+                    turi: cut.turi,
+                    miqdori: m.qty,
+                    liniya: "Liniya A",
+                    masul: '—',
+                    deadline: newOrder.topshirish_sana,
+                    prio: 'normal',
+                    stage: getStages()[0].id
+                });
             });
-        });
-        
-        cut.status = 'Ishlab chiqarishda';
-        saveState();
-        updateUI();
-        closeModal('modal-cutting-details');
-        alert("Muvaffaqiyatli! Modellar Tikuv bo'limiga faol jarayonga o'tkazildi.");
+            
+            cut.status = 'Ishlab chiqarishda';
+            saveState();
+            updateUI();
+            closeModal('modal-cutting-details');
+            showToast("Muvaffaqiyatli! Modellar Tikuv bo'limiga faol jarayonga o'tkazildi.", "success");
+        },
+        'info'
+    );
+};
+
+window.selectModelColor = function(color) {
+    const modelAddColor = document.getElementById('model-add-color');
+    const selectedText = document.getElementById('model-color-selected-text');
+    const colorList = document.getElementById('model-color-list');
+    if (modelAddColor) modelAddColor.value = color;
+    if (selectedText) {
+        selectedText.innerText = color;
+        selectedText.style.color = 'white';
     }
+    if (colorList) colorList.style.display = 'none';
 };
 
 window.openCuttingDetails = function(cutId) {
@@ -3112,13 +3222,9 @@ window.openCuttingDetails = function(cutId) {
         if(c === "To'q Ko'k") cc = '#1a237e';
         if(c === 'Antra') cc = '#37474f';
         if(c === 'Melanj') cc = '#9e9e9e';
+        const escapedColor = c.replace(/'/g, "\\'");
         return `
-            <div onclick="
-                document.getElementById('model-add-color').value='${c}';
-                document.getElementById('model-color-selected-text').innerText='${c}';
-                document.getElementById('model-color-selected-text').style.color='white';
-                document.getElementById('model-color-list').style.display='none';
-            " style="padding: 10px 15px; cursor: pointer; color: white; font-size: 0.9rem; border-bottom: 1px solid rgba(255,255,255,0.05);" onmouseover="this.style.background='rgba(56, 189, 248, 0.1)'" onmouseout="this.style.background='transparent'">
+            <div onclick="selectModelColor('${escapedColor}')" style="padding: 10px 15px; cursor: pointer; color: white; font-size: 0.9rem; border-bottom: 1px solid rgba(255,255,255,0.05);" onmouseover="this.style.background='rgba(56, 189, 248, 0.1)'" onmouseout="this.style.background='transparent'">
                 <div style="display:flex; align-items:center; gap:10px;">
                     <div style="width:14px; height:14px; border-radius:50%; background:${cc}; border:1px solid rgba(255,255,255,0.2);"></div>
                     ${c}
@@ -3289,38 +3395,44 @@ window.openCuttingDetails = function(cutId) {
 }
 
 window.deleteCuttingOrder = function(cutId) {
-    if(!confirm("Ushbu bichuv buyrug'ini rostan ham o'chirmoqchimisiz? Ishlatilgan mato miqdori omborga qaytariladi.")) return;
-    
-    const cutIndex = state.cuts.findIndex(c => c.id === cutId);
-    if(cutIndex === -1) return;
-    
-    const cut = state.cuts[cutIndex];
-    
-    // Check if production has already advanced
-    const orderIndex = state.orders.findIndex(o => (o.cut_id === cutId) || (o.mahsulot_nomi === cut.nomi && o.boshlangan_sana === cut.sana));
-    if (orderIndex !== -1) {
-        const order = state.orders[orderIndex];
-        if (order.status !== 'Bichildi') {
-            alert("Ushbu bichuv asosida ishlab chiqarish/tikuv jarayoni boshlanib bo'lgan! Dastlab tikuv partiyasini bekor qilishingiz kerak.");
-            return;
-        }
-        // Remove associated order
-        state.orders.splice(orderIndex, 1);
-    }
-    
-    // Restore fabric
-    const mat = state.materials.find(m => m.id === cut.mato_id);
-    if (mat) {
-        mat.miqdori += cut.ogirlik;
-    }
-    
-    // Remove cut
-    state.cuts.splice(cutIndex, 1);
-    
-    saveState();
-    updateUI();
-    closeModal('modal-cutting-details');
-}
+    showConfirmModal(
+        "Bichuv buyrug'ini o'chirish",
+        "Ushbu bichuv buyrug'ini rostan ham o'chirmoqchimisiz? Ishlatilgan mato miqdori omborga qaytariladi.",
+        function() {
+            const cutIndex = state.cuts.findIndex(c => c.id === cutId);
+            if(cutIndex === -1) return;
+            
+            const cut = state.cuts[cutIndex];
+            
+            // Check if production has already advanced
+            const orderIndex = state.orders.findIndex(o => (o.cut_id === cutId) || (o.mahsulot_nomi === cut.nomi && o.boshlangan_sana === cut.sana));
+            if (orderIndex !== -1) {
+                const order = state.orders[orderIndex];
+                if (order.status !== 'Bichildi') {
+                    showToast("Ushbu bichuv asosida ishlab chiqarish/tikuv jarayoni boshlanib bo'lgan! Dastlab tikuv partiyasini bekor qilishingiz kerak.", "error");
+                    return;
+                }
+                // Remove associated order
+                state.orders.splice(orderIndex, 1);
+            }
+            
+            // Restore fabric
+            const mat = state.materials.find(m => m.id === cut.mato_id);
+            if (mat) {
+                mat.miqdori += cut.ogirlik;
+            }
+            
+            // Remove cut
+            state.cuts.splice(cutIndex, 1);
+            
+            saveState();
+            updateUI();
+            closeModal('modal-cutting-details');
+            showToast("Bichuv buyrug'i o'chirildi.", "info");
+        },
+        'danger'
+    );
+};
 
 
 // --- ISHLAB CHIQARISH Rendering ---
@@ -4692,7 +4804,7 @@ function setupFormsAndModals() {
             const mat = state.materials.find(m => m.id === fabricId);
             if (mat) {
                 if (mat.miqdori < weight) {
-                    alert(`Omborda yetarli mato yo'q! Zaxirada: ${mat.miqdori} kg. Kerakli: ${weight} kg.`);
+                    showToast(`Omborda yetarli mato yo'q! Zaxirada: ${mat.miqdori} kg. Kerakli: ${weight} kg.`, "error");
                     return;
                 }
                 mat.miqdori -= weight;
@@ -4841,7 +4953,7 @@ function setupFormsAndModals() {
                 }
             });
             
-            alert("Bichuv buyrug'i muvaffaqiyatli saqlandi!");
+            showToast("Bichuv buyrug'i muvaffaqiyatli saqlandi!", "success");
         });
     }
 

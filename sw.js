@@ -1,4 +1,4 @@
-const CACHE_NAME = 'eco-sports-v4.9';
+const CACHE_NAME = 'eco-sports-v5.0';
 const ASSETS_TO_CACHE = [
     '/',
     '/index.html',
