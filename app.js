@@ -4597,6 +4597,15 @@ if ('serviceWorker' in navigator) {
                 console.log('ServiceWorker ro\'yxatdan o\'tishda xatolik: ', err);
             });
     });
+
+    // Yangi service worker faollashganda sahifani avtomatik yangilash
+    let refreshing = false;
+    navigator.serviceWorker.addEventListener('controllerchange', () => {
+        if (!refreshing) {
+            refreshing = true;
+            window.location.reload();
+        }
+    });
 }
 
 window.addEventListener('beforeinstallprompt', (e) => {
