@@ -321,16 +321,19 @@ async function init() {
             showSyncLoading("Supabase ma'lumotlar bazasidan ma'lumotlar olinmoqda...");
         }
         
-        loadStateFromSupabase().then((loaded) => {
-            if (loaded) {
-                // Save loaded cloud state to local storage
-                localStorage.setItem('eco_crm_state_v3', JSON.stringify(state));
-                // Re-initialize lists and maps
-                buildSeedHistories();
-                updateUI();
-                setSyncStatus('synced');
-            } else {
+        loadStateFromSupabase().then((result) => {
+            if (result === 'error') {
                 setSyncStatus('error');
+            } else {
+                // result is true (has data) or false (empty tables — not an error)
+                if (result === true) {
+                    // Save loaded cloud state to local storage
+                    localStorage.setItem('eco_crm_state_v3', JSON.stringify(state));
+                    // Re-initialize lists and maps
+                    buildSeedHistories();
+                    updateUI();
+                }
+                setSyncStatus('synced');
             }
         }).catch((err) => {
             console.error('Supabase init load error:', err);
@@ -648,21 +651,27 @@ function mapItemToRow(tableName, item) {
 
 // Bulk upsert items into Supabase
 async function syncTableToSupabase(stateKey) {
-    if (!supabaseClient) return;
+    if (!supabaseClient) return { ok: false, table: stateKey };
     const dbTable = SUPABASE_TABLES[stateKey];
-    if (!dbTable) return;
+    if (!dbTable) return { ok: true, table: stateKey };
     
     const items = state[stateKey];
     if (!Array.isArray(items) || items.length === 0) {
-        return;
+        return { ok: true, table: stateKey };
     }
     
     const rows = items.map(item => mapItemToRow(dbTable, item));
     
-    const { error } = await supabaseClient.from(dbTable).upsert(rows);
-    if (error) {
-        console.error(`Error syncing table ${dbTable} to Supabase:`, error);
-        throw error;
+    try {
+        const { error } = await supabaseClient.from(dbTable).upsert(rows);
+        if (error) {
+            console.error(`[Supabase Sync] ❌ Jadval: ${dbTable}, Xatolik kodi: ${error.code}, Xabar: ${error.message}`, error.details || '');
+            return { ok: false, table: dbTable, error };
+        }
+        return { ok: true, table: dbTable };
+    } catch (e) {
+        console.error(`[Supabase Sync] ❌ Jadval: ${dbTable}, Network/Runtime xatolik:`, e);
+        return { ok: false, table: dbTable, error: e };
     }
 }
 
@@ -675,9 +684,22 @@ async function syncStateToSupabase() {
     
     setSyncStatus('syncing');
     try {
-        const promises = Object.keys(SUPABASE_TABLES).map(key => syncTableToSupabase(key));
-        await Promise.all(promises);
-        setSyncStatus('synced');
+        const results = await Promise.all(
+            Object.keys(SUPABASE_TABLES).map(key => syncTableToSupabase(key))
+        );
+        const failures = results.filter(r => r && !r.ok);
+        if (failures.length > 0) {
+            console.warn(`[Supabase Sync] ${failures.length} ta jadvalda xatolik:`, failures.map(f => f.table).join(', '));
+            // If ALL tables failed, show error. Otherwise show synced (partial success)
+            if (failures.length === results.length) {
+                setSyncStatus('error');
+            } else {
+                setSyncStatus('synced');
+                console.warn('[Supabase Sync] Qisman sinxronizatsiya — ba\'zi jadvallar muvaffaqiyatsiz.');
+            }
+        } else {
+            setSyncStatus('synced');
+        }
     } catch (e) {
         console.error('Supabase state sync error:', e);
         setSyncStatus('error');
@@ -712,52 +734,68 @@ async function seedSupabaseTable(stateKey, defaultItems) {
 
 // Load all tables from Supabase
 async function loadStateFromSupabase() {
-    if (!supabaseClient) return false;
+    if (!supabaseClient) return 'error';
     
     try {
         let hasData = false;
         let relationError = false;
+        let tableErrors = [];
         
         const promises = Object.keys(SUPABASE_TABLES).map(async (key) => {
             const dbTable = SUPABASE_TABLES[key];
-            const { data, error } = await supabaseClient.from(dbTable).select('*');
-            
-            if (error) {
-                if (error.code === '42P01' || error.message.includes('does not exist')) {
-                    relationError = true;
-                }
-                throw error;
-            }
-            
-            if (data && data.length > 0) {
-                state[key] = data.map(row => ({ ...row.data, id: row.id }));
-                hasData = true;
-            } else {
-                // Seed table if empty
-                let defaults = [];
-                if (key === 'materials') defaults = defaultMaterials;
-                else if (key === 'cuts') defaults = defaultCuts;
-                else if (key === 'orders') defaults = defaultOrders;
-                else if (key === 'kanban') defaults = defaultKanban;
-                else if (key === 'paintLogs') defaults = defaultPaintLogs;
-                else if (key === 'packLogs') defaults = defaultPackLogs;
-                else if (key === 'workers') defaults = defaultWorkers;
-                else if (key === 'workLogs') defaults = defaultWorkLogs;
-                else if (key === 'services') defaults = defaultServices;
-                else if (key === 'showroomSales') defaults = defaultShowroomSales;
-                else if (key === 'showroomStock') defaults = defaultShowroomStock;
+            try {
+                const { data, error } = await supabaseClient.from(dbTable).select('*');
                 
-                if (defaults.length > 0) {
-                    await seedSupabaseTable(key, defaults);
+                if (error) {
+                    console.error(`[Supabase Load] ❌ Jadval: ${dbTable}, Xatolik: ${error.code} - ${error.message}`);
+                    if (error.code === '42P01' || error.message.includes('does not exist')) {
+                        relationError = true;
+                    }
+                    tableErrors.push({ table: dbTable, error });
+                    return; // Continue with other tables
                 }
+                
+                if (data && data.length > 0) {
+                    state[key] = data.map(row => ({ ...row.data, id: row.id }));
+                    hasData = true;
+                    console.log(`[Supabase Load] ✅ ${dbTable}: ${data.length} ta yozuv yuklandi`);
+                } else {
+                    console.log(`[Supabase Load] ℹ️ ${dbTable}: bo'sh jadval`);
+                    // Seed table if empty
+                    let defaults = [];
+                    if (key === 'materials') defaults = defaultMaterials;
+                    else if (key === 'cuts') defaults = defaultCuts;
+                    else if (key === 'orders') defaults = defaultOrders;
+                    else if (key === 'kanban') defaults = defaultKanban;
+                    else if (key === 'paintLogs') defaults = defaultPaintLogs;
+                    else if (key === 'packLogs') defaults = defaultPackLogs;
+                    else if (key === 'workers') defaults = defaultWorkers;
+                    else if (key === 'workLogs') defaults = defaultWorkLogs;
+                    else if (key === 'services') defaults = defaultServices;
+                    else if (key === 'showroomSales') defaults = defaultShowroomSales;
+                    else if (key === 'showroomStock') defaults = defaultShowroomStock;
+                    
+                    if (defaults.length > 0) {
+                        await seedSupabaseTable(key, defaults);
+                    }
+                }
+            } catch (tableErr) {
+                console.error(`[Supabase Load] ❌ ${dbTable} jadvalida kutilmagan xatolik:`, tableErr);
+                tableErrors.push({ table: dbTable, error: tableErr });
             }
         });
         
         await Promise.all(promises);
         
         if (relationError) {
+            console.warn('[Supabase Load] ⚠️ Ba\'zi jadvallar mavjud emas. SQL skriptini ishga tushiring.');
             window.openSupabaseSetupModal();
-            return false;
+            return 'error';
+        }
+        
+        if (tableErrors.length > 0 && tableErrors.length === Object.keys(SUPABASE_TABLES).length) {
+            // All tables failed
+            return 'error';
         }
         
         return hasData;
@@ -768,7 +806,7 @@ async function loadStateFromSupabase() {
                 window.openSupabaseSetupModal();
             }, 1000);
         }
-        return false;
+        return 'error';
     }
 }
 
