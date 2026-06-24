@@ -418,7 +418,10 @@
                     <div class="card-glass" style="margin-top: 16px;">
                         <div class="card-glass-header" style="display: flex; justify-content: space-between; align-items: center;">
                             <h3><i class="fa-solid fa-store text-blue"></i> Eco Sports Modellari Katalogi</h3>
-                            <button class="btn btn-secondary" onclick="renderShowroomCatalog()"><i class="fa-solid fa-rotate-right"></i> Yangilash</button>
+                            <div style="display: flex; gap: 10px;">
+                                <button class="btn btn-secondary" onclick="renderShowroomCatalog()"><i class="fa-solid fa-rotate-right"></i> Yangilash</button>
+                                <button class="btn btn-danger" onclick="clearShowroom()" style="background: var(--color-red); border: none; color: white;"><i class="fa-solid fa-trash-can"></i> Showroomni Tozalash</button>
+                            </div>
                         </div>
 
                         <!-- Filter Bar -->

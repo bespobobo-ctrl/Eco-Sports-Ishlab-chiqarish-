@@ -224,6 +224,15 @@ async function init() {
         state = JSON.parse(localStorage.getItem('eco_crm_state_v3'));
         localExists = true;
 
+        // One-time cleanup request from user to clear showroom catalog, stock and sales
+        if (!localStorage.getItem('eco_showroom_cleared_once')) {
+            state.showroomCatalog = [];
+            state.showroomStock = {};
+            state.showroomSales = [];
+            localStorage.setItem('eco_showroom_cleared_once', 'true');
+            saveState();
+        }
+
         // Ensure all materials have WMS location coordinates
         state.materials.forEach((mat, idx) => {
             if (!mat.zona) {
@@ -261,8 +270,8 @@ async function init() {
         state.workers = defaultWorkers;
         state.workLogs = defaultWorkLogs;
         state.services = defaultServices;
-        state.showroomSales = defaultShowroomSales;
-        state.showroomStock = defaultShowroomStock;
+        state.showroomSales = [];
+        state.showroomStock = {};
         state.showroomCatalog = [];
         state.showroomFilter = 'All';
         state.kanban = JSON.parse(JSON.stringify(defaultKanban));
@@ -2165,6 +2174,22 @@ function renderShowroomSales(query = "") {
     });
 }
 
+window.clearShowroom = function() {
+    showConfirmModal(
+        "Showroomni tozalash",
+        "Rostdan ham showroomdagi barcha katalog mahsulotlari, zaxiralar va sotuvlar tarixini tozalab yubormoqchimisiz? Ushbu amalni ortga qaytarib bo'lmaydi.",
+        function() {
+            state.showroomCatalog = [];
+            state.showroomStock = {};
+            state.showroomSales = [];
+            saveState();
+            updateUI();
+            showToast("Showroom muvaffaqiyatli tozalandi!", "success");
+        },
+        'danger'
+    );
+};
+
 function renderShowroomCatalog() {
     const grid = document.getElementById('showroom-catalog-grid');
     const emptyState = document.getElementById('showroom-empty-state');
@@ -2407,7 +2432,7 @@ window.saveEditedCatalogItem = function() {
     saveState();
     closeModal('modal-edit-catalog');
     renderShowroomCatalog();
-    alert("O'zgarishlar muvaffaqiyatli saqlandi! Narxlar qayta hisoblandi.");
+    showToast("O'zgarishlar muvaffaqiyatli saqlandi! Narxlar qayta hisoblandi.", "success");
 };
 
 function setupShowroomSale() {
