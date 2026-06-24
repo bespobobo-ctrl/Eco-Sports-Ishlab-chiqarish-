@@ -12,7 +12,7 @@
     <!-- Font Awesome Icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <!-- CSS Style -->
-    <link rel="stylesheet" href="style.css?v=4.5">
+    <link rel="stylesheet" href="style.css?v=4.6">
     
     <!-- PWA Manifest & Meta -->
     <link rel="manifest" href="manifest.json">
@@ -458,11 +458,21 @@
 
             <!-- 2. OMBOR-TAMINOT TAB -->
             <div class="tab-pane" id="tab-warehouse">
+                <!-- Sub-nav: Mato Ombori | Aksessuar Ombori -->
+                <div class="sub-nav-segmented" style="margin-bottom: 16px;">
+                    <button class="sub-tab-btn active" id="btn-warehouse-mato" onclick="switchWarehouseSubTab('mato')">
+                        <i class="fa-solid fa-scroll"></i> Mato Ombori
+                    </button>
+                    <button class="sub-tab-btn" id="btn-warehouse-aksesuar" onclick="switchWarehouseSubTab('aksesuar')">
+                        <i class="fa-solid fa-boxes-packing"></i> Aksessuar Ombori
+                    </button>
+                </div>
+
                 <div class="layout-double-grid">
                     <div class="grid-left-large">
                         <div class="card-glass">
                             <div class="card-glass-header">
-                                <h3>Xomashyo va Matolar Zaxirasi</h3>
+                                <h3 id="warehouse-table-title">Mato Ombori Zaxirasi</h3>
                             </div>
                             <div class="table-scroll">
                                 <table class="table-premium" id="table-warehouse-inventory">

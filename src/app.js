@@ -143,6 +143,9 @@ async function init() {
         if (!state.showroomFilter) {
             state.showroomFilter = 'All';
         }
+        if (!state.activeWarehouseSubTab) {
+            state.activeWarehouseSubTab = 'mato';
+        }
         if (typeof state.aiApiUsageCount === 'undefined') {
             state.aiApiUsageCount = 0;
         }
@@ -169,6 +172,7 @@ async function init() {
         state.stages = JSON.parse(JSON.stringify(DEFAULT_STAGES));
         state.activeTab = 'sales';
         state.activeSubTab = 'ai-calc';
+        state.activeWarehouseSubTab = 'mato';
         state.aiApiUsageCount = 0;
         saveState();
     }
@@ -1879,10 +1883,33 @@ function renderWarehouse(query = "") {
     const lowStockContainer = document.getElementById('low-stock-container');
     if (!tbody) return;
 
+    // Subtab holatlarini to'g'irlash
+    const activeSub = state.activeWarehouseSubTab || 'mato';
+    const matoBtn = document.getElementById('btn-warehouse-mato');
+    const aksBtn = document.getElementById('btn-warehouse-aksesuar');
+    const tableTitle = document.getElementById('warehouse-table-title');
+
+    if (matoBtn && aksBtn) {
+        if (activeSub === 'mato') {
+            matoBtn.classList.add('active');
+            aksBtn.classList.remove('active');
+            if (tableTitle) tableTitle.innerText = "Mato Ombori Zaxirasi";
+        } else {
+            aksBtn.classList.add('active');
+            matoBtn.classList.remove('active');
+            if (tableTitle) tableTitle.innerText = "Aksessuar Ombori Zaxirasi";
+        }
+    }
+
     tbody.innerHTML = '';
     lowStockContainer.innerHTML = '';
 
     state.materials.forEach(mat => {
+        // Subtab bo'yicha filtrlash
+        const isMatoType = mat.turi === 'Mato';
+        if (activeSub === 'mato' && !isMatoType) return;
+        if (activeSub === 'aksesuar' && isMatoType) return;
+
         if (query && !mat.nomi.toLowerCase().includes(query.toLowerCase()) && !mat.turi.toLowerCase().includes(query.toLowerCase())) {
             return;
         }
@@ -1926,6 +1953,12 @@ function renderWarehouse(query = "") {
         lowStockContainer.innerHTML = '<div class="low-stock-info" style="border:none;"><p>Barcha zaxiralar me\'yorida.</p></div>';
     }
 }
+
+window.switchWarehouseSubTab = function(subtabId) {
+    state.activeWarehouseSubTab = subtabId;
+    saveState();
+    renderWarehouse();
+};
 
 window.deleteMaterial = function(id) {
     if (confirm("Xomashyoni ro'yxatdan o'chirmoqchimisiz?")) {
