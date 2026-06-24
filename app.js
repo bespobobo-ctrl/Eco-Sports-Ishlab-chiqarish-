@@ -3133,24 +3133,39 @@ window.sendCutToProduction = function(cutId) {
         return;
     }
     
+    // Hali ishlab chiqarishga yuborilmagan modellarni aniqlash
+    const sentOrders = state.orders ? state.orders.filter(o => o.cut_id === cut.id) : [];
+    const unsentModels = cut.models.filter(m => !sentOrders.some(o => o.mahsulot_nomi === m.name && o.model_color === m.color));
+    
+    if (unsentModels.length === 0) {
+        showToast("Barcha modellar allaqachon ishlab chiqarishga yuborilgan!", "warning");
+        return;
+    }
+    
+    const confirmMessage = unsentModels.length === cut.models.length
+        ? "Barcha ajratilgan modellarni alohida partiya (zayavka) sifatida Tikuv bo'limiga yubormoqchimisiz?"
+        : `Yangi ajratilgan ${unsentModels.length} ta modelni partiya (zayavka) sifatida Tikuv bo'limiga yubormoqchimisiz? (Avvalgilar yuborilgan)`;
+    
     showConfirmModal(
         "Tikuv bo'limiga yuborish",
-        "Barcha ajratilgan modellarni alohida partiya (zayavka) sifatida Tikuv bo'limiga yubormoqchimisiz?",
+        confirmMessage,
         function() {
-            // Find and remove any existing unsplit order cards from the Kanban board
-            let relatedOrders = state.orders.filter(o => o.cut_id === cut.id);
-            if (relatedOrders.length === 0) {
-                relatedOrders = state.orders.filter(o => o.mahsulot_nomi === cut.nomi && o.miqdori === cut.bichilgan_dona);
-            }
-            const relatedOrderIds = relatedOrders.map(o => o.id);
-            if (relatedOrderIds.length > 0 && Array.isArray(state.kanban)) {
-                state.kanban = state.kanban.filter(k => !relatedOrderIds.includes(k.orderId));
+            // Find and remove any existing unsplit order cards from the Kanban board (if sending for the first time)
+            if (sentOrders.length === 0) {
+                let relatedOrders = state.orders.filter(o => o.cut_id === cut.id);
+                if (relatedOrders.length === 0) {
+                    relatedOrders = state.orders.filter(o => o.mahsulot_nomi === cut.nomi && o.miqdori === cut.bichilgan_dona);
+                }
+                const relatedOrderIds = relatedOrders.map(o => o.id);
+                if (relatedOrderIds.length > 0 && Array.isArray(state.kanban)) {
+                    state.kanban = state.kanban.filter(k => !relatedOrderIds.includes(k.orderId));
+                }
             }
 
-            // Create an order and kanban card for each model
+            // Create an order and kanban card for each unsent model
             if (!Array.isArray(state.kanban)) state.kanban = [];
 
-            cut.models.forEach((m, i) => {
+            unsentModels.forEach((m, i) => {
                 const newOrderId = 'ord-' + String(state.orders.length + 1).padStart(3, '0') + '-' + Math.floor(Math.random()*1000);
                 const newOrder = {
                     id: newOrderId,
@@ -3188,7 +3203,7 @@ window.sendCutToProduction = function(cutId) {
             saveState();
             updateUI();
             closeModal('modal-cutting-details');
-            showToast("Muvaffaqiyatli! Modellar Tikuv bo'limiga faol jarayonga o'tkazildi.", "success");
+            showToast("Muvaffaqiyatli! Yangi modellar Tikuv bo'limiga faol jarayonga o'tkazildi.", "success");
         },
         'info'
     );
@@ -3384,9 +3399,17 @@ window.openCuttingDetails = function(cutId) {
         
         <div style="margin-top: 25px; border-top: 1px solid rgba(255,255,255,0.1); padding-top: 15px; display: flex; justify-content: space-between; flex-wrap: wrap; gap: 10px;">
             <button class="btn btn-primary" onclick="printCuttingOrder('${cut.id}')" style="background: var(--color-prospect); border: none;"><i class="fa-solid fa-file-pdf"></i> Hujjat shaklida (PDF)</button>
-            ${cut.models && cut.models.length > 0 && cut.status !== 'Ishlab chiqarishda' ? `
-                <button class="btn btn-success" onclick="sendCutToProduction('${cut.id}')" style="background: var(--color-won); border: none;"><i class="fa-solid fa-industry"></i> Ishlab chiqarishga Yuborish</button>
-            ` : ''}
+            ${(function() {
+                if (!cut.models || cut.models.length === 0) return '';
+                const sentOrders = state.orders ? state.orders.filter(o => o.cut_id === cut.id) : [];
+                const hasUnsent = cut.models.some(m => !sentOrders.some(o => o.mahsulot_nomi === m.name && o.model_color === m.color));
+                if (hasUnsent || cut.status !== 'Ishlab chiqarishda') {
+                    return `
+                        <button class="btn btn-success" onclick="sendCutToProduction('${cut.id}')" style="background: var(--color-won); border: none;"><i class="fa-solid fa-industry"></i> Ishlab chiqarishga Yuborish</button>
+                    `;
+                }
+                return '';
+            })()}
             <button class="btn btn-danger" onclick="deleteCuttingOrder('${cut.id}')"><i class="fa-solid fa-trash"></i> Buyruqni O'chirish</button>
         </div>
     `;
