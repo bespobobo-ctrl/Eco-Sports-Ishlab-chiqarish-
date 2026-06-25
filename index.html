@@ -1259,10 +1259,27 @@
                                                     <span style="font-size: 0.75rem; color: var(--color-text-muted);">so'm</span>
                                                 </div>
                                             </div>
+                                            <div class="accessory-row wizard-toggle-card" data-name="Rezinka" data-unit="gr">
+                                                <div class="wizard-toggle-card-header">
+                                                    <input type="checkbox" class="accessory-checkbox" id="acc-rezinka-active">
+                                                    <label for="acc-rezinka-active">Rezinka (Bel uchun)</label>
+                                                </div>
+                                                <div class="wizard-toggle-card-body">
+                                                    <input type="number" class="accessory-price-input" value="65000" min="0" disabled style="width: 80px;" title="1 kg narxi">
+                                                    <span style="font-size: 0.7rem; color: var(--color-text-muted);" title="1 kg narxi">so'm/kg</span>
+                                                    <span style="font-size: 0.75rem; color: var(--color-text-muted);">x</span>
+                                                    <input type="number" class="accessory-qty-input" value="45" min="1" disabled style="text-align: center; width: 55px;" title="Sarf og'irligi (gramm)">
+                                                    <span style="font-size: 0.7rem; color: var(--color-text-muted);" title="Sarf og'irligi (gramm)">gr</span>
+                                                </div>
+                                            </div>
                                         </div>
                                         <div class="custom-add-bar">
                                             <input type="text" id="custom-accessory-name" placeholder="Aksessuar nomi..." style="flex: 2; padding: 8px; border-radius: 6px; border: 1px solid var(--border-color); background: #000; color: #fff; font-size: 0.85rem;">
                                             <input type="number" id="custom-accessory-price" placeholder="Narxi" style="flex: 1.2; padding: 8px; border-radius: 6px; border: 1px solid var(--border-color); background: #000; color: #fff; font-size: 0.85rem; text-align: right;">
+                                            <select id="custom-accessory-unit" style="width: 75px; padding: 8px; border-radius: 6px; border: 1px solid var(--border-color); background: #000; color: #fff; font-size: 0.85rem;">
+                                                <option value="dona">dona</option>
+                                                <option value="gr">gr (kg)</option>
+                                            </select>
                                             <input type="number" id="custom-accessory-qty" value="1" min="1" placeholder="Soni" style="width: 55px; padding: 8px; border-radius: 6px; border: 1px solid var(--border-color); background: #000; color: #fff; font-size: 0.85rem; text-align: center;">
                                             <button type="button" class="btn btn-secondary" id="btn-add-custom-accessory" style="padding: 8px 16px;"><i class="fa-solid fa-plus"></i></button>
                                         </div>

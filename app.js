@@ -1307,9 +1307,11 @@ function updateApiUsageUI() {
             const nameInput = document.getElementById('custom-accessory-name');
             const priceInput = document.getElementById('custom-accessory-price');
             const qtyInput = document.getElementById('custom-accessory-qty');
+            const unitSelect = document.getElementById('custom-accessory-unit');
             const name = nameInput.value.trim();
             const price = parseFloat(priceInput.value) || 0;
-            const qty = parseInt(qtyInput.value) || 1;
+            const qty = parseFloat(qtyInput.value) || 1;
+            const unit = unitSelect ? unitSelect.value : 'dona';
 
             if (!name || price <= 0) return;
 
@@ -1317,16 +1319,19 @@ function updateApiUsageUI() {
             const row = document.createElement('div');
             row.className = 'accessory-row wizard-toggle-card active';
             row.setAttribute('data-name', name);
+            row.setAttribute('data-unit', unit);
+            const isGr = unit === 'gr';
             row.innerHTML = `
                 <div class="wizard-toggle-card-header">
                     <input type="checkbox" checked class="accessory-checkbox" id="acc-custom-${Date.now()}-active">
                     <label for="acc-custom-${Date.now()}-active">${name} (Maxsus)</label>
                 </div>
                 <div class="wizard-toggle-card-body">
-                    <input type="number" class="accessory-price-input" value="${price}" min="0">
+                    <input type="number" class="accessory-price-input" value="${price}" min="0" style="width: 80px;">
+                    <span style="font-size: 0.7rem; color: var(--color-text-muted);">${isGr ? "so'm/kg" : "so'm"}</span>
                     <span style="font-size: 0.75rem; color: var(--color-text-muted);">x</span>
-                    <input type="number" class="accessory-qty-input" value="${qty}" min="1" style="text-align: center;">
-                    <span style="font-size: 0.75rem; color: var(--color-text-muted);">so'm</span>
+                    <input type="number" class="accessory-qty-input" value="${qty}" min="1" style="text-align: center; width: 55px;">
+                    <span style="font-size: 0.7rem; color: var(--color-text-muted);">${isGr ? 'gr' : 'ta'}</span>
                     <button type="button" class="btn-remove-row" style="background:none; border:none; color:var(--color-red); cursor:pointer; margin-left: 8px;"><i class="fa-solid fa-trash"></i></button>
                 </div>
             `;
@@ -1335,6 +1340,7 @@ function updateApiUsageUI() {
             nameInput.value = '';
             priceInput.value = '';
             qtyInput.value = '1';
+            if (unitSelect) unitSelect.value = 'dona';
 
             // Setup listeners
             const checkbox = row.querySelector('.accessory-checkbox');
@@ -1497,7 +1503,14 @@ function updateApiUsageUI() {
                 const active = row.querySelector('.accessory-checkbox').checked;
                 const price = parseFloat(row.querySelector('.accessory-price-input').value) || 0;
                 const qty = parseFloat(row.querySelector('.accessory-qty-input').value) || 0;
-                if (active) totalAccessory += (price * qty);
+                const unit = row.getAttribute('data-unit') || 'dona';
+                if (active) {
+                    if (unit === 'gr') {
+                        totalAccessory += (price * qty) / 1000;
+                    } else {
+                        totalAccessory += (price * qty);
+                    }
+                }
             });
 
             // Step 5: Overheads
@@ -1884,12 +1897,15 @@ function updateApiUsageUI() {
                 const aName = row.getAttribute('data-name');
                 const aPrice = parseFloat(row.querySelector('.accessory-price-input').value) || 0;
                 const aQty = parseFloat(row.querySelector('.accessory-qty-input').value) || 0;
+                const aUnit = row.getAttribute('data-unit') || 'dona';
                 if (active) {
+                    const aCost = aUnit === 'gr' ? (aPrice * aQty) / 1000 : (aPrice * aQty);
                     accessoryData.push({
                         name: aName,
                         price: aPrice,
                         qty: aQty,
-                        cost: aPrice * aQty
+                        unit: aUnit,
+                        cost: aCost
                     });
                 }
             });
@@ -2220,11 +2236,13 @@ window.openCalculationDetailsModal = function(id) {
     let accHtml = '';
     if (calc.accessories && calc.accessories.length > 0) {
         calc.accessories.forEach(a => {
+            const unitLabel = a.unit === 'gr' ? 'gr' : 'ta';
+            const priceLabel = a.unit === 'gr' ? "so'm/kg" : "so'm";
             accHtml += `
                 <tr style="border-bottom: 1px solid rgba(255,255,255,0.05);">
                     <td style="padding: 8px 0; color:#fff;">${a.name}</td>
-                    <td style="padding: 8px 0; text-align:right;">${Math.round(a.price).toLocaleString('uz-UZ')} so'm</td>
-                    <td style="padding: 8px 0; text-align:right;">${a.qty} ta</td>
+                    <td style="padding: 8px 0; text-align:right;">${Math.round(a.price).toLocaleString('uz-UZ')} ${priceLabel}</td>
+                    <td style="padding: 8px 0; text-align:right;">${a.qty} ${unitLabel}</td>
                     <td style="padding: 8px 0; text-align:right; font-weight:bold; color:var(--color-won);">${Math.round(a.cost).toLocaleString('uz-UZ')} so'm</td>
                 </tr>
             `;
@@ -3908,6 +3926,18 @@ window.editModelInWizard = function(id) {
     }
 
     // Populate Accessories & Overheads (Step 4)
+    // Clear custom dynamic accessory rows first
+    const accessoryContainer = document.getElementById('accessory-rows-container');
+    if (accessoryContainer) {
+        const customRows = accessoryContainer.querySelectorAll('.accessory-row');
+        customRows.forEach(row => {
+            const chkId = row.querySelector('.accessory-checkbox')?.id;
+            if (chkId && chkId.startsWith('acc-custom-')) {
+                row.remove();
+            }
+        });
+    }
+
     const accessories = calcDetails.accessories || [];
     document.querySelectorAll('.accessory-row').forEach(row => {
         row.querySelector('.accessory-checkbox').checked = false;
@@ -3915,14 +3945,63 @@ window.editModelInWizard = function(id) {
     
     if (accessories.length > 0) {
         accessories.forEach(a => {
+            let matched = false;
             document.querySelectorAll('.accessory-row').forEach(row => {
                 const aName = row.getAttribute('data-name');
-                if (aName.toLowerCase() === a.name.toLowerCase()) {
+                if (aName && aName.toLowerCase() === a.name.toLowerCase()) {
                     row.querySelector('.accessory-checkbox').checked = true;
                     row.querySelector('.accessory-price-input').value = a.price || 0;
                     row.querySelector('.accessory-qty-input').value = a.qty || 1;
+                    matched = true;
                 }
             });
+            if (!matched) {
+                // Add dynamic custom accessory row
+                const container = document.getElementById('accessory-rows-container');
+                const row = document.createElement('div');
+                row.className = 'accessory-row wizard-toggle-card active';
+                row.setAttribute('data-name', a.name);
+                row.setAttribute('data-unit', a.unit || 'dona');
+                const isGr = (a.unit || 'dona') === 'gr';
+                row.innerHTML = `
+                    <div class="wizard-toggle-card-header">
+                        <input type="checkbox" checked class="accessory-checkbox" id="acc-custom-${Date.now()}-active">
+                        <label for="acc-custom-${Date.now()}-active">${a.name} (Maxsus)</label>
+                    </div>
+                    <div class="wizard-toggle-card-body">
+                        <input type="number" class="accessory-price-input" value="${a.price}" min="0" style="width: 80px;">
+                        <span style="font-size: 0.75rem; color: var(--color-text-muted);">${isGr ? "so'm/kg" : "so'm"}</span>
+                        <span style="font-size: 0.75rem; color: var(--color-text-muted);">x</span>
+                        <input type="number" class="accessory-qty-input" value="${a.qty}" min="1" style="text-align: center; width: 55px;">
+                        <span style="font-size: 0.75rem; color: var(--color-text-muted);">${isGr ? 'gr' : 'ta'}</span>
+                        <button type="button" class="btn-remove-row" style="background:none; border:none; color:var(--color-red); cursor:pointer; margin-left: 8px;"><i class="fa-solid fa-trash"></i></button>
+                    </div>
+                `;
+                container.appendChild(row);
+
+                // Bind custom row events
+                const checkbox = row.querySelector('.accessory-checkbox');
+                const priceInp = row.querySelector('.accessory-price-input');
+                const qtyInp = row.querySelector('.accessory-qty-input');
+                checkbox.addEventListener('change', function() {
+                    if (checkbox.checked) {
+                        row.classList.add('active');
+                        priceInp.removeAttribute('disabled');
+                        qtyInp.removeAttribute('disabled');
+                    } else {
+                        row.classList.remove('active');
+                        priceInp.setAttribute('disabled', 'true');
+                        qtyInp.setAttribute('disabled', 'true');
+                    }
+                    updateWizardCalculation();
+                });
+                priceInp.addEventListener('input', updateWizardCalculation);
+                qtyInp.addEventListener('input', updateWizardCalculation);
+                row.querySelector('.btn-remove-row').addEventListener('click', function() {
+                    row.remove();
+                    updateWizardCalculation();
+                });
+            }
         });
     } else if (item.params?.paramAccessories > 0) {
         document.querySelectorAll('.accessory-row').forEach(row => {
