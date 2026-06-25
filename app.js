@@ -1143,8 +1143,7 @@ function updateApiUsageUI() {
             });
         }
 
-        let currentStep = 0;
-        const totalSteps = 7; // Steps 0 to 6
+        // Steps state will be initialized below
 
         // Product type selection cards
         const typeCards = document.querySelectorAll('.product-type-card');
@@ -1528,56 +1527,52 @@ function updateApiUsageUI() {
             input.addEventListener('change', updateWizardCalculation);
         });
 
-        // Navigation controls
-        const prevBtn = document.getElementById('wizard-prev-btn');
-        const nextBtn = document.getElementById('wizard-next-btn');
-        const submitBtn = document.getElementById('wizard-submit-btn');
+        // --- Premium Accordion Wizard Navigation & Interactions ---
+        let activeStep = 0;
+        const completedSteps = new Set();
 
-        function updateStepUI() {
-            // Show active pane, hide others
-            document.querySelectorAll('.wizard-step-pane').forEach(pane => {
-                const stepNum = parseInt(pane.getAttribute('data-step'));
-                if (stepNum === currentStep) {
-                    pane.style.display = 'block';
+        function goToStep(stepNum) {
+            if (stepNum < 0 || stepNum > 6) return;
+
+            // Update calculations first
+            const calc = updateWizardCalculation();
+
+            for (let idx = 0; idx <= 6; idx++) {
+                const card = document.getElementById('step-card-' + idx);
+                if (!card) continue;
+
+                const statusEl = document.getElementById(`step-${idx}-status`);
+                const summaryEl = document.getElementById(`step-${idx}-summary`);
+
+                if (idx === stepNum) {
+                    card.classList.remove('collapsed');
+                    card.classList.add('active');
+                    if (statusEl) {
+                        statusEl.className = 'step-status-indicator status-filling';
+                        statusEl.innerText = 'To\'ldirilmoqda';
+                    }
                 } else {
-                    pane.style.display = 'none';
+                    card.classList.remove('active');
+                    card.classList.add('collapsed');
+                    
+                    if (statusEl) {
+                        if (completedSteps.has(idx)) {
+                            card.classList.add('completed');
+                            statusEl.className = 'step-status-indicator status-completed';
+                            statusEl.innerText = 'Bajarildi';
+                        } else {
+                            card.classList.remove('completed');
+                            statusEl.className = 'step-status-indicator status-waiting';
+                            statusEl.innerText = 'Kutilmoqda';
+                        }
+                    }
                 }
-            });
-
-            // Update step indicators
-            const nodes = document.querySelectorAll('.step-indicator-node');
-            nodes.forEach((node, idx) => {
-                node.classList.remove('active', 'completed');
-                if (idx === currentStep) {
-                    node.classList.add('active');
-                } else if (idx < currentStep) {
-                    node.classList.add('completed');
-                }
-            });
-
-            // Active progress line
-            const activeLine = document.getElementById('wizard-progress-active');
-            const percent = (currentStep / (totalSteps - 1)) * 90;
-            activeLine.style.width = percent + '%';
-
-            // Buttons visibility
-            if (currentStep === 0) {
-                prevBtn.style.visibility = 'hidden';
-            } else {
-                prevBtn.style.visibility = 'visible';
             }
+            activeStep = stepNum;
+            updateStepSummaries(calc);
 
-            if (currentStep === totalSteps - 1) {
-                nextBtn.style.display = 'none';
-                submitBtn.style.display = 'inline-block';
-            } else {
-                nextBtn.style.display = 'inline-block';
-                submitBtn.style.display = 'none';
-            }
-
-            // Populate recommended prices on step 6
-            if (currentStep === 6) {
-                const calc = updateWizardCalculation();
+            // Suggested prices populating on step 6
+            if (stepNum === 6) {
                 const wsInput = document.getElementById('wizard-wholesale-price');
                 const rtInput = document.getElementById('wizard-retail-price');
                 if (wsInput && (!wsInput.value || parseFloat(wsInput.value) <= 0)) {
@@ -1589,44 +1584,200 @@ function updateApiUsageUI() {
             }
         }
 
-        prevBtn.addEventListener('click', function() {
-            if (currentStep > 0) {
-                currentStep--;
-                updateStepUI();
-            }
-        });
-
-        nextBtn.addEventListener('click', function() {
-            // Validation
-            if (currentStep === 0) {
+        function validateStep(stepNum) {
+            if (stepNum === 0) {
                 const name = document.getElementById('wizard-model-name').value.trim();
                 if (!name) {
-                    showToast("Iltimos, model nomini kiriting.", "warning");
-                    return;
+                    showToast("Iltimos, model nomini kiriting (0-qadam).", "warning");
+                    return false;
                 }
             }
-            if (currentStep < totalSteps - 1) {
-                currentStep++;
-                updateStepUI();
+            if (stepNum === 6) {
+                const wholesale = parseFloat(document.getElementById('wizard-wholesale-price').value) || 0;
+                const retail = parseFloat(document.getElementById('wizard-retail-price').value) || 0;
+                if (wholesale <= 0 || retail <= 0) {
+                    showToast("Iltimos, ulgurji va chakana narxlarni kiriting.", "warning");
+                    return false;
+                }
             }
-        });
+            return true;
+        }
 
-        // Clickable indicator nodes (only completed or current ones)
-        document.querySelectorAll('.step-indicator-node').forEach((node, idx) => {
-            node.addEventListener('click', function() {
-                // Allow jumping to any step if name is filled
+        function updateStepSummaries(calc) {
+            if (!calc) calc = updateWizardCalculation();
+
+            // 0-qadam
+            const type = document.getElementById('wizard-product-type').value;
+            const name = document.getElementById('wizard-model-name').value.trim();
+            const qty = parseInt(document.getElementById('wizard-model-qty').value) || 100;
+            const s0 = document.getElementById('step-0-summary');
+            if (s0) {
+                if (name) {
+                    s0.innerText = `${type} | ${name} | ${qty} dona`;
+                    s0.style.display = 'inline-block';
+                } else {
+                    s0.style.display = 'none';
+                }
+            }
+
+            // 1-qadam (Matolar)
+            const s1 = document.getElementById('step-1-summary');
+            if (s1) {
+                const fabricsCount = document.querySelectorAll('.fabric-row').length;
+                if (calc.totalFabric > 0) {
+                    s1.innerText = `Matolar: ${fabricsCount} ta - ${Math.round(calc.totalFabric).toLocaleString('uz-UZ')} so'm`;
+                    s1.style.display = 'inline-block';
+                } else {
+                    s1.style.display = 'none';
+                }
+            }
+
+            // 2-qadam (Bezaklar)
+            const s2 = document.getElementById('step-2-summary');
+            if (s2) {
+                const decors = [];
+                document.querySelectorAll('.decoration-row').forEach(row => {
+                    const active = row.querySelector('.decor-checkbox').checked;
+                    if (active) {
+                        const label = row.querySelector('label').innerText.split('(')[0].trim();
+                        decors.push(label);
+                    }
+                });
+                if (decors.length > 0) {
+                    s2.innerText = `Bezaklar: ${decors.join(', ')} - ${Math.round(calc.totalDecor).toLocaleString('uz-UZ')} so'm`;
+                    s2.style.display = 'inline-block';
+                } else {
+                    s2.style.display = 'none';
+                }
+            }
+
+            // 3-qadam (Tikuv)
+            const s3 = document.getElementById('step-3-summary');
+            if (s3) {
+                const sewingList = [];
+                document.querySelectorAll('.sewing-row').forEach(row => {
+                    const active = row.querySelector('.sewing-checkbox').checked;
+                    if (active) {
+                        sewingList.push(row.getAttribute('data-name'));
+                    }
+                });
+                if (sewingList.length > 0) {
+                    s3.innerText = `Tikuv: ${sewingList.length} ta - ${Math.round(calc.totalSewing).toLocaleString('uz-UZ')} so'm`;
+                    s3.style.display = 'inline-block';
+                } else {
+                    s3.style.display = 'none';
+                }
+            }
+
+            // 4-qadam (Aksessuarlar)
+            const s4 = document.getElementById('step-4-summary');
+            if (s4) {
+                const accList = [];
+                document.querySelectorAll('.accessory-row').forEach(row => {
+                    const active = row.querySelector('.accessory-checkbox').checked;
+                    if (active) {
+                        accList.push(row.getAttribute('data-name'));
+                    }
+                });
+                if (accList.length > 0) {
+                    s4.innerText = `Aksessuarlar: ${accList.length} ta - ${Math.round(calc.totalAccessory).toLocaleString('uz-UZ')} so'm`;
+                    s4.style.display = 'inline-block';
+                } else {
+                    s4.style.display = 'none';
+                }
+            }
+
+            // 5-qadam (Ishxona)
+            const s5 = document.getElementById('step-5-summary');
+            if (s5) {
+                const ohList = [];
+                document.querySelectorAll('.overhead-row').forEach(row => {
+                    const active = row.querySelector('.overhead-checkbox').checked;
+                    if (active) {
+                        ohList.push(row.getAttribute('data-name'));
+                    }
+                });
+                if (ohList.length > 0) {
+                    s5.innerText = `Ishxona: ${Math.round(calc.totalOverhead).toLocaleString('uz-UZ')} so'm`;
+                    s5.style.display = 'inline-block';
+                } else {
+                    s5.style.display = 'none';
+                }
+            }
+
+            // 6-qadam (Yakun)
+            const s6 = document.getElementById('step-6-summary');
+            if (s6) {
+                const wholesale = parseFloat(document.getElementById('wizard-wholesale-price').value) || 0;
+                const retail = parseFloat(document.getElementById('wizard-retail-price').value) || 0;
+                if (wholesale > 0 || retail > 0) {
+                    s6.innerText = `Ulgurji: ${Math.round(wholesale).toLocaleString('uz-UZ')} / Chakana: ${Math.round(retail).toLocaleString('uz-UZ')} so'm`;
+                    s6.style.display = 'inline-block';
+                } else {
+                    s6.style.display = 'none';
+                }
+            }
+        }
+
+        // Header click interaction to jump/toggle step
+        document.querySelectorAll('.manual-section-header').forEach(header => {
+            header.addEventListener('click', function() {
+                const card = header.closest('.manual-section-card');
+                if (!card) return;
+                const targetStep = parseInt(card.getAttribute('data-step'));
+
+                // Only allow jumping if step 0 is filled
                 const name = document.getElementById('wizard-model-name').value.trim();
-                if (!name) {
+                if (!name && targetStep > 0) {
                     showToast("Iltimos, avval 0-bosqichda model nomini kiriting.", "warning");
                     return;
                 }
-                currentStep = idx;
-                updateStepUI();
+
+                // If opening a step, validate current active step first (if going forward)
+                if (targetStep > activeStep) {
+                    // Validate all intermediate steps
+                    for (let s = activeStep; s < targetStep; s++) {
+                        if (!validateStep(s)) return;
+                        completedSteps.add(s);
+                    }
+                }
+
+                goToStep(targetStep);
             });
         });
 
+        // Next / Prev button events
+        document.querySelectorAll('.btn-next-step').forEach(btn => {
+            btn.addEventListener('click', function(e) {
+                e.stopPropagation();
+                const nextStep = parseInt(btn.getAttribute('data-next'));
+                
+                // Validate current step
+                if (validateStep(activeStep)) {
+                    completedSteps.add(activeStep);
+                    goToStep(nextStep);
+                }
+            });
+        });
+
+        document.querySelectorAll('.btn-prev-step').forEach(btn => {
+            btn.addEventListener('click', function(e) {
+                e.stopPropagation();
+                const prevStep = parseInt(btn.getAttribute('data-prev'));
+                goToStep(prevStep);
+            });
+        });
+
+        // Listen for all input changes to update calculations and summaries in real-time
+        document.getElementById('form-manual-model-wizard').addEventListener('input', function() {
+            updateStepSummaries();
+        });
+
         // Submit wizard - Save to showroom
-        submitBtn.addEventListener('click', function() {
+        const submitBtn = document.getElementById('wizard-submit-btn');
+        submitBtn.addEventListener('click', function(e) {
+            e.stopPropagation();
+
             const name = document.getElementById('wizard-model-name').value.trim();
             const type = document.getElementById('wizard-product-type').value;
             const qty = parseInt(document.getElementById('wizard-model-qty').value) || 100;
@@ -1637,8 +1788,14 @@ function updateApiUsageUI() {
             const retail = parseFloat(document.getElementById('wizard-retail-price').value) || 0;
             const note = document.getElementById('wizard-note').value.trim();
 
-            if (!name || wholesale <= 0 || retail <= 0) {
-                showToast("Iltimos, narxlarni to'g'ri kiriting.", "warning");
+            if (!name) {
+                showToast("Iltimos, model nomini kiriting (0-qadam).", "warning");
+                goToStep(0);
+                return;
+            }
+            if (wholesale <= 0 || retail <= 0) {
+                showToast("Iltimos, narxlarni to'g'ri kiriting (6-qadam).", "warning");
+                goToStep(6);
                 return;
             }
 
@@ -1663,7 +1820,7 @@ function updateApiUsageUI() {
             const decorData = [];
             document.querySelectorAll('.decoration-row').forEach(row => {
                 const active = row.querySelector('.decor-checkbox').checked;
-                const dName = row.querySelector('label').innerText;
+                const dName = row.querySelector('label').innerText.split('(')[0].trim();
                 const dPrice = parseFloat(row.querySelector('.decor-price-input').value) || 0;
                 if (active) {
                     decorData.push({
@@ -1726,7 +1883,7 @@ function updateApiUsageUI() {
                 wholesalePrice: wholesale,
                 retailPrice: retail,
                 totalProductionCost: calc.totalCost,
-                imageSrc: imageSrc || 'https://images.unsplash.com/photo-1578587018452-892bacefd3f2?w=500', // Unsplash apparel stack placeholder if empty
+                imageSrc: imageSrc || 'https://images.unsplash.com/photo-1578587018452-892bacefd3f2?w=500',
                 date: new Date().toISOString().split('T')[0],
                 source: 'manual_calculation',
                 note: note,
@@ -1754,8 +1911,32 @@ function updateApiUsageUI() {
 
             showToast(`"${name}" modeli muvaffaqiyatli Showroom katalogiga saqlandi!`, "success");
 
-            // Reset wizard
-            wizardForm.reset();
+            // Reset Form and Wizard
+            resetAccordionWizard();
+
+            // Redirect to showroom
+            setTimeout(function() {
+                const btnShowroom = document.getElementById('sub-btn-showroom');
+                if (btnShowroom) btnShowroom.click();
+            }, 600);
+        });
+
+        // Reset wizard logic
+        const resetBtn = document.getElementById('wizard-reset-all-btn');
+        if (resetBtn) {
+            resetBtn.addEventListener('click', function(e) {
+                e.stopPropagation();
+                if (confirm("Rostdan ham barcha kiritilgan ma'lumotlarni o'chirib, formani tozalamoqchimisiz?")) {
+                    resetAccordionWizard();
+                    showToast("Forma tozalandi.", "info");
+                }
+            });
+        }
+
+        function resetAccordionWizard() {
+            const wizardForm = document.getElementById('form-manual-model-wizard');
+            if (wizardForm) wizardForm.reset();
+            
             document.getElementById('wizard-model-name').value = '';
             document.getElementById('wizard-model-image').value = '';
             document.getElementById('wizard-model-image-base64').value = '';
@@ -1764,6 +1945,8 @@ function updateApiUsageUI() {
             document.getElementById('wizard-note').value = '';
             
             // Clean up file picker previews
+            const btnRemoveFile = document.getElementById('btn-remove-wizard-file');
+            const btnModeFile = document.getElementById('btn-img-mode-file');
             if (btnRemoveFile) btnRemoveFile.click();
             if (btnModeFile) btnModeFile.click();
             
@@ -1774,7 +1957,6 @@ function updateApiUsageUI() {
             document.querySelectorAll('.sewing-row, .accessory-row, .overhead-row').forEach(row => {
                 if (row.querySelector('.btn-remove-row')) row.remove();
                 else {
-                    // Predefined items checkbox reset
                     const chk = row.querySelector('input[type="checkbox"]');
                     if (chk) {
                         const name = row.getAttribute('data-name');
@@ -1796,21 +1978,14 @@ function updateApiUsageUI() {
                 }
             });
 
-            // Select Triko card
+            completedSteps.clear();
             typeCards[0].click();
-            currentStep = 0;
-            updateStepUI();
+            goToStep(0);
             updateWizardCalculation();
+        }
 
-            // Redirect to showroom
-            setTimeout(function() {
-                const btnShowroom = document.getElementById('sub-btn-showroom');
-                if (btnShowroom) btnShowroom.click();
-            }, 600);
-        });
-
-        // Initialize
-        updateStepUI();
+        // Initialize Wizard
+        goToStep(0);
         updateWizardCalculation();
     });
 })();
