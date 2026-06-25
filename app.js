@@ -3612,60 +3612,68 @@ function renderShowroomCatalog() {
         if (!isMatched) return;
 
         const card = document.createElement('div');
-        card.className = 'card-glass';
-        card.style.padding = '0';
-        card.style.overflow = 'hidden';
-        card.style.display = 'flex';
-        card.style.flexDirection = 'column';
+        card.className = 'showroom-card';
 
         const hasImage = !!item.imageSrc && item.imageSrc.trim() !== '';
         const imgSrc = item.imageSrc || '';
+        const margin = (item.retailPrice || 0) - (item.wholesalePrice || 0);
+        const marginPercent = item.wholesalePrice > 0 ? Math.round((margin / item.wholesalePrice) * 100) : 0;
 
         card.innerHTML = `
-            <div style="height: 200px; width: 100%; background: #12131e; overflow: hidden; position: relative; display: flex; align-items: center; justify-content: center; border-bottom: 1px solid var(--border-color);">
+            <div class="showroom-card-img-wrap">
                 ${hasImage ? `
-                    <img src="${imgSrc}" style="width: 100%; height: 100%; object-fit: cover;" alt="${item.type}">
-                    <button type="button" onclick="deleteCatalogItemImage('${item.id}', event)" title="Rasmni o'chirish" style="position: absolute; top: 10px; left: 10px; background: rgba(239, 68, 68, 0.85); border: none; border-radius: 50%; width: 32px; height: 32px; display: flex; align-items: center; justify-content: center; cursor: pointer; color: white; transition: all 0.2s; box-shadow: 0 4px 12px rgba(0,0,0,0.5); z-index: 10; padding: 0;">
-                        <i class="fa-solid fa-trash-can" style="font-size: 0.85rem;"></i>
+                    <img src="${imgSrc}" class="showroom-card-img" alt="${item.type}">
+                    <button type="button" onclick="deleteCatalogItemImage('${item.id}', event)" class="showroom-img-action-btn delete" title="Rasmni o'chirish">
+                        <i class="fa-solid fa-trash-can"></i>
                     </button>
                 ` : `
                     <div style="width: 100%; height: 100%; display: flex; flex-direction: column; align-items: center; justify-content: center; background: rgba(255,255,255,0.01); color: var(--color-text-muted);">
-                        <i class="fa-solid fa-shirt fa-3x" style="opacity: 0.2; margin-bottom: 10px;"></i>
+                        <i class="fa-solid fa-shirt fa-3x" style="opacity: 0.15; margin-bottom: 10px;"></i>
                         <span style="font-size: 0.75rem; opacity: 0.4; font-weight: 500;">Rasm yuklanmagan</span>
                     </div>
                 `}
-                <label class="card-image-edit-badge" title="Rasm yuklash / o'zgartirish" style="position: absolute; top: 10px; right: 10px; background: rgba(56, 189, 248, 0.85); border: 1px solid rgba(56, 189, 248, 0.3); border-radius: 50%; width: 32px; height: 32px; display: flex; align-items: center; justify-content: center; cursor: pointer; color: black; transition: all 0.2s; box-shadow: 0 4px 12px rgba(0,0,0,0.5); z-index: 10; margin: 0; padding: 0;">
-                    <i class="fa-solid fa-camera" style="font-size: 0.85rem;"></i>
+                <label class="showroom-img-action-btn upload" title="Rasm yuklash / o'zgartirish" style="margin: 0;">
+                    <i class="fa-solid fa-camera"></i>
                     <input type="file" accept="image/*" style="display: none;" onchange="changeCatalogItemImage('${item.id}', this)">
                 </label>
             </div>
-            <div style="padding: 16px; flex: 1; display: flex; flex-direction: column; justify-content: space-between;">
+            <div style="padding: 20px; flex: 1; display: flex; flex-direction: column; justify-content: space-between;">
                 <div>
-                    <div style="display: flex; justify-content: space-between; align-items: start; margin-bottom: 8px;">
-                        <h4 style="margin: 0; font-size: 1.1rem; color: var(--color-won);">${item.name || item.type}</h4>
-                        <span class="badge" style="background: rgba(255,255,255,0.1); font-size: 0.75rem;">${item.date}</span>
+                    <div style="display: flex; justify-content: space-between; align-items: start; margin-bottom: 12px; gap: 8px;">
+                        <h4 style="margin: 0; font-size: 1.15rem; font-weight: 800; color: #fff; line-height: 1.2;">${item.name || item.type}</h4>
+                        <span style="background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.06); padding: 4px 8px; border-radius: 6px; font-size: 0.725rem; font-weight: 600; color: var(--color-text-muted); white-space: nowrap;">${item.date}</span>
                     </div>
-                    <p style="margin: 0 0 16px; font-size: 0.85rem; color: var(--color-text-muted);">Ishlab chiqarish quvvati: ${item.qty || 0} ta</p>
                     
-                    <div style="display: flex; justify-content: space-between; margin-bottom: 8px; font-size: 0.9rem;">
-                        <span style="color: var(--color-text-muted);">Tannarx (Ulgurji):</span>
-                        <strong>${Math.round(item.wholesalePrice || 0).toLocaleString('uz-UZ')} so'm</strong>
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px;">
+                        <span style="font-size: 0.8rem; color: var(--color-text-muted); font-weight: 500; display: flex; align-items: center; gap: 6px;">
+                            <i class="fa-solid fa-industry" style="color: var(--color-negotiation);"></i> Quvvat: <strong>${item.qty || 0} ta</strong>
+                        </span>
+                        ${marginPercent > 0 ? `<span class="showroom-profit-tag"><i class="fa-solid fa-arrow-trend-up"></i> +${marginPercent}% foyda</span>` : ''}
                     </div>
-                    <div style="display: flex; justify-content: space-between; margin-bottom: 16px; font-size: 0.9rem;">
-                        <span style="color: var(--color-text-muted);">Sotuv (Chakana):</span>
-                        <strong style="color: var(--color-blue);">${Math.round(item.retailPrice || 0).toLocaleString('uz-UZ')} so'm</strong>
+                    
+                    <div class="showroom-pricing-grid">
+                        <div class="showroom-price-box">
+                            <span>Tannarx</span>
+                            <strong>${Math.round(item.wholesalePrice || 0).toLocaleString('uz-UZ')} so'm</strong>
+                        </div>
+                        <div class="showroom-price-box retail">
+                            <span>Chakana</span>
+                            <strong>${Math.round(item.retailPrice || 0).toLocaleString('uz-UZ')} so'm</strong>
+                        </div>
                     </div>
                 </div>
                 
-                ${item.calculationDetails ? `
-                <button class="btn btn-primary btn-block" style="padding: 8px; margin-bottom: 8px; background: rgba(56, 189, 248, 0.12); border: 1px solid rgba(56, 189, 248, 0.25); color: var(--color-prospect);" onclick="openCalculationDetailsModal('${item.id}')">
-                    <i class="fa-solid fa-calculator"></i> Tannarx Tafsilotlari
-                </button>
-                ` : ''}
+                <div style="display: flex; flex-direction: column; gap: 8px; margin-top: 4px;">
+                    ${item.calculationDetails ? `
+                    <button class="showroom-card-btn details" onclick="openCalculationDetailsModal('${item.id}')">
+                        <i class="fa-solid fa-calculator"></i> Tannarx Tafsilotlari
+                    </button>
+                    ` : ''}
 
-                <button class="btn btn-secondary btn-block" style="padding: 8px;" onclick="openEditCatalogModal('${item.id}')">
-                    <i class="fa-solid fa-sliders"></i> To'liq Tahrirlash
-                </button>
+                    <button class="showroom-card-btn edit" onclick="openEditCatalogModal('${item.id}')">
+                        <i class="fa-solid fa-sliders"></i> To'liq Tahrirlash
+                    </button>
+                </div>
             </div>
         `;
         grid.appendChild(card);

@@ -1047,6 +1047,279 @@
                         #modal-edit-catalog .wizard-toggle-card:not(.active) .wizard-toggle-card-body {
                             pointer-events: none !important;
                         }
+
+                        /* ==========================================================================
+                           PREMIUM SHOWROOM VIEWPORT STYLES
+                           ========================================================================== */
+
+                        /* Premium Segmented Controls (Sub-navigation) */
+                        .sub-nav-segmented {
+                            background-color: rgba(10, 10, 15, 0.6) !important;
+                            border: 1px solid rgba(255, 255, 255, 0.05) !important;
+                            padding: 5px !important;
+                            border-radius: 12px !important;
+                            box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.4), 0 4px 15px rgba(0, 0, 0, 0.25) !important;
+                            width: fit-content !important;
+                        }
+
+                        .sub-tab-btn {
+                            padding: 10px 22px !important;
+                            font-size: 0.85rem !important;
+                            font-weight: 700 !important;
+                            border-radius: 10px !important;
+                            transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1) !important;
+                            letter-spacing: 0.1px !important;
+                        }
+
+                        .sub-tab-btn:hover {
+                            color: #fff !important;
+                            background-color: rgba(255, 255, 255, 0.03) !important;
+                        }
+
+                        .sub-tab-btn.active {
+                            background: linear-gradient(135deg, rgba(56, 189, 248, 0.18), rgba(56, 189, 248, 0.05)) !important;
+                            color: #fff !important;
+                            border: 1px solid rgba(56, 189, 248, 0.4) !important;
+                            box-shadow: 0 4px 15px rgba(56, 189, 248, 0.15) !important;
+                        }
+
+                        /* Premium Showroom Filter Bar and Filter Pills */
+                        .showroom-filter-bar {
+                            background: rgba(10, 10, 15, 0.4) !important;
+                            border-bottom: 1px solid rgba(255, 255, 255, 0.04) !important;
+                            padding: 18px 24px !important;
+                            border-radius: 16px 16px 0 0 !important;
+                        }
+                        
+                        .filter-pill {
+                            border-radius: 20px !important;
+                            padding: 6px 16px !important;
+                            font-size: 0.8rem !important;
+                            font-weight: 600 !important;
+                            cursor: pointer !important;
+                            transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1) !important;
+                            background: rgba(255, 255, 255, 0.02) !important;
+                            color: var(--color-text-muted) !important;
+                            border: 1px solid rgba(255, 255, 255, 0.05) !important;
+                            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1) !important;
+                        }
+                        .filter-pill:hover {
+                            background: rgba(255, 255, 255, 0.05) !important;
+                            color: #fff !important;
+                            border-color: rgba(255, 255, 255, 0.1) !important;
+                            transform: translateY(-1px) !important;
+                            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2) !important;
+                        }
+                        .filter-pill.active {
+                            background: linear-gradient(135deg, rgba(56, 189, 248, 0.2), rgba(56, 189, 248, 0.05)) !important;
+                            color: #fff !important;
+                            border-color: rgba(56, 189, 248, 0.45) !important;
+                            box-shadow: 0 4px 12px rgba(56, 189, 248, 0.2), 0 0 10px rgba(56, 189, 248, 0.08) !important;
+                        }
+
+                        /* Premium Showroom Card Styles */
+                        .showroom-card {
+                            background: linear-gradient(145deg, rgba(20, 20, 30, 0.65), rgba(10, 10, 15, 0.7)) !important;
+                            border: 1px solid rgba(255, 255, 255, 0.04) !important;
+                            border-radius: 16px !important;
+                            overflow: hidden;
+                            display: flex;
+                            flex-direction: column;
+                            transition: all 0.35s cubic-bezier(0.16, 1, 0.3, 1) !important;
+                            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.35) !important;
+                            position: relative;
+                        }
+                        .showroom-card:hover {
+                            transform: translateY(-5px) !important;
+                            border-color: rgba(56, 189, 248, 0.35) !important;
+                            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.5), 0 0 20px rgba(56, 189, 248, 0.08) !important;
+                        }
+                        
+                        /* Card Image container with ambient glow */
+                        .showroom-card-img-wrap {
+                            height: 220px;
+                            width: 100%;
+                            background: #12131e;
+                            overflow: hidden;
+                            position: relative;
+                            display: flex;
+                            align-items: center;
+                            justify-content: center;
+                            border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+                        }
+                        .showroom-card-img {
+                            width: 100%;
+                            height: 100%;
+                            object-fit: cover;
+                            transition: transform 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+                        }
+                        .showroom-card:hover .showroom-card-img {
+                            transform: scale(1.05);
+                        }
+                        
+                        /* Glass buttons on image */
+                        .showroom-img-action-btn {
+                            position: absolute;
+                            width: 34px;
+                            height: 34px;
+                            border-radius: 50%;
+                            display: flex;
+                            align-items: center;
+                            justify-content: center;
+                            cursor: pointer;
+                            transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+                            box-shadow: 0 4px 12px rgba(0,0,0,0.5);
+                            z-index: 10;
+                            border: 1px solid rgba(255,255,255,0.08);
+                            opacity: 0.8;
+                            transform: scale(0.95);
+                        }
+                        .showroom-card:hover .showroom-img-action-btn {
+                            opacity: 1;
+                            transform: scale(1);
+                        }
+                        
+                        .showroom-img-action-btn.delete {
+                            top: 12px;
+                            left: 12px;
+                            background: rgba(248, 113, 113, 0.15);
+                            border-color: rgba(248, 113, 113, 0.3);
+                            color: #f87171;
+                        }
+                        .showroom-img-action-btn.delete:hover {
+                            background: #ef4444;
+                            color: #fff;
+                            border-color: #ef4444;
+                            box-shadow: 0 0 12px rgba(239, 68, 68, 0.4);
+                        }
+                        
+                        .showroom-img-action-btn.upload {
+                            top: 12px;
+                            right: 12px;
+                            background: rgba(56, 189, 248, 0.15);
+                            border-color: rgba(56, 189, 248, 0.3);
+                            color: var(--color-prospect);
+                        }
+                        .showroom-img-action-btn.upload:hover {
+                            background: var(--color-prospect);
+                            color: #000;
+                            border-color: var(--color-prospect);
+                            box-shadow: 0 0 12px rgba(56, 189, 248, 0.4);
+                        }
+                        
+                        /* Pricing Grid inside showroom cards */
+                        .showroom-pricing-grid {
+                            display: grid;
+                            grid-template-columns: 1fr 1fr;
+                            gap: 10px;
+                            margin: 14px 0 16px;
+                        }
+                        
+                        .showroom-price-box {
+                            background: rgba(0, 0, 0, 0.25) !important;
+                            border: 1px solid rgba(255, 255, 255, 0.04) !important;
+                            padding: 10px 12px !important;
+                            border-radius: 10px !important;
+                            display: flex !important;
+                            flex-direction: column !important;
+                            gap: 4px !important;
+                            transition: all 0.25s ease !important;
+                        }
+                        .showroom-price-box:hover {
+                            background: rgba(255, 255, 255, 0.015) !important;
+                            border-color: rgba(255, 255, 255, 0.08) !important;
+                        }
+                        .showroom-price-box span {
+                            font-size: 0.725rem !important;
+                            color: var(--color-text-muted) !important;
+                            font-weight: 500 !important;
+                            text-transform: uppercase !important;
+                            letter-spacing: 0.5px !important;
+                        }
+                        .showroom-price-box strong {
+                            font-size: 0.95rem !important;
+                            color: #fff !important;
+                            font-weight: 700 !important;
+                        }
+                        .showroom-price-box.retail strong {
+                            color: var(--color-prospect) !important;
+                        }
+                        
+                        /* Profit badge styling */
+                        .showroom-profit-tag {
+                            display: inline-flex;
+                            align-items: center;
+                            gap: 4px;
+                            background: rgba(52, 211, 153, 0.08) !important;
+                            border: 1px solid rgba(52, 211, 153, 0.25) !important;
+                            color: var(--color-won) !important;
+                            padding: 4px 10px !important;
+                            border-radius: 20px !important;
+                            font-size: 0.725rem !important;
+                            font-weight: 700 !important;
+                            letter-spacing: 0.1px !important;
+                        }
+                        
+                        /* Buttons */
+                        .showroom-card-btn {
+                            display: flex !important;
+                            align-items: center !important;
+                            justify-content: center !important;
+                            gap: 8px !important;
+                            padding: 10px !important;
+                            border-radius: 10px !important;
+                            font-size: 0.85rem !important;
+                            font-weight: 700 !important;
+                            width: 100% !important;
+                            transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1) !important;
+                            cursor: pointer !important;
+                            border: none;
+                        }
+                        
+                        .showroom-card-btn.details {
+                            background: rgba(56, 189, 248, 0.08) !important;
+                            border: 1.5px solid rgba(56, 189, 248, 0.25) !important;
+                            color: var(--color-prospect) !important;
+                            margin-bottom: 8px;
+                        }
+                        .showroom-card-btn.details:hover {
+                            background: var(--color-prospect) !important;
+                            color: #000 !important;
+                            box-shadow: 0 0 15px rgba(56, 189, 248, 0.3) !important;
+                            transform: scale(1.01) !important;
+                        }
+                        
+                        .showroom-card-btn.edit {
+                            background: rgba(255, 255, 255, 0.02) !important;
+                            border: 1.5px solid rgba(255, 255, 255, 0.08) !important;
+                            color: #fff !important;
+                        }
+                        .showroom-card-btn.edit:hover {
+                            background: #fff !important;
+                            color: #000 !important;
+                            box-shadow: 0 0 15px rgba(255, 255, 255, 0.2) !important;
+                            transform: scale(1.01) !important;
+                        }
+
+                        /* Luxury design for Calculation details table in modal */
+                        #manual-details-body table {
+                            border-radius: 8px;
+                            overflow: hidden;
+                            margin: 10px 0;
+                            background: rgba(0, 0, 0, 0.2);
+                        }
+                        #manual-details-body th {
+                            background: rgba(255, 255, 255, 0.02);
+                            padding: 8px 12px !important;
+                            color: var(--color-text-muted);
+                            text-transform: uppercase;
+                            font-size: 0.7rem;
+                            letter-spacing: 0.5px;
+                        }
+                        #manual-details-body td {
+                            padding: 10px 12px !important;
+                            font-size: 0.8rem;
+                        }
                     </style>
 
                     <div class="layout-double-grid" style="margin-top: 16px;">
