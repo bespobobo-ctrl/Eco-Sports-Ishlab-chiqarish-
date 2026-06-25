@@ -1067,54 +1067,18 @@ function updateApiUsageUI() {
 
 // --- MANUAL MODEL ENTRY LOGIC ---
 (function() {
-    document.addEventListener('DOMContentLoaded', function() {
+    function initManualModel() {
         const wizardForm = document.getElementById('form-manual-model-wizard');
         if (!wizardForm) return;
 
-        // Image Upload mode switching and file picker logic
-        const btnModeFile = document.getElementById('btn-img-mode-file');
-        const btnModeUrl = document.getElementById('btn-img-mode-url');
-        const uploadFileContainer = document.getElementById('img-upload-file-container');
-        const uploadUrlContainer = document.getElementById('img-upload-url-container');
+        // Simplified optional file picker logic
         const fileInput = document.getElementById('wizard-model-file');
         const filePrompt = document.getElementById('wizard-file-prompt');
         const filePreviewContainer = document.getElementById('wizard-file-preview-container');
         const filePreview = document.getElementById('wizard-file-preview');
+        const fileNameSpan = document.getElementById('wizard-file-name');
         const btnRemoveFile = document.getElementById('btn-remove-wizard-file');
         const base64Input = document.getElementById('wizard-model-image-base64');
-        const urlInput = document.getElementById('wizard-model-image');
-
-        if (btnModeFile && btnModeUrl) {
-            btnModeFile.addEventListener('click', function() {
-                btnModeFile.style.background = 'var(--color-prospect)';
-                btnModeFile.style.color = '#fff';
-                btnModeFile.style.border = 'none';
-                
-                btnModeUrl.style.background = 'rgba(255,255,255,0.05)';
-                btnModeUrl.style.color = 'var(--color-text-muted)';
-                btnModeUrl.style.border = '1px solid var(--border-color)';
-                
-                uploadFileContainer.style.display = 'block';
-                uploadUrlContainer.style.display = 'none';
-                
-                if (urlInput) urlInput.value = '';
-            });
-
-            btnModeUrl.addEventListener('click', function() {
-                btnModeUrl.style.background = 'var(--color-prospect)';
-                btnModeUrl.style.color = '#fff';
-                btnModeUrl.style.border = 'none';
-                
-                btnModeFile.style.background = 'rgba(255,255,255,0.05)';
-                btnModeFile.style.color = 'var(--color-text-muted)';
-                btnModeFile.style.border = '1px solid var(--border-color)';
-                
-                uploadFileContainer.style.display = 'none';
-                uploadUrlContainer.style.display = 'block';
-                
-                if (btnRemoveFile) btnRemoveFile.click();
-            });
-        }
 
         if (fileInput) {
             fileInput.addEventListener('change', function(e) {
@@ -1123,6 +1087,7 @@ function updateApiUsageUI() {
                     const reader = new FileReader();
                     reader.onload = function(evt) {
                         if (filePreview) filePreview.src = evt.target.result;
+                        if (fileNameSpan) fileNameSpan.innerText = file.name;
                         if (filePreviewContainer) filePreviewContainer.style.display = 'flex';
                         if (filePrompt) filePrompt.style.display = 'none';
                         if (base64Input) base64Input.value = evt.target.result;
@@ -1138,6 +1103,7 @@ function updateApiUsageUI() {
                 if (fileInput) fileInput.value = '';
                 if (base64Input) base64Input.value = '';
                 if (filePreview) filePreview.src = '';
+                if (fileNameSpan) fileNameSpan.innerText = '';
                 if (filePreviewContainer) filePreviewContainer.style.display = 'none';
                 if (filePrompt) filePrompt.style.display = 'block';
             });
@@ -1946,9 +1912,7 @@ function updateApiUsageUI() {
             
             // Clean up file picker previews
             const btnRemoveFile = document.getElementById('btn-remove-wizard-file');
-            const btnModeFile = document.getElementById('btn-img-mode-file');
             if (btnRemoveFile) btnRemoveFile.click();
-            if (btnModeFile) btnModeFile.click();
             
             // Remove custom added rows
             document.querySelectorAll('.fabric-row').forEach((row, idx) => {
@@ -1987,7 +1951,14 @@ function updateApiUsageUI() {
         // Initialize Wizard
         goToStep(0);
         updateWizardCalculation();
-    });
+    }
+
+    // Robust readyState check to avoid missing DOMContentLoaded
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', initManualModel);
+    } else {
+        initManualModel();
+    }
 })();
 
 
