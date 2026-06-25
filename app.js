@@ -208,7 +208,8 @@ let state = {
     activeTab: 'sales',
     activeSubTab: 'ai-calc',
     lastCalculatedModel: null,
-    aiApiUsageCount: 0
+    aiApiUsageCount: 0,
+    editingCatalogId: null
 };
 
 
@@ -1864,14 +1865,109 @@ function updateApiUsageUI() {
             };
 
             if (!state.showroomCatalog) state.showroomCatalog = [];
-            state.showroomCatalog.push(newModel);
+
+            if (state.editingCatalogId) {
+                // Find existing item index
+                const idx = state.showroomCatalog.findIndex(i => i.id === state.editingCatalogId);
+                if (idx !== -1) {
+                    const originalItem = state.showroomCatalog[idx];
+                    
+                    // Build params object for backward compatibility with 3D or other views
+                    const p = {
+                        paramSew: sewingData.find(s => s.name === 'Chok') ? (sewingData.find(s => s.name === 'Chok').price > 0 ? Math.round(calc.totalSewing / (sewingData.find(s => s.name === 'Chok').price || 1)) : 0) : 0,
+                        paramOverlock: sewingData.find(s => s.name === 'Overlok') ? 1 : 0,
+                        paramFlatlock: sewingData.find(s => s.name === 'Raspashivalka') ? 1 : 0,
+                        paramFolds: sewingData.find(s => s.name === 'Bostiriq') ? 1 : 0,
+                        paramInserts: sewingData.find(s => s.name === 'Rangli detal ulash') ? 1 : 0,
+                        paramPaints: decorData.length > 0 ? 1 : 0,
+                        paramAccessories: accessoryData.length > 0 ? 1 : 0,
+                        
+                        costFabricQty: calc.totalFabric / (fabricsData[0]?.pricePerKg || 150000),
+                        costSew: sewingData.find(s => s.name === 'Chok')?.price || 500,
+                        costOverlock: sewingData.find(s => s.name === 'Overlok')?.price || 600,
+                        costFlatlock: sewingData.find(s => s.name === 'Raspashivalka')?.price || 800,
+                        costFolds: sewingData.find(s => s.name === 'Bostiriq')?.price || 400,
+                        costInserts: sewingData.find(s => s.name === 'Rangli detal ulash')?.price || 1500,
+                        costPaints: decorData[0]?.price || 3000,
+                        costAccessories: accessoryData[0]?.price || 2500,
+                        costFabricPrice: fabricsData[0]?.pricePerKg || 150000,
+                        costElectricity: overheadData.find(o => o.name === 'Elektr energiya')?.price || 1000,
+                        costPackaging: overheadData.find(o => o.name === 'Oziq-ovqat')?.price || 1500
+                    };
+
+                    const updatedModel = {
+                        id: originalItem.id,
+                        type: type,
+                        name: name,
+                        qty: qty,
+                        wholesalePrice: wholesale,
+                        retailPrice: retail,
+                        totalProductionCost: calc.totalCost,
+                        imageSrc: imageSrc || originalItem.imageSrc || 'https://images.unsplash.com/photo-1578587018452-892bacefd3f2?w=500',
+                        date: originalItem.date || new Date().toISOString().split('T')[0],
+                        source: originalItem.source || 'manual_calculation',
+                        note: note,
+                        params: p,
+                        calculationDetails: {
+                            fabrics: fabricsData,
+                            decorations: decorData,
+                            sewing: sewingData,
+                            accessories: accessoryData,
+                            overheads: overheadData,
+                            totals: {
+                                fabrics: calc.totalFabric,
+                                decorations: calc.totalDecor,
+                                sewing: calc.totalSewing,
+                                accessories: calc.totalAccessory,
+                                overheads: calc.totalOverhead,
+                                unitCost: calc.unitCost,
+                                totalCost: calc.totalCost
+                            }
+                        }
+                    };
+
+                    state.showroomCatalog[idx] = updatedModel;
+                    showToast(`"${name}" modeli muvaffaqiyatli yangilandi!`, "success");
+                }
+            } else {
+                const newModel = {
+                    id: 'MANUAL-' + Date.now() + '-' + Math.floor(Math.random() * 10000),
+                    type: type,
+                    name: name,
+                    qty: qty,
+                    wholesalePrice: wholesale,
+                    retailPrice: retail,
+                    totalProductionCost: calc.totalCost,
+                    imageSrc: imageSrc || 'https://images.unsplash.com/photo-1578587018452-892bacefd3f2?w=500',
+                    date: new Date().toISOString().split('T')[0],
+                    source: 'manual_calculation',
+                    note: note,
+                    calculationDetails: {
+                        fabrics: fabricsData,
+                        decorations: decorData,
+                        sewing: sewingData,
+                        accessories: accessoryData,
+                        overheads: overheadData,
+                        totals: {
+                            fabrics: calc.totalFabric,
+                            decorations: calc.totalDecor,
+                            sewing: calc.totalSewing,
+                            accessories: calc.totalAccessory,
+                            overheads: calc.totalOverhead,
+                            unitCost: calc.unitCost,
+                            totalCost: calc.totalCost
+                        }
+                    }
+                };
+
+                state.showroomCatalog.push(newModel);
+                showToast(`"${name}" modeli muvaffaqiyatli Showroom katalogiga saqlandi!`, "success");
+            }
             
-            // Reset showroom filter to 'All' to ensure the new model is visible
+            // Reset showroom filter to 'All' to ensure the model is visible
             state.showroomFilter = 'All';
             saveState();
             setupShowroomFilter();
-
-            showToast(`"${name}" modeli muvaffaqiyatli Showroom katalogiga saqlandi!`, "success");
 
             // Reset Form and Wizard
             resetAccordionWizard();
@@ -1888,14 +1984,34 @@ function updateApiUsageUI() {
         if (resetBtn) {
             resetBtn.addEventListener('click', function(e) {
                 e.stopPropagation();
-                if (confirm("Rostdan ham barcha kiritilgan ma'lumotlarni o'chirib, formani tozalamoqchimisiz?")) {
+                if (state.editingCatalogId) {
+                    state.editingCatalogId = null;
                     resetAccordionWizard();
-                    showToast("Forma tozalandi.", "info");
+                    showToast("Tahrirlash bekor qilindi.", "info");
+                    
+                    const btnShowroom = document.getElementById('sub-btn-showroom');
+                    if (btnShowroom) btnShowroom.click();
+                } else {
+                    if (confirm("Rostdan ham barcha kiritilgan ma'lumotlarni o'chirib, formani tozalamoqchimisiz?")) {
+                        resetAccordionWizard();
+                        showToast("Forma tozalandi.", "info");
+                    }
                 }
             });
         }
 
         function resetAccordionWizard() {
+            state.editingCatalogId = null;
+            
+            const submitBtn = document.getElementById('wizard-submit-btn');
+            if (submitBtn) {
+                submitBtn.innerHTML = '<i class="fa-solid fa-floppy-disk"></i> Modelni Showroomga Saqlash';
+                submitBtn.classList.remove('btn-edit-mode');
+            }
+            const resetBtn = document.getElementById('wizard-reset-all-btn');
+            if (resetBtn) {
+                resetBtn.innerHTML = '<i class="fa-solid fa-eraser"></i> Tozalash';
+            }
             const wizardForm = document.getElementById('form-manual-model-wizard');
             if (wizardForm) wizardForm.reset();
             
@@ -3455,107 +3571,274 @@ function setupShowroomFilter() {
 }
 
 // Open Edit Modal with full parameters
+// Open Edit Modal with full parameters (routed to 5-step wizard)
 window.openEditCatalogModal = function(id) {
-    const item = state.showroomCatalog.find(i => i.id === id);
-    if (!item) return;
-    
-    // Check if params exist (older saves might not have it)
-    const p = item.params || {};
-    
-    document.getElementById('edit-cat-id').value = id;
-    
-    // Intelligent Fallback for AI Parameters (for old saves)
-    let defSew = 0, defOverlock = 0, defFlatlock = 0, defFolds = 0, defInserts = 0, defPaints = 0, defAccessories = 0, defFabricQty = 0.45;
-    
-    if (item.type === 'Hudi') {
-        defSew=14; defOverlock=10; defFlatlock=4; defFolds=6; defInserts=2; defPaints=1; defAccessories=3; defFabricQty=0.65;
-    } else if (item.type === 'Futbolka') {
-        defSew=6; defOverlock=4; defFlatlock=2; defFolds=2; defInserts=0; defPaints=1; defAccessories=2; defFabricQty=0.30;
-    } else if (item.type === 'Trikotaj') {
-        defSew=8; defOverlock=6; defFlatlock=4; defFolds=4; defInserts=0; defPaints=0; defAccessories=2; defFabricQty=0.40;
-    } else if (item.type === 'Kurtka') {
-        defSew=25; defOverlock=12; defFlatlock=0; defFolds=8; defInserts=3; defPaints=0; defAccessories=6; defFabricQty=0.80;
-    } else if (item.type === 'Sport Kiyim') {
-        defSew=18; defOverlock=14; defFlatlock=6; defFolds=8; defInserts=2; defPaints=1; defAccessories=4; defFabricQty=0.55;
-    } else { // Shim
-        defSew=10; defOverlock=8; defFlatlock=0; defFolds=4; defInserts=1; defPaints=0; defAccessories=2; defFabricQty=0.45;
-    }
-    
-    document.getElementById('edit-param-sew').value = p.paramSew !== undefined ? p.paramSew : defSew;
-    document.getElementById('edit-param-overlock').value = p.paramOverlock !== undefined ? p.paramOverlock : defOverlock;
-    document.getElementById('edit-param-flatlock').value = p.paramFlatlock !== undefined ? p.paramFlatlock : defFlatlock;
-    document.getElementById('edit-param-folds').value = p.paramFolds !== undefined ? p.paramFolds : defFolds;
-    document.getElementById('edit-param-inserts').value = p.paramInserts !== undefined ? p.paramInserts : defInserts;
-    document.getElementById('edit-param-paints').value = p.paramPaints !== undefined ? p.paramPaints : defPaints;
-    document.getElementById('edit-param-accessories').value = p.paramAccessories !== undefined ? p.paramAccessories : defAccessories;
-    
-    // Cost Parameters (Fallback to standard defaults if old)
-    document.getElementById('edit-cost-fabric-qty').value = p.costFabricQty || defFabricQty;
-    document.getElementById('edit-cost-sew').value = p.costSew || 500;
-    document.getElementById('edit-cost-overlock').value = p.costOverlock || 600;
-    document.getElementById('edit-cost-flatlock').value = p.costFlatlock || 800;
-    document.getElementById('edit-cost-folds').value = p.costFolds || 400;
-    document.getElementById('edit-cost-inserts').value = p.costInserts || 1500;
-    document.getElementById('edit-cost-paints').value = p.costPaints || 3000;
-    document.getElementById('edit-cost-accessories').value = p.costAccessories || 2500;
-    document.getElementById('edit-cost-fabric-price').value = p.costFabricPrice || 150000;
-    document.getElementById('edit-cost-electricity').value = p.costElectricity || 1000;
-    document.getElementById('edit-cost-packaging').value = p.costPackaging || 1500;
-
-    openModal('modal-edit-catalog');
+    window.editModelInWizard(id);
 };
 
-// Save changes from Edit Modal
-window.saveEditedCatalogItem = function() {
-    const id = document.getElementById('edit-cat-id').value;
+// Edit Model in Wizard
+window.editModelInWizard = function(id) {
     const item = state.showroomCatalog.find(i => i.id === id);
     if (!item) return;
 
-    // Read back values
-    const p = {
-        paramSew: parseFloat(document.getElementById('edit-param-sew').value) || 0,
-        paramOverlock: parseFloat(document.getElementById('edit-param-overlock').value) || 0,
-        paramFlatlock: parseFloat(document.getElementById('edit-param-flatlock').value) || 0,
-        paramFolds: parseFloat(document.getElementById('edit-param-folds').value) || 0,
-        paramInserts: parseFloat(document.getElementById('edit-param-inserts').value) || 0,
-        paramPaints: parseFloat(document.getElementById('edit-param-paints').value) || 0,
-        paramAccessories: parseFloat(document.getElementById('edit-param-accessories').value) || 0,
-        
-        costFabricQty: parseFloat(document.getElementById('edit-cost-fabric-qty').value) || 0,
-        costSew: parseFloat(document.getElementById('edit-cost-sew').value) || 0,
-        costOverlock: parseFloat(document.getElementById('edit-cost-overlock').value) || 0,
-        costFlatlock: parseFloat(document.getElementById('edit-cost-flatlock').value) || 0,
-        costFolds: parseFloat(document.getElementById('edit-cost-folds').value) || 0,
-        costInserts: parseFloat(document.getElementById('edit-cost-inserts').value) || 0,
-        costPaints: parseFloat(document.getElementById('edit-cost-paints').value) || 0,
-        costAccessories: parseFloat(document.getElementById('edit-cost-accessories').value) || 0,
-        costFabricPrice: parseFloat(document.getElementById('edit-cost-fabric-price').value) || 0,
-        costElectricity: parseFloat(document.getElementById('edit-cost-electricity').value) || 0,
-        costPackaging: parseFloat(document.getElementById('edit-cost-packaging').value) || 0
-    };
+    state.editingCatalogId = id;
 
-    // Calculate new costs
-    const laborPerPiece = (p.paramSew * p.costSew) + (p.paramOverlock * p.costOverlock) + 
-                          (p.paramFlatlock * p.costFlatlock) + (p.paramFolds * p.costFolds) + 
-                          (p.paramInserts * p.costInserts);
-    const paintCostPerPiece = p.paramPaints * p.costPaints;
-    const accessoryCostPerPiece = p.paramAccessories * p.costAccessories;
-    const fabricCostPerPiece = p.costFabricQty * p.costFabricPrice;
+    // Switch tab and subtab
+    window.activateTab('sales');
+    const btnManual = document.getElementById('sub-btn-manual-model');
+    if (btnManual) btnManual.click();
 
-    const unitCost = laborPerPiece + paintCostPerPiece + accessoryCostPerPiece + fabricCostPerPiece + p.costElectricity + p.costPackaging;
-    const wholesalePrice = unitCost * 1.35;
-    const retailPrice = unitCost * 1.60;
+    // Change titles and button labels
+    const submitBtn = document.getElementById('wizard-submit-btn');
+    if (submitBtn) {
+        submitBtn.innerHTML = '<i class="fa-solid fa-floppy-disk"></i> O\'zgarishlarni Saqlash';
+        submitBtn.classList.add('btn-edit-mode');
+    }
+    const resetBtn = document.getElementById('wizard-reset-all-btn');
+    if (resetBtn) {
+        resetBtn.innerHTML = '<i class="fa-solid fa-xmark"></i> Tahrirlashni Bekor Qilish';
+    }
 
-    // Update item
-    item.params = p;
-    item.wholesalePrice = wholesalePrice;
-    item.retailPrice = retailPrice;
-    item.totalProductionCost = unitCost * item.qty;
+    // Populate Wizard Step 0: name, type, image, note
+    document.getElementById('wizard-model-name').value = item.name || '';
+    document.getElementById('wizard-product-type').value = item.type || '';
+    document.getElementById('wizard-note').value = item.note || '';
+    
+    // Handle product type cards active style
+    document.querySelectorAll('.product-type-card').forEach(card => {
+        if (card.getAttribute('data-type') === item.type) {
+            card.classList.add('active');
+            const icon = card.querySelector('i');
+            if (icon) icon.style.color = 'var(--color-prospect)';
+        } else {
+            card.classList.remove('active');
+            const icon = card.querySelector('i');
+            if (icon) icon.style.color = 'var(--color-text-muted)';
+        }
+    });
 
-    saveState();
+    document.getElementById('wizard-model-qty').value = item.qty || 1;
+
+    // Image previews
+    document.getElementById('wizard-model-image-base64').value = '';
+    document.getElementById('wizard-model-image').value = item.imageSrc || '';
+    const filePreviewContainer = document.getElementById('wizard-file-preview-container');
+    const filePrompt = document.getElementById('wizard-file-prompt');
+    const filePreview = document.getElementById('wizard-file-preview');
+    const fileName = document.getElementById('wizard-file-name');
+    
+    if (item.imageSrc && item.imageSrc !== 'https://images.unsplash.com/photo-1578587018452-892bacefd3f2?w=500' && !item.imageSrc.startsWith('https://via.placeholder.com')) {
+        if (filePreviewContainer) filePreviewContainer.style.display = 'flex';
+        if (filePrompt) filePrompt.style.display = 'none';
+        if (filePreview) filePreview.src = item.imageSrc;
+        if (fileName) fileName.innerText = 'Yuklangan Rasm';
+    } else {
+        if (filePreviewContainer) filePreviewContainer.style.display = 'none';
+        if (filePrompt) filePrompt.style.display = 'block';
+    }
+
+    // Clear existing dynamic fabric rows (except the first one)
+    const fabricContainer = document.getElementById('fabric-rows-container');
+    if (fabricContainer) {
+        const rows = fabricContainer.querySelectorAll('.fabric-row');
+        rows.forEach((row, index) => {
+            if (index > 0) row.remove();
+        });
+    }
+
+    // Populate Fabrics (Step 1)
+    const calcDetails = item.calculationDetails || {};
+    const fabrics = calcDetails.fabrics || [];
+    
+    if (fabrics.length > 0) {
+        const firstRow = fabricContainer.querySelector('.fabric-row');
+        if (firstRow) {
+            firstRow.querySelector('.fabric-type-select').value = fabrics[0].type || 'Asosiy mato';
+            firstRow.querySelector('.fabric-price-input').value = fabrics[0].pricePerKg || 150000;
+            firstRow.querySelector('.fabric-consumption-input').value = fabrics[0].consumptionGrams || 100;
+        }
+        for (let i = 1; i < fabrics.length; i++) {
+            const btnAddFabric = document.getElementById('btn-add-fabric-row');
+            if (btnAddFabric) {
+                btnAddFabric.click();
+                const newRow = fabricContainer.querySelectorAll('.fabric-row')[i];
+                if (newRow) {
+                    newRow.querySelector('.fabric-type-select').value = fabrics[i].type || 'Asosiy mato';
+                    newRow.querySelector('.fabric-price-input').value = fabrics[i].pricePerKg || 150000;
+                    newRow.querySelector('.fabric-consumption-input').value = fabrics[i].consumptionGrams || 100;
+                }
+            }
+        }
+    } else {
+        // Fallback for older saves
+        const firstRow = fabricContainer.querySelector('.fabric-row');
+        if (firstRow) {
+            firstRow.querySelector('.fabric-type-select').value = 'Asosiy mato';
+            firstRow.querySelector('.fabric-price-input').value = item.params?.costFabricPrice || 150000;
+            firstRow.querySelector('.fabric-consumption-input').value = (item.params?.costFabricQty ? Math.round(item.params.costFabricQty * 1000) : 450);
+        }
+    }
+
+    // Populate Decorations (Step 2)
+    const decors = calcDetails.decorations || [];
+    document.querySelectorAll('.decoration-row').forEach(row => {
+        row.querySelector('.decor-checkbox').checked = false;
+    });
+    
+    if (decors.length > 0) {
+        decors.forEach(d => {
+            document.querySelectorAll('.decoration-row').forEach(row => {
+                const labelText = row.querySelector('label').innerText.split('(')[0].trim();
+                if (labelText.toLowerCase() === d.name.toLowerCase()) {
+                    row.querySelector('.decor-checkbox').checked = true;
+                    row.querySelector('.decor-price-input').value = d.price || 0;
+                }
+            });
+        });
+    } else if (item.params?.paramPaints > 0) {
+        document.querySelectorAll('.decoration-row').forEach(row => {
+            const labelText = row.querySelector('label').innerText.split('(')[0].trim();
+            if (labelText.toLowerCase().includes('kraska') || labelText.toLowerCase().includes('pechat')) {
+                row.querySelector('.decor-checkbox').checked = true;
+                row.querySelector('.decor-price-input').value = item.params.costPaints || 3000;
+            }
+        });
+    }
+
+    // Populate Sewing (Step 3)
+    const sewings = calcDetails.sewing || [];
+    document.querySelectorAll('.sewing-row').forEach(row => {
+        row.querySelector('.sewing-checkbox').checked = false;
+    });
+
+    if (sewings.length > 0) {
+        sewings.forEach(s => {
+            document.querySelectorAll('.sewing-row').forEach(row => {
+                const sName = row.getAttribute('data-name');
+                if (sName.toLowerCase() === s.name.toLowerCase()) {
+                    row.querySelector('.sewing-checkbox').checked = true;
+                    row.querySelector('.sewing-price-input').value = s.price || 0;
+                }
+            });
+        });
+    } else if (item.params) {
+        const p = item.params;
+        document.querySelectorAll('.sewing-row').forEach(row => {
+            const sName = row.getAttribute('data-name');
+            if (sName === 'Chok' && p.paramSew > 0) {
+                row.querySelector('.sewing-checkbox').checked = true;
+                row.querySelector('.sewing-price-input').value = p.costSew || 500;
+            }
+            if (sName === 'Overlok' && p.paramOverlock > 0) {
+                row.querySelector('.sewing-checkbox').checked = true;
+                row.querySelector('.sewing-price-input').value = p.costOverlock || 600;
+            }
+            if (sName === 'Raspashivalka' && p.paramFlatlock > 0) {
+                row.querySelector('.sewing-checkbox').checked = true;
+                row.querySelector('.sewing-price-input').value = p.costFlatlock || 800;
+            }
+            if (sName === 'Bostiriq' && p.paramFolds > 0) {
+                row.querySelector('.sewing-checkbox').checked = true;
+                row.querySelector('.sewing-price-input').value = p.costFolds || 400;
+            }
+            if (sName === 'Rangli detal ulash' && p.paramInserts > 0) {
+                row.querySelector('.sewing-checkbox').checked = true;
+                row.querySelector('.sewing-price-input').value = p.costInserts || 1500;
+            }
+        });
+    }
+
+    // Populate Accessories & Overheads (Step 4)
+    const accessories = calcDetails.accessories || [];
+    document.querySelectorAll('.accessory-row').forEach(row => {
+        row.querySelector('.accessory-checkbox').checked = false;
+    });
+    
+    if (accessories.length > 0) {
+        accessories.forEach(a => {
+            document.querySelectorAll('.accessory-row').forEach(row => {
+                const aName = row.getAttribute('data-name');
+                if (aName.toLowerCase() === a.name.toLowerCase()) {
+                    row.querySelector('.accessory-checkbox').checked = true;
+                    row.querySelector('.accessory-price-input').value = a.price || 0;
+                    row.querySelector('.accessory-qty-input').value = a.qty || 1;
+                }
+            });
+        });
+    } else if (item.params?.paramAccessories > 0) {
+        document.querySelectorAll('.accessory-row').forEach(row => {
+            const aName = row.getAttribute('data-name');
+            if (aName === 'Zamok' || aName === 'Etiketka') {
+                row.querySelector('.accessory-checkbox').checked = true;
+                row.querySelector('.accessory-price-input').value = item.params.costAccessories || 2500;
+                row.querySelector('.accessory-qty-input').value = 1;
+            }
+        });
+    }
+
+    const overheads = calcDetails.overheads || [];
+    document.querySelectorAll('.overhead-row').forEach(row => {
+        row.querySelector('.overhead-checkbox').checked = false;
+    });
+
+    if (overheads.length > 0) {
+        overheads.forEach(o => {
+            document.querySelectorAll('.overhead-row').forEach(row => {
+                const oName = row.getAttribute('data-name');
+                if (oName.toLowerCase() === o.name.toLowerCase()) {
+                    row.querySelector('.overhead-checkbox').checked = true;
+                    row.querySelector('.overhead-price-input').value = o.price || 0;
+                }
+            });
+        });
+    } else if (item.params) {
+        const p = item.params;
+        document.querySelectorAll('.overhead-row').forEach(row => {
+            const oName = row.getAttribute('data-name');
+            if (oName === 'Elektr energiya') {
+                row.querySelector('.overhead-checkbox').checked = true;
+                row.querySelector('.overhead-price-input').value = p.costElectricity || 1000;
+            }
+            if (oName === 'Oziq-ovqat') {
+                row.querySelector('.overhead-checkbox').checked = true;
+                row.querySelector('.overhead-price-input').value = p.costPackaging || 1500;
+            }
+        });
+    }
+
+    // Trigger checkbox state styles synchronization
+    document.querySelectorAll('.decor-checkbox, .sewing-checkbox, .accessory-checkbox, .overhead-checkbox').forEach(chk => {
+        const row = chk.closest('.decoration-row, .sewing-row, .accessory-row, .overhead-row');
+        if (row) {
+            const priceInput = row.querySelector('.decor-price-input, .sewing-price-input, .accessory-price-input, .overhead-price-input');
+            const qtyInput = row.querySelector('.accessory-qty-input');
+            if (chk.checked) {
+                row.classList.add('active');
+                if (priceInput) priceInput.removeAttribute('disabled');
+                if (qtyInput) qtyInput.removeAttribute('disabled');
+            } else {
+                row.classList.remove('active');
+                if (priceInput) priceInput.setAttribute('disabled', 'true');
+                if (qtyInput) qtyInput.setAttribute('disabled', 'true');
+            }
+        }
+    });
+
+    // Step 5: Prices
+    document.getElementById('wizard-wholesale-price').value = item.wholesalePrice || '';
+    document.getElementById('wizard-retail-price').value = item.retailPrice || '';
+
+    // Run calculation updates to update summaries and titles
+    updateWizardCalculation();
+    updateStepSummaries();
+
+    // Expand step 0
+    goToStep(0);
+};
+
+window.saveEditedCatalogItem = function() {
+    // Legacy function placeholder (routed to wizard now)
     closeModal('modal-edit-catalog');
-    renderShowroomCatalog();
-    showToast("O'zgarishlar muvaffaqiyatli saqlandi! Narxlar qayta hisoblandi.", "success");
 };
 
 function setupShowroomSale() {
