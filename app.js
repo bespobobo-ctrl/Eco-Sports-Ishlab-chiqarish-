@@ -1071,6 +1071,78 @@ function updateApiUsageUI() {
         const wizardForm = document.getElementById('form-manual-model-wizard');
         if (!wizardForm) return;
 
+        // Image Upload mode switching and file picker logic
+        const btnModeFile = document.getElementById('btn-img-mode-file');
+        const btnModeUrl = document.getElementById('btn-img-mode-url');
+        const uploadFileContainer = document.getElementById('img-upload-file-container');
+        const uploadUrlContainer = document.getElementById('img-upload-url-container');
+        const fileInput = document.getElementById('wizard-model-file');
+        const filePrompt = document.getElementById('wizard-file-prompt');
+        const filePreviewContainer = document.getElementById('wizard-file-preview-container');
+        const filePreview = document.getElementById('wizard-file-preview');
+        const btnRemoveFile = document.getElementById('btn-remove-wizard-file');
+        const base64Input = document.getElementById('wizard-model-image-base64');
+        const urlInput = document.getElementById('wizard-model-image');
+
+        if (btnModeFile && btnModeUrl) {
+            btnModeFile.addEventListener('click', function() {
+                btnModeFile.style.background = 'var(--color-prospect)';
+                btnModeFile.style.color = '#fff';
+                btnModeFile.style.border = 'none';
+                
+                btnModeUrl.style.background = 'rgba(255,255,255,0.05)';
+                btnModeUrl.style.color = 'var(--color-text-muted)';
+                btnModeUrl.style.border = '1px solid var(--border-color)';
+                
+                uploadFileContainer.style.display = 'block';
+                uploadUrlContainer.style.display = 'none';
+                
+                if (urlInput) urlInput.value = '';
+            });
+
+            btnModeUrl.addEventListener('click', function() {
+                btnModeUrl.style.background = 'var(--color-prospect)';
+                btnModeUrl.style.color = '#fff';
+                btnModeUrl.style.border = 'none';
+                
+                btnModeFile.style.background = 'rgba(255,255,255,0.05)';
+                btnModeFile.style.color = 'var(--color-text-muted)';
+                btnModeFile.style.border = '1px solid var(--border-color)';
+                
+                uploadFileContainer.style.display = 'none';
+                uploadUrlContainer.style.display = 'block';
+                
+                if (btnRemoveFile) btnRemoveFile.click();
+            });
+        }
+
+        if (fileInput) {
+            fileInput.addEventListener('change', function(e) {
+                const file = e.target.files[0];
+                if (file) {
+                    const reader = new FileReader();
+                    reader.onload = function(evt) {
+                        if (filePreview) filePreview.src = evt.target.result;
+                        if (filePreviewContainer) filePreviewContainer.style.display = 'flex';
+                        if (filePrompt) filePrompt.style.display = 'none';
+                        if (base64Input) base64Input.value = evt.target.result;
+                    };
+                    reader.readAsDataURL(file);
+                }
+            });
+        }
+
+        if (btnRemoveFile) {
+            btnRemoveFile.addEventListener('click', function(e) {
+                e.stopPropagation(); // Prevent file input trigger
+                if (fileInput) fileInput.value = '';
+                if (base64Input) base64Input.value = '';
+                if (filePreview) filePreview.src = '';
+                if (filePreviewContainer) filePreviewContainer.style.display = 'none';
+                if (filePrompt) filePrompt.style.display = 'block';
+            });
+        }
+
         let currentStep = 0;
         const totalSteps = 7; // Steps 0 to 6
 
@@ -1558,7 +1630,9 @@ function updateApiUsageUI() {
             const name = document.getElementById('wizard-model-name').value.trim();
             const type = document.getElementById('wizard-product-type').value;
             const qty = parseInt(document.getElementById('wizard-model-qty').value) || 100;
-            const imageSrc = document.getElementById('wizard-model-image').value.trim() || '';
+            const imageBase64 = document.getElementById('wizard-model-image-base64').value.trim();
+            const imageUrl = document.getElementById('wizard-model-image').value.trim();
+            const imageSrc = imageBase64 || imageUrl || '';
             const wholesale = parseFloat(document.getElementById('wizard-wholesale-price').value) || 0;
             const retail = parseFloat(document.getElementById('wizard-retail-price').value) || 0;
             const note = document.getElementById('wizard-note').value.trim();
@@ -1684,9 +1758,14 @@ function updateApiUsageUI() {
             wizardForm.reset();
             document.getElementById('wizard-model-name').value = '';
             document.getElementById('wizard-model-image').value = '';
+            document.getElementById('wizard-model-image-base64').value = '';
             document.getElementById('wizard-wholesale-price').value = '';
             document.getElementById('wizard-retail-price').value = '';
             document.getElementById('wizard-note').value = '';
+            
+            // Clean up file picker previews
+            if (btnRemoveFile) btnRemoveFile.click();
+            if (btnModeFile) btnModeFile.click();
             
             // Remove custom added rows
             document.querySelectorAll('.fabric-row').forEach((row, idx) => {
