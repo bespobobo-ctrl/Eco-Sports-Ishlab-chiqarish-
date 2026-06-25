@@ -1171,7 +1171,6 @@ function updateApiUsageUI() {
         btnAddFabric.addEventListener('click', function() {
             const row = document.createElement('div');
             row.className = 'fabric-row card-glass';
-            row.style.cssText = 'padding: 12px; background: rgba(255,255,255,0.02); display: flex; flex-wrap: wrap; gap: 12px; align-items: flex-end; margin-top: 8px;';
             row.setAttribute('data-index', fabricIndex);
             
             row.innerHTML = `
@@ -1226,9 +1225,11 @@ function updateApiUsageUI() {
 
                 const handleToggle = () => {
                     if (checkbox.checked) {
+                        row.classList.add('active');
                         if (priceInput) priceInput.removeAttribute('disabled');
                         if (qtyInput) qtyInput.removeAttribute('disabled');
                     } else {
+                        row.classList.remove('active');
                         if (priceInput) priceInput.setAttribute('disabled', 'true');
                         if (qtyInput) qtyInput.setAttribute('disabled', 'true');
                     }
@@ -1236,6 +1237,7 @@ function updateApiUsageUI() {
                 };
 
                 checkbox.addEventListener('change', handleToggle);
+                handleToggle(); // Synchronize active state styling on initial load
                 if (priceInput) priceInput.addEventListener('input', updateWizardCalculation);
                 if (qtyInput) qtyInput.addEventListener('input', updateWizardCalculation);
             });
@@ -1258,16 +1260,15 @@ function updateApiUsageUI() {
 
             const container = document.getElementById('sewing-rows-container');
             const row = document.createElement('div');
-            row.className = 'sewing-row card-glass';
-            row.style.cssText = 'padding: 8px 12px; background: rgba(255,255,255,0.01); display: flex; align-items: center; justify-content: space-between; margin-top: 8px;';
+            row.className = 'sewing-row wizard-toggle-card active';
             row.setAttribute('data-name', name);
             row.innerHTML = `
-                <div style="display: flex; align-items: center; gap: 8px;">
-                    <input type="checkbox" checked class="sewing-checkbox" style="width: 16px; height: 16px; cursor: pointer;">
-                    <span style="font-size: 0.85rem;">${name} (Maxsus)</span>
+                <div class="wizard-toggle-card-header">
+                    <input type="checkbox" checked class="sewing-checkbox" id="sewing-custom-${Date.now()}-active">
+                    <label for="sewing-custom-${Date.now()}-active">${name} (Maxsus)</label>
                 </div>
-                <div style="display: flex; align-items: center; gap: 8px;">
-                    <input type="number" class="sewing-price-input" value="${price}" min="0" style="width: 100px; padding: 5px; border-radius: 6px; border: 1px solid var(--border-color); background: #000; color: #fff; text-align: right;">
+                <div class="wizard-toggle-card-body">
+                    <input type="number" class="sewing-price-input" value="${price}" min="0">
                     <span style="font-size: 0.75rem; color: var(--color-text-muted);">so'm</span>
                     <button type="button" class="btn-remove-row" style="background:none; border:none; color:var(--color-red); cursor:pointer; margin-left: 8px;"><i class="fa-solid fa-trash"></i></button>
                 </div>
@@ -1281,8 +1282,13 @@ function updateApiUsageUI() {
             const checkbox = row.querySelector('.sewing-checkbox');
             const priceInp = row.querySelector('.sewing-price-input');
             checkbox.addEventListener('change', function() {
-                if (checkbox.checked) priceInp.removeAttribute('disabled');
-                else priceInp.setAttribute('disabled', 'true');
+                if (checkbox.checked) {
+                    row.classList.add('active');
+                    priceInp.removeAttribute('disabled');
+                } else {
+                    row.classList.remove('active');
+                    priceInp.setAttribute('disabled', 'true');
+                }
                 updateWizardCalculation();
             });
             priceInp.addEventListener('input', updateWizardCalculation);
@@ -1307,18 +1313,17 @@ function updateApiUsageUI() {
 
             const container = document.getElementById('accessory-rows-container');
             const row = document.createElement('div');
-            row.className = 'accessory-row card-glass';
-            row.style.cssText = 'padding: 8px 12px; background: rgba(255,255,255,0.01); display: flex; align-items: center; justify-content: space-between; margin-top: 8px;';
+            row.className = 'accessory-row wizard-toggle-card active';
             row.setAttribute('data-name', name);
             row.innerHTML = `
-                <div style="display: flex; align-items: center; gap: 8px;">
-                    <input type="checkbox" checked class="accessory-checkbox" style="width: 16px; height: 16px; cursor: pointer;">
-                    <span style="font-size: 0.85rem;">${name} (Maxsus)</span>
+                <div class="wizard-toggle-card-header">
+                    <input type="checkbox" checked class="accessory-checkbox" id="acc-custom-${Date.now()}-active">
+                    <label for="acc-custom-${Date.now()}-active">${name} (Maxsus)</label>
                 </div>
-                <div style="display: flex; align-items: center; gap: 8px;">
-                    <input type="number" class="accessory-price-input" value="${price}" min="0" style="width: 90px; padding: 5px; border-radius: 6px; border: 1px solid var(--border-color); background: #000; color: #fff; text-align: right;">
+                <div class="wizard-toggle-card-body">
+                    <input type="number" class="accessory-price-input" value="${price}" min="0">
                     <span style="font-size: 0.75rem; color: var(--color-text-muted);">x</span>
-                    <input type="number" class="accessory-qty-input" value="${qty}" min="1" style="width: 45px; padding: 5px; border-radius: 6px; border: 1px solid var(--border-color); background: #000; color: #fff; text-align: center;">
+                    <input type="number" class="accessory-qty-input" value="${qty}" min="1" style="text-align: center;">
                     <span style="font-size: 0.75rem; color: var(--color-text-muted);">so'm</span>
                     <button type="button" class="btn-remove-row" style="background:none; border:none; color:var(--color-red); cursor:pointer; margin-left: 8px;"><i class="fa-solid fa-trash"></i></button>
                 </div>
@@ -1335,9 +1340,11 @@ function updateApiUsageUI() {
             const qtyInp = row.querySelector('.accessory-qty-input');
             checkbox.addEventListener('change', function() {
                 if (checkbox.checked) {
+                    row.classList.add('active');
                     priceInp.removeAttribute('disabled');
                     qtyInp.removeAttribute('disabled');
                 } else {
+                    row.classList.remove('active');
                     priceInp.setAttribute('disabled', 'true');
                     qtyInp.setAttribute('disabled', 'true');
                 }
@@ -1364,16 +1371,15 @@ function updateApiUsageUI() {
 
             const container = document.getElementById('overhead-rows-container');
             const row = document.createElement('div');
-            row.className = 'overhead-row card-glass';
-            row.style.cssText = 'padding: 8px 12px; background: rgba(255,255,255,0.01); display: flex; align-items: center; justify-content: space-between; margin-top: 8px;';
+            row.className = 'overhead-row wizard-toggle-card active';
             row.setAttribute('data-name', name);
             row.innerHTML = `
-                <div style="display: flex; align-items: center; gap: 8px;">
-                    <input type="checkbox" checked class="overhead-checkbox" style="width: 16px; height: 16px; cursor: pointer;">
-                    <span style="font-size: 0.85rem;">${name} (Maxsus)</span>
+                <div class="wizard-toggle-card-header">
+                    <input type="checkbox" checked class="overhead-checkbox" id="oh-custom-${Date.now()}-active">
+                    <label for="oh-custom-${Date.now()}-active">${name} (Maxsus)</label>
                 </div>
-                <div style="display: flex; align-items: center; gap: 8px;">
-                    <input type="number" class="overhead-price-input" value="${price}" min="0" style="width: 100px; padding: 5px; border-radius: 6px; border: 1px solid var(--border-color); background: #000; color: #fff; text-align: right;">
+                <div class="wizard-toggle-card-body">
+                    <input type="number" class="overhead-price-input" value="${price}" min="0">
                     <span style="font-size: 0.75rem; color: var(--color-text-muted);">so'm</span>
                     <button type="button" class="btn-remove-row" style="background:none; border:none; color:var(--color-red); cursor:pointer; margin-left: 8px;"><i class="fa-solid fa-trash"></i></button>
                 </div>
@@ -1387,8 +1393,13 @@ function updateApiUsageUI() {
             const checkbox = row.querySelector('.overhead-checkbox');
             const priceInp = row.querySelector('.overhead-price-input');
             checkbox.addEventListener('change', function() {
-                if (checkbox.checked) priceInp.removeAttribute('disabled');
-                else priceInp.setAttribute('disabled', 'true');
+                if (checkbox.checked) {
+                    row.classList.add('active');
+                    priceInp.removeAttribute('disabled');
+                } else {
+                    row.classList.remove('active');
+                    priceInp.setAttribute('disabled', 'true');
+                }
                 updateWizardCalculation();
             });
             priceInp.addEventListener('input', updateWizardCalculation);

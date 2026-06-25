@@ -628,12 +628,164 @@
                         .product-type-card:hover i {
                             color: var(--color-prospect);
                         }
-                        .fabric-row, .decoration-row, .sewing-row, .accessory-row, .overhead-row {
+                        
+                        /* Premium Grid Layout for options */
+                        .wizard-toggle-grid {
+                            display: grid;
+                            grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+                            gap: 16px;
+                            margin-bottom: 20px;
+                        }
+                        
+                        /* Premium Toggle Card */
+                        .wizard-toggle-card {
+                            background: rgba(255, 255, 255, 0.02) !important;
+                            border: 1px solid var(--border-color) !important;
+                            border-radius: 12px !important;
+                            padding: 16px !important;
+                            display: flex;
+                            flex-direction: column;
+                            gap: 12px;
+                            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+                            cursor: pointer;
+                            position: relative;
+                            overflow: hidden;
+                        }
+                        .wizard-toggle-card::before {
+                            content: '';
+                            position: absolute;
+                            top: 0;
+                            left: 0;
+                            width: 0%;
+                            height: 3px;
+                            background: var(--color-prospect);
+                            transition: width 0.3s ease;
+                        }
+                        .wizard-toggle-card:hover {
+                            border-color: rgba(56, 189, 248, 0.25) !important;
+                            background: rgba(255, 255, 255, 0.03) !important;
+                            transform: translateY(-2px);
+                        }
+                        .wizard-toggle-card.active {
+                            background: rgba(56, 189, 248, 0.05) !important;
+                            border-color: rgba(56, 189, 248, 0.4) !important;
+                            box-shadow: 0 4px 15px rgba(56, 189, 248, 0.1);
+                        }
+                        .wizard-toggle-card.active::before {
+                            width: 100%;
+                        }
+                        
+                        /* Custom Checkboxes */
+                        .wizard-toggle-card input[type="checkbox"] {
+                            width: 18px;
+                            height: 18px;
+                            border-radius: 4px;
+                            border: 1.5px solid var(--border-color);
+                            background: rgba(0,0,0,0.3);
+                            cursor: pointer;
+                            transition: all 0.2s ease;
+                            appearance: none;
+                            position: relative;
+                            display: flex;
+                            align-items: center;
+                            justify-content: center;
+                            margin: 0;
+                        }
+                        .wizard-toggle-card input[type="checkbox"]:checked {
+                            background: var(--color-prospect);
+                            border-color: var(--color-prospect);
+                        }
+                        .wizard-toggle-card input[type="checkbox"]:checked::after {
+                            content: '\f00c';
+                            font-family: 'Font Awesome 6 Free';
+                            font-weight: 900;
+                            color: #000;
+                            font-size: 0.7rem;
+                        }
+                        
+                        .wizard-toggle-card-header {
+                            display: flex;
+                            align-items: center;
+                            gap: 10px;
+                        }
+                        .wizard-toggle-card-header label {
+                            font-size: 0.85rem;
+                            font-weight: 600;
+                            color: var(--color-text-main);
+                            cursor: pointer;
+                            user-select: none;
+                            margin: 0;
+                        }
+                        
+                        .wizard-toggle-card-body {
+                            display: flex;
+                            align-items: center;
+                            justify-content: space-between;
+                            gap: 8px;
+                            margin-top: auto; /* Push to the bottom */
+                        }
+                        .wizard-toggle-card-body input[type="number"] {
+                            width: 100%;
+                            padding: 8px 12px;
+                            border-radius: 8px;
+                            border: 1px solid var(--border-color);
+                            background: rgba(0,0,0,0.4) !important;
+                            color: #fff;
+                            font-weight: bold;
+                            text-align: right;
+                            font-size: 0.9rem;
                             transition: all 0.2s ease;
                         }
-                        .fabric-row:hover, .decoration-row:hover, .sewing-row:hover, .accessory-row:hover, .overhead-row:hover {
-                            background: rgba(255,255,255,0.03) !important;
+                        .wizard-toggle-card-body input[type="number"]:focus {
+                            border-color: var(--color-prospect);
+                            background: rgba(0,0,0,0.6) !important;
+                            box-shadow: 0 0 6px rgba(56, 189, 248, 0.2);
                         }
+                        .wizard-toggle-card-body input[type="number"]:disabled {
+                            opacity: 0.4;
+                            cursor: not-allowed;
+                        }
+                        .wizard-toggle-card-body .inputs-row {
+                            display: flex;
+                            align-items: center;
+                            gap: 6px;
+                            width: 100%;
+                        }
+                        .wizard-toggle-card-body .inputs-row input[type="number"] {
+                            padding: 6px 10px;
+                        }
+
+                        /* Horizontal Fabric Rows */
+                        .fabric-row {
+                            display: grid;
+                            grid-template-columns: 2.2fr 1.5fr 1.5fr auto;
+                            gap: 16px;
+                            align-items: flex-end;
+                            background: rgba(255, 255, 255, 0.02) !important;
+                            border: 1px solid var(--border-color) !important;
+                            border-radius: 12px;
+                            padding: 16px 20px !important;
+                            margin-top: 12px;
+                            transition: all 0.3s ease;
+                        }
+                        .fabric-row:hover {
+                            border-color: rgba(56, 189, 248, 0.25) !important;
+                            background: rgba(255, 255, 255, 0.04) !important;
+                            box-shadow: 0 4px 20px rgba(0,0,0,0.15);
+                        }
+                        
+                        /* Dashed Custom Add Bar */
+                        .custom-add-bar {
+                            display: flex;
+                            gap: 10px;
+                            margin-top: 16px;
+                            padding: 16px;
+                            background: rgba(255,255,255,0.01);
+                            border: 1.5px dashed rgba(255,255,255,0.1);
+                            border-radius: 12px;
+                            align-items: center;
+                        }
+                        
                         .wizard-nav-row {
                             display: flex;
                             margin-top: 20px;
@@ -756,7 +908,7 @@
                                     <div class="manual-section-body">
                                         <div id="fabric-rows-container" style="display: flex; flex-direction: column; gap: 12px; margin-bottom: 16px;">
                                             <!-- Dynamic Rows -->
-                                            <div class="fabric-row card-glass" style="padding: 12px; background: rgba(255,255,255,0.02); display: flex; flex-wrap: wrap; gap: 12px; align-items: flex-end;" data-index="0">
+                                            <div class="fabric-row card-glass" data-index="0">
                                                 <div style="flex: 2; min-width: 150px;">
                                                     <label style="font-size: 0.75rem; color: var(--color-text-muted); margin-bottom: 4px; display: block;">Mato Turi</label>
                                                     <select class="fabric-type-select" style="width: 100%; padding: 8px; border-radius: 6px; border: 1px solid var(--border-color); background: #000; color: #fff;">
@@ -808,48 +960,48 @@
                                     </div>
                                     
                                     <div class="manual-section-body">
-                                        <div style="display: flex; flex-direction: column; gap: 12px;">
-                                            <div class="decoration-row card-glass" style="padding: 12px; background: rgba(255,255,255,0.02); display: flex; align-items: center; justify-content: space-between; gap: 12px;">
-                                                <div style="display: flex; align-items: center; gap: 8px;">
-                                                    <input type="checkbox" id="decor-kraska-active" class="decor-checkbox" style="width: 18px; height: 18px; cursor: pointer;">
-                                                    <label for="decor-kraska-active" style="font-size: 0.85rem; font-weight: 500; cursor: pointer;">Kraska (Chop etish)</label>
-                                                </div>
-                                                <div style="display: flex; align-items: center; gap: 8px;">
-                                                    <input type="number" id="decor-kraska-price" class="decor-price-input" value="3000" min="0" disabled style="width: 120px; padding: 6px; border-radius: 6px; border: 1px solid var(--border-color); background: #000; color: #fff; text-align: right;">
-                                                    <span style="font-size: 0.8rem; color: var(--color-text-muted);">so'm</span>
-                                                </div>
-                                            </div>
-                                            <div class="decoration-row card-glass" style="padding: 12px; background: rgba(255,255,255,0.02); display: flex; align-items: center; justify-content: space-between; gap: 12px;">
-                                                <div style="display: flex; align-items: center; gap: 8px;">
-                                                    <input type="checkbox" id="decor-press-active" class="decor-checkbox" style="width: 18px; height: 18px; cursor: pointer;">
-                                                    <label for="decor-press-active" style="font-size: 0.85rem; font-weight: 500; cursor: pointer;">Press (Termotransfer)</label>
-                                                </div>
-                                                <div style="display: flex; align-items: center; gap: 8px;">
-                                                    <input type="number" id="decor-press-price" class="decor-price-input" value="2000" min="0" disabled style="width: 120px; padding: 6px; border-radius: 6px; border: 1px solid var(--border-color); background: #000; color: #fff; text-align: right;">
-                                                    <span style="font-size: 0.8rem; color: var(--color-text-muted);">so'm</span>
-                                                </div>
-                                            </div>
-                                            <div class="decoration-row card-glass" style="padding: 12px; background: rgba(255,255,255,0.02); display: flex; align-items: center; justify-content: space-between; gap: 12px;">
-                                                <div style="display: flex; align-items: center; gap: 8px;">
-                                                    <input type="checkbox" id="decor-vishivka-active" class="decor-checkbox" style="width: 18px; height: 18px; cursor: pointer;">
-                                                    <label for="decor-vishivka-active" style="font-size: 0.85rem; font-weight: 500; cursor: pointer;">Vishivka (Kashtachilik)</label>
-                                                </div>
-                                                <div style="display: flex; align-items: center; gap: 8px;">
-                                                    <input type="number" id="decor-vishivka-price" class="decor-price-input" value="4000" min="0" disabled style="width: 120px; padding: 6px; border-radius: 6px; border: 1px solid var(--border-color); background: #000; color: #fff; text-align: right;">
-                                                    <span style="font-size: 0.8rem; color: var(--color-text-muted);">so'm</span>
-                                                </div>
-                                            </div>
-                                            <div class="decoration-row card-glass" style="padding: 12px; background: rgba(255,255,255,0.02); display: flex; align-items: center; justify-content: space-between; gap: 12px;">
-                                                <div style="display: flex; align-items: center; gap: 8px;">
-                                                    <input type="checkbox" id="decor-lazer-active" class="decor-checkbox" style="width: 18px; height: 18px; cursor: pointer;">
-                                                    <label for="decor-lazer-active" style="font-size: 0.85rem; font-weight: 500; cursor: pointer;">Lazer xizmati</label>
-                                                </div>
-                                                <div style="display: flex; align-items: center; gap: 8px;">
-                                                    <input type="number" id="decor-lazer-price" class="decor-price-input" value="5000" min="0" disabled style="width: 120px; padding: 6px; border-radius: 6px; border: 1px solid var(--border-color); background: #000; color: #fff; text-align: right;">
-                                                    <span style="font-size: 0.8rem; color: var(--color-text-muted);">so'm</span>
-                                                </div>
-                                            </div>
-                                        </div>
+                                         <div class="wizard-toggle-grid">
+                                             <div class="decoration-row wizard-toggle-card">
+                                                 <div class="wizard-toggle-card-header">
+                                                     <input type="checkbox" id="decor-kraska-active" class="decor-checkbox">
+                                                     <label for="decor-kraska-active">Kraska (Chop etish)</label>
+                                                 </div>
+                                                 <div class="wizard-toggle-card-body">
+                                                     <input type="number" id="decor-kraska-price" class="decor-price-input" value="3000" min="0" disabled>
+                                                     <span style="font-size: 0.8rem; color: var(--color-text-muted);">so'm</span>
+                                                 </div>
+                                             </div>
+                                             <div class="decoration-row wizard-toggle-card">
+                                                 <div class="wizard-toggle-card-header">
+                                                     <input type="checkbox" id="decor-press-active" class="decor-checkbox">
+                                                     <label for="decor-press-active">Press (Termotransfer)</label>
+                                                 </div>
+                                                 <div class="wizard-toggle-card-body">
+                                                     <input type="number" id="decor-press-price" class="decor-price-input" value="2000" min="0" disabled>
+                                                     <span style="font-size: 0.8rem; color: var(--color-text-muted);">so'm</span>
+                                                 </div>
+                                             </div>
+                                             <div class="decoration-row wizard-toggle-card">
+                                                 <div class="wizard-toggle-card-header">
+                                                     <input type="checkbox" id="decor-vishivka-active" class="decor-checkbox">
+                                                     <label for="decor-vishivka-active">Vishivka (Kashtachilik)</label>
+                                                 </div>
+                                                 <div class="wizard-toggle-card-body">
+                                                     <input type="number" id="decor-vishivka-price" class="decor-price-input" value="4000" min="0" disabled>
+                                                     <span style="font-size: 0.8rem; color: var(--color-text-muted);">so'm</span>
+                                                 </div>
+                                             </div>
+                                             <div class="decoration-row wizard-toggle-card">
+                                                 <div class="wizard-toggle-card-header">
+                                                     <input type="checkbox" id="decor-lazer-active" class="decor-checkbox">
+                                                     <label for="decor-lazer-active">Lazer xizmati</label>
+                                                 </div>
+                                                 <div class="wizard-toggle-card-body">
+                                                     <input type="number" id="decor-lazer-price" class="decor-price-input" value="5000" min="0" disabled>
+                                                     <span style="font-size: 0.8rem; color: var(--color-text-muted);">so'm</span>
+                                                 </div>
+                                             </div>
+                                         </div>
                                         
                                         <div class="wizard-nav-row" style="justify-content: space-between;">
                                             <button type="button" class="btn btn-secondary btn-prev-step" data-prev="1" style="padding: 10px 20px;"><i class="fa-solid fa-arrow-left"></i> Ortga</button>
@@ -875,83 +1027,83 @@
                                     </div>
                                     
                                     <div class="manual-section-body">
-                                        <div id="sewing-rows-container" style="display: flex; flex-direction: column; gap: 8px; margin-bottom: 16px;">
-                                            <div class="sewing-row card-glass" style="padding: 8px 12px; background: rgba(255,255,255,0.01); display: flex; align-items: center; justify-content: space-between;" data-name="Chok">
-                                                <div style="display: flex; align-items: center; gap: 8px;">
-                                                    <input type="checkbox" checked class="sewing-checkbox" style="width: 16px; height: 16px; cursor: pointer;">
-                                                    <span style="font-size: 0.85rem;">Chok</span>
-                                                </div>
-                                                <div style="display: flex; align-items: center; gap: 8px;">
-                                                    <input type="number" class="sewing-price-input" value="500" min="0" style="width: 100px; padding: 5px; border-radius: 6px; border: 1px solid var(--border-color); background: #000; color: #fff; text-align: right;">
-                                                    <span style="font-size: 0.75rem; color: var(--color-text-muted);">so'm</span>
-                                                </div>
-                                            </div>
-                                            <div class="sewing-row card-glass" style="padding: 8px 12px; background: rgba(255,255,255,0.01); display: flex; align-items: center; justify-content: space-between;" data-name="Overlok">
-                                                <div style="display: flex; align-items: center; gap: 8px;">
-                                                    <input type="checkbox" checked class="sewing-checkbox" style="width: 16px; height: 16px; cursor: pointer;">
-                                                    <span style="font-size: 0.85rem;">Overlok</span>
-                                                </div>
-                                                <div style="display: flex; align-items: center; gap: 8px;">
-                                                    <input type="number" class="sewing-price-input" value="600" min="0" style="width: 100px; padding: 5px; border-radius: 6px; border: 1px solid var(--border-color); background: #000; color: #fff; text-align: right;">
-                                                    <span style="font-size: 0.75rem; color: var(--color-text-muted);">so'm</span>
-                                                </div>
-                                            </div>
-                                            <div class="sewing-row card-glass" style="padding: 8px 12px; background: rgba(255,255,255,0.01); display: flex; align-items: center; justify-content: space-between;" data-name="Raspashivalka">
-                                                <div style="display: flex; align-items: center; gap: 8px;">
-                                                    <input type="checkbox" class="sewing-checkbox" style="width: 16px; height: 16px; cursor: pointer;">
-                                                    <span style="font-size: 0.85rem;">Raspashivalka</span>
-                                                </div>
-                                                <div style="display: flex; align-items: center; gap: 8px;">
-                                                    <input type="number" class="sewing-price-input" value="800" min="0" disabled style="width: 100px; padding: 5px; border-radius: 6px; border: 1px solid var(--border-color); background: #000; color: #fff; text-align: right;">
-                                                    <span style="font-size: 0.75rem; color: var(--color-text-muted);">so'm</span>
-                                                </div>
-                                            </div>
-                                            <div class="sewing-row card-glass" style="padding: 8px 12px; background: rgba(255,255,255,0.01); display: flex; align-items: center; justify-content: space-between;" data-name="Cho'ntak">
-                                                <div style="display: flex; align-items: center; gap: 8px;">
-                                                    <input type="checkbox" class="sewing-checkbox" style="width: 16px; height: 16px; cursor: pointer;">
-                                                    <span style="font-size: 0.85rem;">Cho'ntak tikuv</span>
-                                                </div>
-                                                <div style="display: flex; align-items: center; gap: 8px;">
-                                                    <input type="number" class="sewing-price-input" value="400" min="0" disabled style="width: 100px; padding: 5px; border-radius: 6px; border: 1px solid var(--border-color); background: #000; color: #fff; text-align: right;">
-                                                    <span style="font-size: 0.75rem; color: var(--color-text-muted);">so'm</span>
-                                                </div>
-                                            </div>
-                                            <div class="sewing-row card-glass" style="padding: 8px 12px; background: rgba(255,255,255,0.01); display: flex; align-items: center; justify-content: space-between;" data-name="Bel poyish">
-                                                <div style="display: flex; align-items: center; gap: 8px;">
-                                                    <input type="checkbox" class="sewing-checkbox" style="width: 16px; height: 16px; cursor: pointer;">
-                                                    <span style="font-size: 0.85rem;">Bel poyish</span>
-                                                </div>
-                                                <div style="display: flex; align-items: center; gap: 8px;">
-                                                    <input type="number" class="sewing-price-input" value="1500" min="0" disabled style="width: 100px; padding: 5px; border-radius: 6px; border: 1px solid var(--border-color); background: #000; color: #fff; text-align: right;">
-                                                    <span style="font-size: 0.75rem; color: var(--color-text-muted);">so'm</span>
-                                                </div>
-                                            </div>
-                                            <div class="sewing-row card-glass" style="padding: 8px 12px; background: rgba(255,255,255,0.01); display: flex; align-items: center; justify-content: space-between;" data-name="Manjetchi">
-                                                <div style="display: flex; align-items: center; gap: 8px;">
-                                                    <input type="checkbox" class="sewing-checkbox" style="width: 16px; height: 16px; cursor: pointer;">
-                                                    <span style="font-size: 0.85rem;">Manjetchi</span>
-                                                </div>
-                                                <div style="display: flex; align-items: center; gap: 8px;">
-                                                    <input type="number" class="sewing-price-input" value="1000" min="0" disabled style="width: 100px; padding: 5px; border-radius: 6px; border: 1px solid var(--border-color); background: #000; color: #fff; text-align: right;">
-                                                    <span style="font-size: 0.75rem; color: var(--color-text-muted);">so'm</span>
-                                                </div>
-                                            </div>
-                                            <div class="sewing-row card-glass" style="padding: 8px 12px; background: rgba(255,255,255,0.01); display: flex; align-items: center; justify-content: space-between;" data-name="Pilototachi">
-                                                <div style="display: flex; align-items: center; gap: 8px;">
-                                                    <input type="checkbox" class="sewing-checkbox" style="width: 16px; height: 16px; cursor: pointer;">
-                                                    <span style="font-size: 0.85rem;">Pilototachi</span>
-                                                </div>
-                                                <div style="display: flex; align-items: center; gap: 8px;">
-                                                    <input type="number" class="sewing-price-input" value="1200" min="0" disabled style="width: 100px; padding: 5px; border-radius: 6px; border: 1px solid var(--border-color); background: #000; color: #fff; text-align: right;">
-                                                    <span style="font-size: 0.75rem; color: var(--color-text-muted);">so'm</span>
-                                                </div>
-                                            </div>
-                                        </div>
-                                        <div style="display: flex; gap: 8px; margin-top: 12px;">
-                                            <input type="text" id="custom-sewing-name" placeholder="Yangi tikuv xizmati..." style="flex: 2; padding: 8px; border-radius: 6px; border: 1px solid var(--border-color); background: #000; color: #fff; font-size: 0.85rem;">
-                                            <input type="number" id="custom-sewing-price" placeholder="Narxi" style="flex: 1; padding: 8px; border-radius: 6px; border: 1px solid var(--border-color); background: #000; color: #fff; font-size: 0.85rem; text-align: right;">
-                                            <button type="button" class="btn btn-secondary" id="btn-add-custom-sewing" style="padding: 8px 16px; font-weight: bold;"><i class="fa-solid fa-plus"></i> Qo'shish</button>
-                                        </div>
+                                         <div id="sewing-rows-container" class="wizard-toggle-grid">
+                                             <div class="sewing-row wizard-toggle-card" data-name="Chok">
+                                                 <div class="wizard-toggle-card-header">
+                                                     <input type="checkbox" checked class="sewing-checkbox" id="sewing-chok-active">
+                                                     <label for="sewing-chok-active">Chok</label>
+                                                 </div>
+                                                 <div class="wizard-toggle-card-body">
+                                                     <input type="number" class="sewing-price-input" value="500" min="0">
+                                                     <span style="font-size: 0.75rem; color: var(--color-text-muted);">so'm</span>
+                                                 </div>
+                                             </div>
+                                             <div class="sewing-row wizard-toggle-card" data-name="Overlok">
+                                                 <div class="wizard-toggle-card-header">
+                                                     <input type="checkbox" checked class="sewing-checkbox" id="sewing-overlok-active">
+                                                     <label for="sewing-overlok-active">Overlok</label>
+                                                 </div>
+                                                 <div class="wizard-toggle-card-body">
+                                                     <input type="number" class="sewing-price-input" value="600" min="0">
+                                                     <span style="font-size: 0.75rem; color: var(--color-text-muted);">so'm</span>
+                                                 </div>
+                                             </div>
+                                             <div class="sewing-row wizard-toggle-card" data-name="Raspashivalka">
+                                                 <div class="wizard-toggle-card-header">
+                                                     <input type="checkbox" class="sewing-checkbox" id="sewing-raspashivalka-active">
+                                                     <label for="sewing-raspashivalka-active">Raspashivalka</label>
+                                                 </div>
+                                                 <div class="wizard-toggle-card-body">
+                                                     <input type="number" class="sewing-price-input" value="800" min="0" disabled>
+                                                     <span style="font-size: 0.75rem; color: var(--color-text-muted);">so'm</span>
+                                                 </div>
+                                             </div>
+                                             <div class="sewing-row wizard-toggle-card" data-name="Cho'ntak">
+                                                 <div class="wizard-toggle-card-header">
+                                                     <input type="checkbox" class="sewing-checkbox" id="sewing-chontak-active">
+                                                     <label for="sewing-chontak-active">Cho'ntak tikuv</label>
+                                                 </div>
+                                                 <div class="wizard-toggle-card-body">
+                                                     <input type="number" class="sewing-price-input" value="400" min="0" disabled>
+                                                     <span style="font-size: 0.75rem; color: var(--color-text-muted);">so'm</span>
+                                                 </div>
+                                             </div>
+                                             <div class="sewing-row wizard-toggle-card" data-name="Bel poyish">
+                                                 <div class="wizard-toggle-card-header">
+                                                     <input type="checkbox" class="sewing-checkbox" id="sewing-bel-poyish-active">
+                                                     <label for="sewing-bel-poyish-active">Bel poyish</label>
+                                                 </div>
+                                                 <div class="wizard-toggle-card-body">
+                                                     <input type="number" class="sewing-price-input" value="1500" min="0" disabled>
+                                                     <span style="font-size: 0.75rem; color: var(--color-text-muted);">so'm</span>
+                                                 </div>
+                                             </div>
+                                             <div class="sewing-row wizard-toggle-card" data-name="Manjetchi">
+                                                 <div class="wizard-toggle-card-header">
+                                                     <input type="checkbox" class="sewing-checkbox" id="sewing-manjetchi-active">
+                                                     <label for="sewing-manjetchi-active">Manjetchi</label>
+                                                 </div>
+                                                 <div class="wizard-toggle-card-body">
+                                                     <input type="number" class="sewing-price-input" value="1000" min="0" disabled>
+                                                     <span style="font-size: 0.75rem; color: var(--color-text-muted);">so'm</span>
+                                                 </div>
+                                             </div>
+                                             <div class="sewing-row wizard-toggle-card" data-name="Pilototachi">
+                                                 <div class="wizard-toggle-card-header">
+                                                     <input type="checkbox" class="sewing-checkbox" id="sewing-pilototachi-active">
+                                                     <label for="sewing-pilototachi-active">Pilototachi</label>
+                                                 </div>
+                                                 <div class="wizard-toggle-card-body">
+                                                     <input type="number" class="sewing-price-input" value="1200" min="0" disabled>
+                                                     <span style="font-size: 0.75rem; color: var(--color-text-muted);">so'm</span>
+                                                 </div>
+                                             </div>
+                                         </div>
+                                         <div class="custom-add-bar">
+                                             <input type="text" id="custom-sewing-name" placeholder="Yangi tikuv xizmati..." style="flex: 2; padding: 8px; border-radius: 6px; border: 1px solid var(--border-color); background: #000; color: #fff; font-size: 0.85rem;">
+                                             <input type="number" id="custom-sewing-price" placeholder="Narxi" style="flex: 1; padding: 8px; border-radius: 6px; border: 1px solid var(--border-color); background: #000; color: #fff; font-size: 0.85rem; text-align: right;">
+                                             <button type="button" class="btn btn-secondary" id="btn-add-custom-sewing" style="padding: 8px 16px; font-weight: bold;"><i class="fa-solid fa-plus"></i> Qo'shish</button>
+                                         </div>
                                         
                                         <div class="wizard-nav-row" style="justify-content: space-between;">
                                             <button type="button" class="btn btn-secondary btn-prev-step" data-prev="2" style="padding: 10px 20px;"><i class="fa-solid fa-arrow-left"></i> Ortga</button>
@@ -977,69 +1129,69 @@
                                     </div>
                                     
                                     <div class="manual-section-body">
-                                        <div id="accessory-rows-container" style="display: flex; flex-direction: column; gap: 8px; margin-bottom: 16px;">
-                                            <div class="accessory-row card-glass" style="padding: 8px 12px; background: rgba(255,255,255,0.01); display: flex; align-items: center; justify-content: space-between;" data-name="Bel arqoni">
-                                                <div style="display: flex; align-items: center; gap: 8px;">
-                                                    <input type="checkbox" class="accessory-checkbox" style="width: 16px; height: 16px; cursor: pointer;">
-                                                    <span style="font-size: 0.85rem;">Bel arqoni</span>
+                                        <div id="accessory-rows-container" class="wizard-toggle-grid">
+                                            <div class="accessory-row wizard-toggle-card" data-name="Bel arqoni">
+                                                <div class="wizard-toggle-card-header">
+                                                    <input type="checkbox" class="accessory-checkbox" id="acc-bel-arqoni-active">
+                                                    <label for="acc-bel-arqoni-active">Bel arqoni</label>
                                                 </div>
-                                                <div style="display: flex; align-items: center; gap: 8px;">
-                                                    <input type="number" class="accessory-price-input" value="1500" min="0" disabled style="width: 90px; padding: 5px; border-radius: 6px; border: 1px solid var(--border-color); background: #000; color: #fff; text-align: right;">
+                                                <div class="wizard-toggle-card-body">
+                                                    <input type="number" class="accessory-price-input" value="1500" min="0" disabled>
                                                     <span style="font-size: 0.75rem; color: var(--color-text-muted);">x</span>
-                                                    <input type="number" class="accessory-qty-input" value="1" min="1" disabled style="width: 45px; padding: 5px; border-radius: 6px; border: 1px solid var(--border-color); background: #000; color: #fff; text-align: center;">
+                                                    <input type="number" class="accessory-qty-input" value="1" min="1" disabled style="text-align: center;">
                                                     <span style="font-size: 0.75rem; color: var(--color-text-muted);">so'm</span>
                                                 </div>
                                             </div>
-                                            <div class="accessory-row card-glass" style="padding: 8px 12px; background: rgba(255,255,255,0.01); display: flex; align-items: center; justify-content: space-between;" data-name="Cho'ntak zamogi">
-                                                <div style="display: flex; align-items: center; gap: 8px;">
-                                                    <input type="checkbox" class="accessory-checkbox" style="width: 16px; height: 16px; cursor: pointer;">
-                                                    <span style="font-size: 0.85rem;">Cho'ntak zamogi</span>
+                                            <div class="accessory-row wizard-toggle-card" data-name="Cho'ntak zamogi">
+                                                <div class="wizard-toggle-card-header">
+                                                    <input type="checkbox" class="accessory-checkbox" id="acc-chontak-zamogi-active">
+                                                    <label for="acc-chontak-zamogi-active">Cho'ntak zamogi</label>
                                                 </div>
-                                                <div style="display: flex; align-items: center; gap: 8px;">
-                                                    <input type="number" class="accessory-price-input" value="2000" min="0" disabled style="width: 90px; padding: 5px; border-radius: 6px; border: 1px solid var(--border-color); background: #000; color: #fff; text-align: right;">
+                                                <div class="wizard-toggle-card-body">
+                                                    <input type="number" class="accessory-price-input" value="2000" min="0" disabled>
                                                     <span style="font-size: 0.75rem; color: var(--color-text-muted);">x</span>
-                                                    <input type="number" class="accessory-qty-input" value="2" min="1" disabled style="width: 45px; padding: 5px; border-radius: 6px; border: 1px solid var(--border-color); background: #000; color: #fff; text-align: center;">
+                                                    <input type="number" class="accessory-qty-input" value="2" min="1" disabled style="text-align: center;">
                                                     <span style="font-size: 0.75rem; color: var(--color-text-muted);">so'm</span>
                                                 </div>
                                             </div>
-                                            <div class="accessory-row card-glass" style="padding: 8px 12px; background: rgba(255,255,255,0.01); display: flex; align-items: center; justify-content: space-between;" data-name="Oldi chintak zamogi">
-                                                <div style="display: flex; align-items: center; gap: 8px;">
-                                                    <input type="checkbox" class="accessory-checkbox" style="width: 16px; height: 16px; cursor: pointer;">
-                                                    <span style="font-size: 0.85rem;">Oldi chintak zamogi</span>
+                                            <div class="accessory-row wizard-toggle-card" data-name="Oldi chintak zamogi">
+                                                <div class="wizard-toggle-card-header">
+                                                    <input type="checkbox" class="accessory-checkbox" id="acc-oldi-chintak-zamogi-active">
+                                                    <label for="acc-oldi-chintak-zamogi-active">Oldi chintak zamogi</label>
                                                 </div>
-                                                <div style="display: flex; align-items: center; gap: 8px;">
-                                                    <input type="number" class="accessory-price-input" value="3500" min="0" disabled style="width: 90px; padding: 5px; border-radius: 6px; border: 1px solid var(--border-color); background: #000; color: #fff; text-align: right;">
+                                                <div class="wizard-toggle-card-body">
+                                                    <input type="number" class="accessory-price-input" value="3500" min="0" disabled>
                                                     <span style="font-size: 0.75rem; color: var(--color-text-muted);">x</span>
-                                                    <input type="number" class="accessory-qty-input" value="1" min="1" disabled style="width: 45px; padding: 5px; border-radius: 6px; border: 1px solid var(--border-color); background: #000; color: #fff; text-align: center;">
+                                                    <input type="number" class="accessory-qty-input" value="1" min="1" disabled style="text-align: center;">
                                                     <span style="font-size: 0.75rem; color: var(--color-text-muted);">so'm</span>
                                                 </div>
                                             </div>
-                                            <div class="accessory-row card-glass" style="padding: 8px 12px; background: rgba(255,255,255,0.01); display: flex; align-items: center; justify-content: space-between;" data-name="Logo/Emblema">
-                                                <div style="display: flex; align-items: center; gap: 8px;">
-                                                    <input type="checkbox" class="accessory-checkbox" style="width: 16px; height: 16px; cursor: pointer;">
-                                                    <span style="font-size: 0.85rem;">Logo / Emblema</span>
+                                            <div class="accessory-row wizard-toggle-card" data-name="Logo/Emblema">
+                                                <div class="wizard-toggle-card-header">
+                                                    <input type="checkbox" class="accessory-checkbox" id="acc-logo-emblema-active">
+                                                    <label for="acc-logo-emblema-active">Logo / Emblema</label>
                                                 </div>
-                                                <div style="display: flex; align-items: center; gap: 8px;">
-                                                    <input type="number" class="accessory-price-input" value="1200" min="0" disabled style="width: 90px; padding: 5px; border-radius: 6px; border: 1px solid var(--border-color); background: #000; color: #fff; text-align: right;">
+                                                <div class="wizard-toggle-card-body">
+                                                    <input type="number" class="accessory-price-input" value="1200" min="0" disabled>
                                                     <span style="font-size: 0.75rem; color: var(--color-text-muted);">x</span>
-                                                    <input type="number" class="accessory-qty-input" value="1" min="1" disabled style="width: 45px; padding: 5px; border-radius: 6px; border: 1px solid var(--border-color); background: #000; color: #fff; text-align: center;">
+                                                    <input type="number" class="accessory-qty-input" value="1" min="1" disabled style="text-align: center;">
                                                     <span style="font-size: 0.75rem; color: var(--color-text-muted);">so'm</span>
                                                 </div>
                                             </div>
-                                            <div class="accessory-row card-glass" style="padding: 8px 12px; background: rgba(255,255,255,0.01); display: flex; align-items: center; justify-content: space-between;" data-name="Vinil">
-                                                <div style="display: flex; align-items: center; gap: 8px;">
-                                                    <input type="checkbox" class="accessory-checkbox" style="width: 16px; height: 16px; cursor: pointer;">
-                                                    <span style="font-size: 0.85rem;">Vinil</span>
+                                            <div class="accessory-row wizard-toggle-card" data-name="Vinil">
+                                                <div class="wizard-toggle-card-header">
+                                                    <input type="checkbox" class="accessory-checkbox" id="acc-vinil-active">
+                                                    <label for="acc-vinil-active">Vinil</label>
                                                 </div>
-                                                <div style="display: flex; align-items: center; gap: 8px;">
-                                                    <input type="number" class="accessory-price-input" value="3000" min="0" disabled style="width: 90px; padding: 5px; border-radius: 6px; border: 1px solid var(--border-color); background: #000; color: #fff; text-align: right;">
+                                                <div class="wizard-toggle-card-body">
+                                                    <input type="number" class="accessory-price-input" value="3000" min="0" disabled>
                                                     <span style="font-size: 0.75rem; color: var(--color-text-muted);">x</span>
-                                                    <input type="number" class="accessory-qty-input" value="1" min="1" disabled style="width: 45px; padding: 5px; border-radius: 6px; border: 1px solid var(--border-color); background: #000; color: #fff; text-align: center;">
+                                                    <input type="number" class="accessory-qty-input" value="1" min="1" disabled style="text-align: center;">
                                                     <span style="font-size: 0.75rem; color: var(--color-text-muted);">so'm</span>
                                                 </div>
                                             </div>
                                         </div>
-                                        <div style="display: flex; gap: 8px; margin-top: 12px;">
+                                        <div class="custom-add-bar">
                                             <input type="text" id="custom-accessory-name" placeholder="Aksessuar nomi..." style="flex: 2; padding: 8px; border-radius: 6px; border: 1px solid var(--border-color); background: #000; color: #fff; font-size: 0.85rem;">
                                             <input type="number" id="custom-accessory-price" placeholder="Narxi" style="flex: 1.2; padding: 8px; border-radius: 6px; border: 1px solid var(--border-color); background: #000; color: #fff; font-size: 0.85rem; text-align: right;">
                                             <input type="number" id="custom-accessory-qty" value="1" min="1" placeholder="Soni" style="width: 55px; padding: 8px; border-radius: 6px; border: 1px solid var(--border-color); background: #000; color: #fff; font-size: 0.85rem; text-align: center;">
@@ -1085,38 +1237,53 @@
                                                 <div style="display: flex; align-items: center; gap: 8px;">
                                                     <input type="checkbox" checked class="overhead-checkbox" style="width: 16px; height: 16px; cursor: pointer;">
                                                     <span style="font-size: 0.85rem;">Oziq-ovqat xarajatlari</span>
-                                                </div>
-                                                <div style="display: flex; align-items: center; gap: 8px;">
-                                                    <input type="number" class="overhead-price-input" value="1500" min="0" style="width: 100px; padding: 5px; border-radius: 6px; border: 1px solid var(--border-color); background: #000; color: #fff; text-align: right;">
-                                                    <span style="font-size: 0.75rem; color: var(--color-text-muted);">so'm</span>
-                                                </div>
-                                            </div>
-                                            <div class="overhead-row card-glass" style="padding: 8px 12px; background: rgba(255,255,255,0.01); display: flex; align-items: center; justify-content: space-between;" data-name="Yo'l kira">
-                                                <div style="display: flex; align-items: center; gap: 8px;">
-                                                    <input type="checkbox" checked class="overhead-checkbox" style="width: 16px; height: 16px; cursor: pointer;">
-                                                    <span style="font-size: 0.85rem;">Yo'l kira (Transport)</span>
-                                                </div>
-                                                <div style="display: flex; align-items: center; gap: 8px;">
-                                                    <input type="number" class="overhead-price-input" value="500" min="0" style="width: 100px; padding: 5px; border-radius: 6px; border: 1px solid var(--border-color); background: #000; color: #fff; text-align: right;">
-                                                    <span style="font-size: 0.75rem; color: var(--color-text-muted);">so'm</span>
-                                                </div>
-                                            </div>
-                                            <div class="overhead-row card-glass" style="padding: 8px 12px; background: rgba(255,255,255,0.01); display: flex; align-items: center; justify-content: space-between;" data-name="NDS">
-                                                <div style="display: flex; align-items: center; gap: 8px;">
-                                                    <input type="checkbox" class="overhead-checkbox" style="width: 16px; height: 16px; cursor: pointer;">
-                                                    <span style="font-size: 0.85rem;">NDS (QQS)</span>
-                                                </div>
-                                                <div style="display: flex; align-items: center; gap: 8px;">
-                                                    <input type="number" class="overhead-price-input" value="4000" min="0" disabled style="width: 100px; padding: 5px; border-radius: 6px; border: 1px solid var(--border-color); background: #000; color: #fff; text-align: right;">
-                                                    <span style="font-size: 0.75rem; color: var(--color-text-muted);">so'm</span>
-                                                </div>
-                                            </div>
-                                        </div>
-                                        <div style="display: flex; gap: 8px;">
-                                            <input type="text" id="custom-overhead-name" placeholder="Yangi xarajat nomi..." style="flex: 2; padding: 8px; border-radius: 6px; border: 1px solid var(--border-color); background: #000; color: #fff; font-size: 0.85rem;">
-                                            <input type="number" id="custom-overhead-price" placeholder="Narxi" style="flex: 1; padding: 8px; border-radius: 6px; border: 1px solid var(--border-color); background: #000; color: #fff; font-size: 0.85rem; text-align: right;">
-                                            <button type="button" class="btn btn-secondary" id="btn-add-custom-overhead" style="padding: 8px 16px;"><i class="fa-solid fa-plus"></i></button>
-                                        </div>
+                                         <div id="overhead-rows-container" class="wizard-toggle-grid">
+                                             <div class="overhead-row wizard-toggle-card" data-name="Elektr energiya">
+                                                 <div class="wizard-toggle-card-header">
+                                                     <input type="checkbox" checked class="overhead-checkbox" id="oh-elektr-active">
+                                                     <label for="oh-elektr-active">Elektr energiya</label>
+                                                 </div>
+                                                 <div class="wizard-toggle-card-body">
+                                                     <input type="number" class="overhead-price-input" value="1000" min="0">
+                                                     <span style="font-size: 0.75rem; color: var(--color-text-muted);">so'm</span>
+                                                 </div>
+                                             </div>
+                                             <div class="overhead-row wizard-toggle-card" data-name="Oziq-ovqat">
+                                                 <div class="wizard-toggle-card-header">
+                                                     <input type="checkbox" checked class="overhead-checkbox" id="oh-oziq-ovqat-active">
+                                                     <label for="oh-oziq-ovqat-active">Oziq-ovqat xarajatlari</label>
+                                                 </div>
+                                                 <div class="wizard-toggle-card-body">
+                                                     <input type="number" class="overhead-price-input" value="1500" min="0">
+                                                     <span style="font-size: 0.75rem; color: var(--color-text-muted);">so'm</span>
+                                                 </div>
+                                             </div>
+                                             <div class="overhead-row wizard-toggle-card" data-name="Yo'l kira">
+                                                 <div class="wizard-toggle-card-header">
+                                                     <input type="checkbox" checked class="overhead-checkbox" id="oh-yol-kira-active">
+                                                     <label for="oh-yol-kira-active">Yo'l kira (Transport)</label>
+                                                 </div>
+                                                 <div class="wizard-toggle-card-body">
+                                                     <input type="number" class="overhead-price-input" value="500" min="0">
+                                                     <span style="font-size: 0.75rem; color: var(--color-text-muted);">so'm</span>
+                                                 </div>
+                                             </div>
+                                             <div class="overhead-row wizard-toggle-card" data-name="NDS">
+                                                 <div class="wizard-toggle-card-header">
+                                                     <input type="checkbox" class="overhead-checkbox" id="oh-nds-active">
+                                                     <label for="oh-nds-active">NDS (QQS)</label>
+                                                 </div>
+                                                 <div class="wizard-toggle-card-body">
+                                                     <input type="number" class="overhead-price-input" value="4000" min="0" disabled>
+                                                     <span style="font-size: 0.75rem; color: var(--color-text-muted);">so'm</span>
+                                                 </div>
+                                             </div>
+                                         </div>
+                                         <div class="custom-add-bar">
+                                             <input type="text" id="custom-overhead-name" placeholder="Yangi xarajat nomi..." style="flex: 2; padding: 8px; border-radius: 6px; border: 1px solid var(--border-color); background: #000; color: #fff; font-size: 0.85rem;">
+                                             <input type="number" id="custom-overhead-price" placeholder="Narxi" style="flex: 1; padding: 8px; border-radius: 6px; border: 1px solid var(--border-color); background: #000; color: #fff; font-size: 0.85rem; text-align: right;">
+                                             <button type="button" class="btn btn-secondary" id="btn-add-custom-overhead" style="padding: 8px 16px;"><i class="fa-solid fa-plus"></i></button>
+                                         </div>
                                         
                                         <div class="wizard-nav-row" style="justify-content: space-between;">
                                             <button type="button" class="btn btn-secondary btn-prev-step" data-prev="4" style="padding: 10px 20px;"><i class="fa-solid fa-arrow-left"></i> Ortga</button>
