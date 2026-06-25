@@ -1218,9 +1218,11 @@ function updateApiUsageUI() {
         // Toggle checkbox inputs
         function setupToggleLogic(checkboxClass, priceInputClass, qtyInputClass) {
             document.querySelectorAll('.' + checkboxClass).forEach(checkbox => {
-                const parent = checkbox.closest('div').parentElement.parentElement;
-                const priceInput = parent.querySelector('.' + priceInputClass);
-                const qtyInput = parent.querySelector('.' + qtyInputClass);
+                const row = checkbox.closest('.decoration-row, .sewing-row, .accessory-row, .overhead-row');
+                if (!row) return;
+
+                const priceInput = priceInputClass ? row.querySelector('.' + priceInputClass) : null;
+                const qtyInput = qtyInputClass ? row.querySelector('.' + qtyInputClass) : null;
 
                 const handleToggle = () => {
                     if (checkbox.checked) {
