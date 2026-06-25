@@ -972,9 +972,12 @@ function setupSubTabSwitching() {
             if (subtabId === 'ai-calc') {
                 viewTitle.innerText = "Model & AI Hisob";
                 subheaderActions.innerHTML = `<span class="badge" style="background:var(--border-color); color:var(--color-negotiation); padding:8px 12px; font-size:0.8rem;"><i class="fa-solid fa-brain"></i> AI integratsiyasi faol</span>`;
-            } else {
+            } else if (subtabId === 'showroom') {
                 viewTitle.innerText = "Eco Sports Showroom";
                 subheaderActions.innerHTML = `<span class="badge" style="background:var(--border-color); color:var(--color-won); padding:8px 12px; font-size:0.8rem;"><i class="fa-solid fa-store"></i> Eco Showroom</span>`;
+            } else if (subtabId === 'manual-model') {
+                viewTitle.innerText = "Modelni Qo'lda Kiritish";
+                subheaderActions.innerHTML = `<span class="badge" style="background:var(--border-color); color:var(--color-prospect); padding:8px 12px; font-size:0.8rem;"><i class="fa-solid fa-pen-to-square"></i> Qo'lda Kiritish</span>`;
             }
 
             updateUI();
@@ -1061,6 +1064,70 @@ function updateApiUsageUI() {
     }
 }
 
+
+// --- MANUAL MODEL ENTRY LOGIC ---
+(function() {
+    document.addEventListener('DOMContentLoaded', function() {
+        const form = document.getElementById('form-manual-model');
+        if (!form) return;
+
+        form.addEventListener('submit', function(e) {
+            e.preventDefault();
+
+            const name = document.getElementById('manual-model-name').value.trim();
+            const type = document.getElementById('manual-model-type').value;
+            const unitCost = parseFloat(document.getElementById('manual-model-unit-cost').value) || 0;
+            const wholesale = parseFloat(document.getElementById('manual-model-wholesale').value) || 0;
+            const retail = parseFloat(document.getElementById('manual-model-retail').value) || 0;
+            const qty = parseInt(document.getElementById('manual-model-qty').value) || 100;
+            const imgUrl = document.getElementById('manual-model-image').value.trim() || '';
+            const note = document.getElementById('manual-model-note').value.trim();
+
+            if (!name || !type || unitCost <= 0 || wholesale <= 0 || retail <= 0) {
+                if (typeof showToast === 'function') {
+                    showToast("Iltimos, barcha majburiy (*) maydonlarni to'ldiring va narxlarni 0 dan yuqori qilib kiriting.", 'warning');
+                } else {
+                    alert("Iltimos, barcha majburiy maydonlarni to'ldiring.");
+                }
+                return;
+            }
+
+            const newModel = {
+                id: 'MANUAL-' + Date.now() + '-' + Math.floor(Math.random() * 10000),
+                name: name,
+                type: type,
+                images: imgUrl ? [imgUrl] : [],
+                unitCost: unitCost,
+                wholesalePrice: wholesale,
+                retailPrice: retail,
+                orderQty: qty,
+                note: note,
+                source: 'manual',
+                createdAt: new Date().toISOString()
+            };
+
+            if (!state.showroomCatalog) {
+                state.showroomCatalog = [];
+            }
+            state.showroomCatalog.push(newModel);
+            saveState();
+
+            if (typeof showToast === 'function') {
+                showToast(`"${name}" modeli muvaffaqiyatli Showroom katalogiga qo'shildi!`, 'success');
+            } else {
+                alert('Model muvaffaqiyatli saqlandi!');
+            }
+
+            form.reset();
+
+            // Showroom tabiga o'tkazish
+            setTimeout(function() {
+                const btnShowroom = document.getElementById('sub-btn-showroom');
+                if (btnShowroom) btnShowroom.click();
+            }, 600);
+        });
+    });
+})();
 
 // --- AI CALCULATOR CORE LOGIC ---
 function setupAICalculator() {

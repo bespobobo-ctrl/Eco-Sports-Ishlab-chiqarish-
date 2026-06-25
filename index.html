@@ -110,6 +110,9 @@
                     <button class="sub-tab-btn" data-subtab="showroom" id="sub-btn-showroom">
                         <i class="fa-solid fa-store"></i> Eco Sports Showroom
                     </button>
+                    <button class="sub-tab-btn" data-subtab="manual-model" id="sub-btn-manual-model">
+                        <i class="fa-solid fa-pen-to-square"></i> Modelni Qo'lda Kiritish
+                    </button>
                 </div>
 
                 <!-- Sub-tab 1: Model & AI Hisob (Visual AI Analyzer & Cost Worksheet) -->
@@ -456,6 +459,96 @@
                         <div id="showroom-empty-state" style="text-align: center; padding: 40px; color: var(--color-text-muted); display: none;">
                             <i class="fa-solid fa-folder-open fa-3x" style="margin-bottom: 15px; opacity: 0.5;"></i>
                             <p>Katalogda hali mahsulotlar yo'q. AI yordamida tahlil qilib "Showroomga Saqlash" tugmasini bosing.</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Sub-tab 3: Modelni Qo'lda Kiritish -->
+                <div class="sub-pane" id="sub-pane-manual-model">
+                    <div class="layout-double-grid" style="margin-top: 16px;">
+                        <!-- Chap panel: Kiritish Formasi -->
+                        <div class="grid-left-large">
+                            <div class="card-glass" style="height: auto;">
+                                <div class="card-glass-header">
+                                    <h3><i class="fa-solid fa-pen-to-square text-blue"></i> Yangi Model Ma'lumotlarini Kiritish</h3>
+                                </div>
+                                <form id="form-manual-model" style="padding: 16px;">
+                                    <div class="form-row">
+                                        <div class="form-group col">
+                                            <label><i class="fa-solid fa-tag" style="color: var(--color-prospect);"></i> Model Nomi *</label>
+                                            <input type="text" id="manual-model-name" required placeholder="Masalan: Eco Runner Hoodie">
+                                        </div>
+                                        <div class="form-group col">
+                                            <label><i class="fa-solid fa-shirt" style="color: var(--color-won);"></i> Mahsulot Turi *</label>
+                                            <select id="manual-model-type" required>
+                                                <option value="Futbolka">Futbolka</option>
+                                                <option value="Hudi">Hudi</option>
+                                                <option value="Shim">Shim</option>
+                                                <option value="Kurtka">Kurtka</option>
+                                                <option value="Triko">Triko</option>
+                                                <option value="Sportifka">Sportifka</option>
+                                                <option value="Shortik">Shortik</option>
+                                                <option value="Kofta">Kofta</option>
+                                                <option value="Sport Kiyim">Sport Kiyim</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                    <div class="form-row">
+                                        <div class="form-group col">
+                                            <label><i class="fa-solid fa-money-bill" style="color: var(--color-red);"></i> 1 dona Tannarxi (so'm) *</label>
+                                            <input type="number" id="manual-model-unit-cost" required placeholder="0" min="0">
+                                        </div>
+                                        <div class="form-group col">
+                                            <label><i class="fa-solid fa-tags" style="color: var(--color-won);"></i> Ulgurji Narxi (so'm) *</label>
+                                            <input type="number" id="manual-model-wholesale" required placeholder="0" min="0">
+                                        </div>
+                                        <div class="form-group col">
+                                            <label><i class="fa-solid fa-store" style="color: var(--color-prospect);"></i> Chakana Narxi (so'm) *</label>
+                                            <input type="number" id="manual-model-retail" required placeholder="0" min="0">
+                                        </div>
+                                    </div>
+                                    <div class="form-row">
+                                        <div class="form-group col">
+                                            <label><i class="fa-solid fa-boxes-stacked" style="color: var(--color-qualified);"></i> Buyurtma Soni (dona)</label>
+                                            <input type="number" id="manual-model-qty" placeholder="100" min="1" value="100">
+                                        </div>
+                                        <div class="form-group col">
+                                            <label><i class="fa-solid fa-image" style="color: var(--color-negotiation);"></i> Rasm URL (Ixtiyoriy)</label>
+                                            <input type="text" id="manual-model-image" placeholder="https://example.com/model.jpg">
+                                        </div>
+                                    </div>
+                                    <div class="form-group">
+                                        <label><i class="fa-solid fa-align-left" style="color: var(--color-text-muted);"></i> Qo'shimcha Izoh</label>
+                                        <textarea id="manual-model-note" rows="3" placeholder="Model haqida qo'shimcha ma'lumot..." style="width: 100%; padding: 10px; border: 1px solid var(--border-color); border-radius: 6px; background: rgba(0,0,0,0.2); color: var(--color-text-main); font-family: inherit; resize: vertical;"></textarea>
+                                    </div>
+                                    <div style="display: flex; gap: 12px; margin-top: 16px;">
+                                        <button type="submit" class="btn btn-primary" style="padding: 12px 24px; font-size: 1rem;">
+                                            <i class="fa-solid fa-floppy-disk"></i> Showroomga Saqlash
+                                        </button>
+                                        <button type="reset" class="btn btn-secondary" style="padding: 12px 24px;">
+                                            <i class="fa-solid fa-eraser"></i> Tozalash
+                                        </button>
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
+                        <!-- O'ng panel: Ko'rsatmalar -->
+                        <div class="grid-right-small">
+                            <div class="card-glass" style="height: auto;">
+                                <div class="card-glass-header">
+                                    <h3><i class="fa-solid fa-circle-info text-green"></i> Yordam</h3>
+                                </div>
+                                <div style="padding: 16px; font-size: 0.85rem; color: var(--color-text-muted); line-height: 1.8;">
+                                    <p style="margin-bottom: 12px;">Bu bo'lim orqali siz yangi mahsulot modelini <strong>AI tahlilisiz</strong>, to'g'ridan-to'g'ri qo'lda kiritishingiz mumkin.</p>
+                                    <div style="background: rgba(0,0,0,0.2); border-radius: 8px; padding: 12px; border: 1px solid var(--border-color);">
+                                        <p style="margin-bottom: 8px;"><i class="fa-solid fa-check" style="color: var(--color-won);"></i> Model nomi va turini kiriting</p>
+                                        <p style="margin-bottom: 8px;"><i class="fa-solid fa-check" style="color: var(--color-won);"></i> Tannarx, ulgurji va chakana narxlarini belgilang</p>
+                                        <p style="margin-bottom: 8px;"><i class="fa-solid fa-check" style="color: var(--color-won);"></i> Rasm URL manzilini qo'shing (ixtiyoriy)</p>
+                                        <p><i class="fa-solid fa-check" style="color: var(--color-won);"></i> "Showroomga Saqlash" tugmasini bosing</p>
+                                    </div>
+                                    <p style="margin-top: 12px; font-size: 0.8rem; opacity: 0.7;"><i class="fa-solid fa-lightbulb" style="color: #fbbf24;"></i> Ma'lumotlar avtomatik ravishda <strong>Showroom Katalogiga</strong> qo'shiladi.</p>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>
