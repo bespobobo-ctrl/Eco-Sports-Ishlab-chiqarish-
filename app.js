@@ -1218,7 +1218,7 @@ function updateApiUsageUI() {
         // Toggle checkbox inputs
         function setupToggleLogic(checkboxClass, priceInputClass, qtyInputClass) {
             document.querySelectorAll('.' + checkboxClass).forEach(checkbox => {
-                const row = checkbox.closest('.decoration-row, .sewing-row, .accessory-row, .overhead-row');
+                const row = checkbox.closest('.decoration-row, .sewing-row, .accessory-row, .overhead-row, .packaging-row');
                 if (!row) return;
 
                 const priceInput = priceInputClass ? row.querySelector('.' + priceInputClass) : null;
@@ -2146,7 +2146,7 @@ function updateApiUsageUI() {
                     const chk = row.querySelector('input[type="checkbox"]');
                     if (chk) {
                         const name = row.getAttribute('data-name');
-                        if (name === 'Chok' || name === 'Overlok' || name === 'Elektr energiya' || name === 'Oziq-ovqat' || name === 'Yo\'l kira' || name === 'Yo\'l kira (Transport)' || name === 'Biodegradable paket') {
+                        if (name === 'Chok' || name === 'Overlok' || name === 'Elektr energiya' || name === 'Oziq-ovqat' || name === 'Yo\'l kira' || name === 'Yo\'l kira (Transport)' || name === 'Biodegradable paket' || name === 'Dazmollash xizmati' || name === 'Qadoqlash xizmati' || name === 'Etiketka') {
                             chk.checked = true;
                         } else {
                             chk.checked = false;
@@ -4119,6 +4119,15 @@ window.editModelInWizard = function(id) {
             if (pName === 'Biodegradable paket') {
                 row.querySelector('.packaging-checkbox').checked = true;
                 row.querySelector('.packaging-price-input').value = item.params?.costPackaging || 1500;
+            } else if (pName === 'Dazmollash xizmati') {
+                row.querySelector('.packaging-checkbox').checked = true;
+                row.querySelector('.packaging-price-input').value = 1500;
+            } else if (pName === 'Qadoqlash xizmati') {
+                row.querySelector('.packaging-checkbox').checked = true;
+                row.querySelector('.packaging-price-input').value = 1000;
+            } else if (pName === 'Etiketka') {
+                row.querySelector('.packaging-checkbox').checked = true;
+                row.querySelector('.packaging-price-input').value = 500;
             }
         });
     }
