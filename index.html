@@ -1329,19 +1329,82 @@
                                     </div>
                                 </div>
 
-                                <!-- Bo'lim 5: Yakuniy Narxlar va Izoh -->
+                                <!-- Bo'lim 5: Qadoqlash xarajatlari -->
                                 <div class="manual-section-card collapsed" data-step="5" id="step-card-5">
                                     <div class="manual-section-header">
                                         <div class="manual-section-title-wrap">
                                             <div class="step-number-badge">5</div>
                                             <div class="manual-section-title">
-                                                <i class="fa-solid fa-check-double text-blue"></i>
-                                                <span>5-Bosqich: Yakuniy Narxlar va Izoh</span>
+                                                <i class="fa-solid fa-box-open text-blue"></i>
+                                                <span>5-Bosqich: Qadoqlash xarajatlari</span>
                                             </div>
                                         </div>
                                         <div class="step-header-info">
                                             <span class="step-summary-text" id="step-5-summary" style="display: none;"></span>
                                             <span class="step-status-indicator status-waiting" id="step-5-status">Kutilmoqda</span>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="manual-section-body">
+                                        <div id="packaging-rows-container" class="wizard-toggle-grid">
+                                            <div class="packaging-row wizard-toggle-card active" data-name="Biodegradable paket">
+                                                <div class="wizard-toggle-card-header">
+                                                    <input type="checkbox" checked class="packaging-checkbox" id="pack-bio-active">
+                                                    <label for="pack-bio-active">Biologik paket (Biodegradable)</label>
+                                                </div>
+                                                <div class="wizard-toggle-card-body">
+                                                    <input type="number" class="packaging-price-input" value="1500" min="0">
+                                                    <span style="font-size: 0.75rem; color: var(--color-text-muted);">so'm</span>
+                                                </div>
+                                            </div>
+                                            <div class="packaging-row wizard-toggle-card" data-name="Oddiy paket">
+                                                <div class="wizard-toggle-card-header">
+                                                    <input type="checkbox" class="packaging-checkbox" id="pack-standard-active">
+                                                    <label for="pack-standard-active">Oddiy polietilen paket</label>
+                                                </div>
+                                                <div class="wizard-toggle-card-body">
+                                                    <input type="number" class="packaging-price-input" value="800" min="0" disabled>
+                                                    <span style="font-size: 0.75rem; color: var(--color-text-muted);">so'm</span>
+                                                </div>
+                                            </div>
+                                            <div class="packaging-row wizard-toggle-card" data-name="Brendlangan quti">
+                                                <div class="wizard-toggle-card-header">
+                                                    <input type="checkbox" class="packaging-checkbox" id="pack-box-active">
+                                                    <label for="pack-box-active">Brendlangan quti (Karton)</label>
+                                                </div>
+                                                <div class="wizard-toggle-card-body">
+                                                    <input type="number" class="packaging-price-input" value="5000" min="0" disabled>
+                                                    <span style="font-size: 0.75rem; color: var(--color-text-muted);">so'm</span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        
+                                        <div class="custom-add-bar">
+                                            <input type="text" id="custom-packaging-name" placeholder="Yangi qadoq turi..." style="flex: 2; padding: 8px; border-radius: 6px; border: 1px solid var(--border-color); background: #000; color: #fff; font-size: 0.85rem;">
+                                            <input type="number" id="custom-packaging-price" placeholder="Narxi" style="flex: 1; padding: 8px; border-radius: 6px; border: 1px solid var(--border-color); background: #000; color: #fff; font-size: 0.85rem; text-align: right;">
+                                            <button type="button" class="btn btn-secondary" id="btn-add-custom-packaging" style="padding: 8px 16px;"><i class="fa-solid fa-plus"></i></button>
+                                        </div>
+                                        
+                                        <div class="wizard-nav-row" style="justify-content: space-between;">
+                                            <button type="button" class="btn btn-secondary btn-prev-step" data-prev="4" style="padding: 10px 20px;"><i class="fa-solid fa-arrow-left"></i> Ortga</button>
+                                            <button type="button" class="btn btn-primary btn-next-step" data-next="6" style="padding: 10px 20px; font-weight: 600;">Kiyingisi <i class="fa-solid fa-arrow-right"></i></button>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Bo'lim 6: Yakuniy Narxlar va Izoh -->
+                                <div class="manual-section-card collapsed" data-step="6" id="step-card-6">
+                                    <div class="manual-section-header">
+                                        <div class="manual-section-title-wrap">
+                                            <div class="step-number-badge">6</div>
+                                            <div class="manual-section-title">
+                                                <i class="fa-solid fa-check-double text-blue"></i>
+                                                <span>6-Bosqich: Yakuniy Narxlar va Izoh</span>
+                                            </div>
+                                        </div>
+                                        <div class="step-header-info">
+                                            <span class="step-summary-text" id="step-6-summary" style="display: none;"></span>
+                                            <span class="step-status-indicator status-waiting" id="step-6-status">Kutilmoqda</span>
                                         </div>
                                     </div>
                                     
@@ -1373,7 +1436,7 @@
                                         </div>
                                         
                                         <div class="wizard-nav-row" style="gap: 12px;">
-                                            <button type="button" class="btn btn-secondary btn-prev-step" data-prev="4" style="flex: 1; padding: 12px 24px;">
+                                            <button type="button" class="btn btn-secondary btn-prev-step" data-prev="5" style="flex: 1; padding: 12px 24px;">
                                                 <i class="fa-solid fa-arrow-left"></i> Ortga
                                             </button>
                                             <button type="button" class="btn btn-won" id="wizard-submit-btn" style="flex: 2; padding: 12px 24px; font-size: 1rem; font-weight: 700;">
@@ -1419,6 +1482,10 @@
                                         <div style="display: flex; justify-content: space-between; align-items: center; padding-bottom: 8px; border-bottom: 1px dashed rgba(255,255,255,0.05);">
                                             <span style="color: var(--color-text-muted);"><i class="fa-solid fa-building-user" style="width: 16px;"></i> 5. Ishxona:</span>
                                             <strong id="live-step-overhead">0 so'm</strong>
+                                        </div>
+                                        <div style="display: flex; justify-content: space-between; align-items: center; padding-bottom: 8px; border-bottom: 1px dashed rgba(255,255,255,0.05);">
+                                            <span style="color: var(--color-text-muted);"><i class="fa-solid fa-box-open" style="width: 16px;"></i> 6. Qadoqlash:</span>
+                                            <strong id="live-step-packaging">0 so'm</strong>
                                         </div>
                                     </div>
                                     <div style="background: rgba(0,0,0,0.2); border-radius: 8px; padding: 10px; margin-top: 16px; border: 1px solid var(--border-color); font-size: 0.8rem; line-height: 1.5;">

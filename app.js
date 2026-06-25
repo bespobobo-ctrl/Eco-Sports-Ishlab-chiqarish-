@@ -1248,6 +1248,7 @@ function updateApiUsageUI() {
         setupToggleLogic('sewing-checkbox', 'sewing-price-input', '');
         setupToggleLogic('accessory-checkbox', 'accessory-price-input', 'accessory-qty-input');
         setupToggleLogic('overhead-checkbox', 'overhead-price-input', '');
+        setupToggleLogic('packaging-checkbox', 'packaging-price-input', '');
 
         // Add custom items
         // Sewing
@@ -1412,6 +1413,57 @@ function updateApiUsageUI() {
             updateWizardCalculation();
         });
 
+        // Packaging
+        document.getElementById('btn-add-custom-packaging').addEventListener('click', function() {
+            const nameInput = document.getElementById('custom-packaging-name');
+            const priceInput = document.getElementById('custom-packaging-price');
+            const name = nameInput.value.trim();
+            const price = parseFloat(priceInput.value) || 0;
+
+            if (!name || price <= 0) return;
+
+            const container = document.getElementById('packaging-rows-container');
+            const row = document.createElement('div');
+            row.className = 'packaging-row wizard-toggle-card active';
+            row.setAttribute('data-name', name);
+            row.innerHTML = `
+                <div class="wizard-toggle-card-header">
+                    <input type="checkbox" checked class="packaging-checkbox" id="pack-custom-${Date.now()}-active">
+                    <label for="pack-custom-${Date.now()}-active">${name} (Maxsus)</label>
+                </div>
+                <div class="wizard-toggle-card-body">
+                    <input type="number" class="packaging-price-input" value="${price}" min="0">
+                    <span style="font-size: 0.75rem; color: var(--color-text-muted);">so'm</span>
+                    <button type="button" class="btn-remove-row" style="background:none; border:none; color:var(--color-red); cursor:pointer; margin-left: 8px;"><i class="fa-solid fa-trash"></i></button>
+                </div>
+            `;
+            container.appendChild(row);
+
+            nameInput.value = '';
+            priceInput.value = '';
+
+            // Setup listeners
+            const checkbox = row.querySelector('.packaging-checkbox');
+            const priceInp = row.querySelector('.packaging-price-input');
+            checkbox.addEventListener('change', function() {
+                if (checkbox.checked) {
+                    row.classList.add('active');
+                    priceInp.removeAttribute('disabled');
+                } else {
+                    row.classList.remove('active');
+                    priceInp.setAttribute('disabled', 'true');
+                }
+                updateWizardCalculation();
+            });
+            priceInp.addEventListener('input', updateWizardCalculation);
+            row.querySelector('.btn-remove-row').addEventListener('click', function() {
+                row.remove();
+                updateWizardCalculation();
+            });
+
+            updateWizardCalculation();
+        });
+
 
         // Core Calculation Engine
         function updateWizardCalculation() {
@@ -1456,8 +1508,16 @@ function updateApiUsageUI() {
                 if (active) totalOverhead += price;
             });
 
+            // Step 6: Packaging
+            let totalPackaging = 0;
+            document.querySelectorAll('.packaging-row').forEach(row => {
+                const active = row.querySelector('.packaging-checkbox').checked;
+                const price = parseFloat(row.querySelector('.packaging-price-input').value) || 0;
+                if (active) totalPackaging += price;
+            });
+
             // Totals
-            const unitCost = totalFabric + totalDecor + totalSewing + totalAccessory + totalOverhead;
+            const unitCost = totalFabric + totalDecor + totalSewing + totalAccessory + totalOverhead + totalPackaging;
             const qty = parseInt(document.getElementById('wizard-model-qty').value) || 100;
             const totalCost = unitCost * qty;
 
@@ -1468,6 +1528,7 @@ function updateApiUsageUI() {
             document.getElementById('live-step-sewing').innerText = Math.round(totalSewing).toLocaleString('uz-UZ') + " so'm";
             document.getElementById('live-step-accessories').innerText = Math.round(totalAccessory).toLocaleString('uz-UZ') + " so'm";
             document.getElementById('live-step-overhead').innerText = Math.round(totalOverhead).toLocaleString('uz-UZ') + " so'm";
+            document.getElementById('live-step-packaging').innerText = Math.round(totalPackaging).toLocaleString('uz-UZ') + " so'm";
 
             // Update Summary step
             const summaryTannarx = document.getElementById('wizard-summary-tannarx');
@@ -1492,6 +1553,7 @@ function updateApiUsageUI() {
                 totalSewing,
                 totalAccessory,
                 totalOverhead,
+                totalPackaging,
                 unitCost,
                 totalCost,
                 qty,
@@ -1502,7 +1564,7 @@ function updateApiUsageUI() {
 
         // Attach listeners to default elements
         document.getElementById('wizard-model-qty').addEventListener('input', updateWizardCalculation);
-        document.querySelectorAll('.fabric-price-input, .fabric-consumption-input, .fabric-type-select').forEach(input => {
+        document.querySelectorAll('.fabric-price-input, .fabric-consumption-input, .fabric-type-select, .packaging-price-input, .packaging-checkbox').forEach(input => {
             input.addEventListener('input', updateWizardCalculation);
             input.addEventListener('change', updateWizardCalculation);
         });
@@ -1512,12 +1574,12 @@ function updateApiUsageUI() {
         const completedSteps = new Set();
 
         function goToStep(stepNum) {
-            if (stepNum < 0 || stepNum > 5) return;
+            if (stepNum < 0 || stepNum > 6) return;
 
             // Update calculations first
             const calc = updateWizardCalculation();
 
-            for (let idx = 0; idx <= 5; idx++) {
+            for (let idx = 0; idx <= 6; idx++) {
                 const card = document.getElementById('step-card-' + idx);
                 if (!card) continue;
 
@@ -1551,8 +1613,8 @@ function updateApiUsageUI() {
             activeStep = stepNum;
             updateStepSummaries(calc);
 
-            // Suggested prices populating on step 5
-            if (stepNum === 5) {
+            // Suggested prices populating on step 6
+            if (stepNum === 6) {
                 const wsInput = document.getElementById('wizard-wholesale-price');
                 const rtInput = document.getElementById('wizard-retail-price');
                 if (wsInput && (!wsInput.value || parseFloat(wsInput.value) <= 0)) {
@@ -1572,7 +1634,7 @@ function updateApiUsageUI() {
                     return false;
                 }
             }
-            if (stepNum === 5) {
+            if (stepNum === 6) {
                 const wholesale = parseFloat(document.getElementById('wizard-wholesale-price').value) || 0;
                 const retail = parseFloat(document.getElementById('wizard-retail-price').value) || 0;
                 if (wholesale <= 0 || retail <= 0) {
@@ -1664,16 +1726,28 @@ function updateApiUsageUI() {
                 }
             }
 
-            // 5-qadam (Yakun)
+            // 5-qadam (Qadoqlash)
             const s5 = document.getElementById('step-5-summary');
             if (s5) {
-                const wholesale = parseFloat(document.getElementById('wizard-wholesale-price').value) || 0;
-                const retail = parseFloat(document.getElementById('wizard-retail-price').value) || 0;
-                if (wholesale > 0 || retail > 0) {
-                    s5.innerText = `Ulgurji: ${Math.round(wholesale).toLocaleString('uz-UZ')} / Chakana: ${Math.round(retail).toLocaleString('uz-UZ')} so'm`;
+                const packagingCount = Array.from(document.querySelectorAll('.packaging-row')).filter(row => row.querySelector('.packaging-checkbox').checked).length;
+                if (calc.totalPackaging > 0) {
+                    s5.innerText = `Qadoqlash: ${packagingCount} ta - ${Math.round(calc.totalPackaging).toLocaleString('uz-UZ')} so'm`;
                     s5.style.display = 'inline-block';
                 } else {
                     s5.style.display = 'none';
+                }
+            }
+
+            // 6-qadam (Yakun)
+            const s6 = document.getElementById('step-6-summary');
+            if (s6) {
+                const wholesale = parseFloat(document.getElementById('wizard-wholesale-price').value) || 0;
+                const retail = parseFloat(document.getElementById('wizard-retail-price').value) || 0;
+                if (wholesale > 0 || retail > 0) {
+                    s6.innerText = `Ulgurji: ${Math.round(wholesale).toLocaleString('uz-UZ')} / Chakana: ${Math.round(retail).toLocaleString('uz-UZ')} so'm`;
+                    s6.style.display = 'inline-block';
+                } else {
+                    s6.style.display = 'none';
                 }
             }
         }
@@ -1753,8 +1827,8 @@ function updateApiUsageUI() {
                 return;
             }
             if (wholesale <= 0 || retail <= 0) {
-                showToast("Iltimos, narxlarni to'g'ri kiriting (5-qadam).", "warning");
-                goToStep(5);
+                showToast("Iltimos, narxlarni to'g'ri kiriting (6-qadam).", "warning");
+                goToStep(6);
                 return;
             }
 
@@ -1834,6 +1908,20 @@ function updateApiUsageUI() {
                 }
             });
 
+            // Build detailed packaging array
+            const packagingData = [];
+            document.querySelectorAll('.packaging-row').forEach(row => {
+                const active = row.querySelector('.packaging-checkbox').checked;
+                const pName = row.getAttribute('data-name') || row.querySelector('label').innerText.split('(')[0].trim();
+                const pPrice = parseFloat(row.querySelector('.packaging-price-input').value) || 0;
+                if (active) {
+                    packagingData.push({
+                        name: pName,
+                        price: pPrice
+                    });
+                }
+            });
+
             const newModel = {
                 id: 'MANUAL-' + Date.now() + '-' + Math.floor(Math.random() * 10000),
                 type: type,
@@ -1842,7 +1930,7 @@ function updateApiUsageUI() {
                 wholesalePrice: wholesale,
                 retailPrice: retail,
                 totalProductionCost: calc.totalCost,
-                imageSrc: imageSrc || 'https://images.unsplash.com/photo-1578587018452-892bacefd3f2?w=500',
+                imageSrc: imageSrc || '',
                 date: new Date().toISOString().split('T')[0],
                 source: 'manual_calculation',
                 note: note,
@@ -1852,12 +1940,14 @@ function updateApiUsageUI() {
                     sewing: sewingData,
                     accessories: accessoryData,
                     overheads: overheadData,
+                    packaging: packagingData,
                     totals: {
                         fabrics: calc.totalFabric,
                         decorations: calc.totalDecor,
                         sewing: calc.totalSewing,
                         accessories: calc.totalAccessory,
                         overheads: calc.totalOverhead,
+                        packaging: calc.totalPackaging,
                         unitCost: calc.unitCost,
                         totalCost: calc.totalCost
                     }
@@ -1892,7 +1982,7 @@ function updateApiUsageUI() {
                         costAccessories: accessoryData[0]?.price || 2500,
                         costFabricPrice: fabricsData[0]?.pricePerKg || 150000,
                         costElectricity: overheadData.find(o => o.name === 'Elektr energiya')?.price || 1000,
-                        costPackaging: overheadData.find(o => o.name === 'Oziq-ovqat')?.price || 1500
+                        costPackaging: packagingData[0]?.price || 1500
                     };
 
                     const updatedModel = {
@@ -1903,7 +1993,7 @@ function updateApiUsageUI() {
                         wholesalePrice: wholesale,
                         retailPrice: retail,
                         totalProductionCost: calc.totalCost,
-                        imageSrc: imageSrc || originalItem.imageSrc || 'https://images.unsplash.com/photo-1578587018452-892bacefd3f2?w=500',
+                        imageSrc: imageSrc || originalItem.imageSrc || '',
                         date: originalItem.date || new Date().toISOString().split('T')[0],
                         source: originalItem.source || 'manual_calculation',
                         note: note,
@@ -1914,12 +2004,14 @@ function updateApiUsageUI() {
                             sewing: sewingData,
                             accessories: accessoryData,
                             overheads: overheadData,
+                            packaging: packagingData,
                             totals: {
                                 fabrics: calc.totalFabric,
                                 decorations: calc.totalDecor,
                                 sewing: calc.totalSewing,
                                 accessories: calc.totalAccessory,
                                 overheads: calc.totalOverhead,
+                                packaging: calc.totalPackaging,
                                 unitCost: calc.unitCost,
                                 totalCost: calc.totalCost
                             }
@@ -1938,7 +2030,7 @@ function updateApiUsageUI() {
                     wholesalePrice: wholesale,
                     retailPrice: retail,
                     totalProductionCost: calc.totalCost,
-                    imageSrc: imageSrc || 'https://images.unsplash.com/photo-1578587018452-892bacefd3f2?w=500',
+                    imageSrc: imageSrc || '',
                     date: new Date().toISOString().split('T')[0],
                     source: 'manual_calculation',
                     note: note,
@@ -1948,12 +2040,14 @@ function updateApiUsageUI() {
                         sewing: sewingData,
                         accessories: accessoryData,
                         overheads: overheadData,
+                        packaging: packagingData,
                         totals: {
                             fabrics: calc.totalFabric,
                             decorations: calc.totalDecor,
                             sewing: calc.totalSewing,
                             accessories: calc.totalAccessory,
                             overheads: calc.totalOverhead,
+                            packaging: calc.totalPackaging,
                             unitCost: calc.unitCost,
                             totalCost: calc.totalCost
                         }
@@ -2030,18 +2124,18 @@ function updateApiUsageUI() {
             document.querySelectorAll('.fabric-row').forEach((row, idx) => {
                 if (idx > 0) row.remove();
             });
-            document.querySelectorAll('.sewing-row, .accessory-row, .overhead-row').forEach(row => {
+            document.querySelectorAll('.sewing-row, .accessory-row, .overhead-row, .packaging-row').forEach(row => {
                 if (row.querySelector('.btn-remove-row')) row.remove();
                 else {
                     const chk = row.querySelector('input[type="checkbox"]');
                     if (chk) {
                         const name = row.getAttribute('data-name');
-                        if (name === 'Chok' || name === 'Overlok' || name === 'Elektr energiya' || name === 'Oziq-ovqat' || name === 'Yo\'l kira' || name === 'Yo\'l kira (Transport)') {
+                        if (name === 'Chok' || name === 'Overlok' || name === 'Elektr energiya' || name === 'Oziq-ovqat' || name === 'Yo\'l kira' || name === 'Yo\'l kira (Transport)' || name === 'Biodegradable paket') {
                             chk.checked = true;
                         } else {
                             chk.checked = false;
                         }
-                        const pInp = row.querySelector('.sewing-price-input, .accessory-price-input, .overhead-price-input');
+                        const pInp = row.querySelector('.sewing-price-input, .accessory-price-input, .overhead-price-input, .packaging-price-input');
                         const qInp = row.querySelector('.accessory-qty-input');
                         if (chk.checked) {
                             if (pInp) pInp.removeAttribute('disabled');
@@ -2153,6 +2247,20 @@ window.openCalculationDetailsModal = function(id) {
         overheadHtml = '<tr><td colspan="2" style="padding: 8px 0; color:var(--color-text-muted); font-style:italic;">Ishxona xarajatlari kiritilmagan</td></tr>';
     }
 
+    let packagingHtml = '';
+    if (calc.packaging && calc.packaging.length > 0) {
+        calc.packaging.forEach(p => {
+            packagingHtml += `
+                <tr style="border-bottom: 1px solid rgba(255,255,255,0.05);">
+                    <td style="padding: 8px 0; color:#fff;">${p.name}</td>
+                    <td style="padding: 8px 0; text-align:right; font-weight:bold; color:var(--color-won);">${Math.round(p.price).toLocaleString('uz-UZ')} so'm</td>
+                </tr>
+            `;
+        });
+    } else {
+        packagingHtml = '<tr><td colspan="2" style="padding: 8px 0; color:var(--color-text-muted); font-style:italic;">Qadoqlash xarajatlari kiritilmagan</td></tr>';
+    }
+
     body.innerHTML = `
         <div style="margin-bottom: 16px; border-bottom: 1px solid var(--border-color); padding-bottom: 12px;">
             <div style="display:flex; justify-content:space-between; margin-bottom: 6px;">
@@ -2221,6 +2329,13 @@ window.openCalculationDetailsModal = function(id) {
             <h4 style="color:var(--color-prospect); margin: 0 0 8px; font-size:0.95rem; border-left: 3px solid var(--color-prospect); padding-left: 8px;"><i class="fa-solid fa-building-user"></i> 5. Ishxona xarajatlari: Jami ${Math.round(calc.totals.overheads).toLocaleString('uz-UZ')} so'm</h4>
             <table style="width:100%; border-collapse:collapse; font-size:0.8rem;">
                 <tbody>${overheadHtml}</tbody>
+            </table>
+        </div>
+
+        <div style="margin-bottom: 16px;">
+            <h4 style="color:var(--color-prospect); margin: 0 0 8px; font-size:0.95rem; border-left: 3px solid var(--color-prospect); padding-left: 8px;"><i class="fa-solid fa-box-open"></i> 6. Qadoqlash xarajatlari: Jami ${Math.round(calc.totals.packaging || 0).toLocaleString('uz-UZ')} so'm</h4>
+            <table style="width:100%; border-collapse:collapse; font-size:0.8rem;">
+                <tbody>${packagingHtml}</tbody>
             </table>
         </div>
 
@@ -3485,12 +3600,26 @@ function renderShowroomCatalog() {
         card.style.display = 'flex';
         card.style.flexDirection = 'column';
 
-        // Placeholder if no image
-        const imgSrc = item.imageSrc || 'https://via.placeholder.com/300x300?text=Kiyim+Rasmi';
+        const hasImage = !!item.imageSrc && item.imageSrc.trim() !== '';
+        const imgSrc = item.imageSrc || '';
 
         card.innerHTML = `
-            <div style="height: 200px; width: 100%; background: #000; overflow: hidden;">
-                <img src="${imgSrc}" style="width: 100%; height: 100%; object-fit: cover;" alt="${item.type}">
+            <div style="height: 200px; width: 100%; background: #12131e; overflow: hidden; position: relative; display: flex; align-items: center; justify-content: center; border-bottom: 1px solid var(--border-color);">
+                ${hasImage ? `
+                    <img src="${imgSrc}" style="width: 100%; height: 100%; object-fit: cover;" alt="${item.type}">
+                    <button type="button" onclick="deleteCatalogItemImage('${item.id}', event)" title="Rasmni o'chirish" style="position: absolute; top: 10px; left: 10px; background: rgba(239, 68, 68, 0.85); border: none; border-radius: 50%; width: 32px; height: 32px; display: flex; align-items: center; justify-content: center; cursor: pointer; color: white; transition: all 0.2s; box-shadow: 0 4px 12px rgba(0,0,0,0.5); z-index: 10; padding: 0;">
+                        <i class="fa-solid fa-trash-can" style="font-size: 0.85rem;"></i>
+                    </button>
+                ` : `
+                    <div style="width: 100%; height: 100%; display: flex; flex-direction: column; align-items: center; justify-content: center; background: rgba(255,255,255,0.01); color: var(--color-text-muted);">
+                        <i class="fa-solid fa-shirt fa-3x" style="opacity: 0.2; margin-bottom: 10px;"></i>
+                        <span style="font-size: 0.75rem; opacity: 0.4; font-weight: 500;">Rasm yuklanmagan</span>
+                    </div>
+                `}
+                <label class="card-image-edit-badge" title="Rasm yuklash / o'zgartirish" style="position: absolute; top: 10px; right: 10px; background: rgba(56, 189, 248, 0.85); border: 1px solid rgba(56, 189, 248, 0.3); border-radius: 50%; width: 32px; height: 32px; display: flex; align-items: center; justify-content: center; cursor: pointer; color: black; transition: all 0.2s; box-shadow: 0 4px 12px rgba(0,0,0,0.5); z-index: 10; margin: 0; padding: 0;">
+                    <i class="fa-solid fa-camera" style="font-size: 0.85rem;"></i>
+                    <input type="file" accept="image/*" style="display: none;" onchange="changeCatalogItemImage('${item.id}', this)">
+                </label>
             </div>
             <div style="padding: 16px; flex: 1; display: flex; flex-direction: column; justify-content: space-between;">
                 <div>
@@ -3524,6 +3653,36 @@ function renderShowroomCatalog() {
         grid.appendChild(card);
     });
 }
+
+window.changeCatalogItemImage = function(id, input) {
+    const file = input.files[0];
+    if (!file) return;
+
+    const item = state.showroomCatalog.find(i => i.id === id);
+    if (!item) return;
+
+    const reader = new FileReader();
+    reader.onload = function(e) {
+        item.imageSrc = e.target.result;
+        saveState();
+        renderShowroomCatalog();
+        showToast("Mahsulot rasmi muvaffaqiyatli o'zgartirildi!", "success");
+    };
+    reader.readAsDataURL(file);
+};
+
+window.deleteCatalogItemImage = function(id, event) {
+    if (event) event.stopPropagation();
+    if (confirm("Rostdan ham ushbu mahsulot rasmini o'chirmoqchimisiz?")) {
+        const item = state.showroomCatalog.find(i => i.id === id);
+        if (item) {
+            item.imageSrc = '';
+            saveState();
+            renderShowroomCatalog();
+            showToast("Mahsulot rasmi o'chirildi.", "info");
+        }
+    }
+};
 
 function setupShowroomFilter() {
     const filterButtons = document.querySelectorAll('.filter-pill');
@@ -3627,7 +3786,7 @@ window.editModelInWizard = function(id) {
     const filePreview = document.getElementById('wizard-file-preview');
     const fileName = document.getElementById('wizard-file-name');
     
-    if (item.imageSrc && item.imageSrc !== 'https://images.unsplash.com/photo-1578587018452-892bacefd3f2?w=500' && !item.imageSrc.startsWith('https://via.placeholder.com')) {
+    if (item.imageSrc && item.imageSrc.trim() !== '') {
         if (filePreviewContainer) filePreviewContainer.style.display = 'flex';
         if (filePrompt) filePrompt.style.display = 'none';
         if (filePreview) filePreview.src = item.imageSrc;
@@ -3806,11 +3965,90 @@ window.editModelInWizard = function(id) {
         });
     }
 
+    // Populate Packaging (Step 5)
+    // Clear existing custom packaging rows first
+    const packagingContainer = document.getElementById('packaging-rows-container');
+    if (packagingContainer) {
+        const customRows = packagingContainer.querySelectorAll('.packaging-row');
+        customRows.forEach(row => {
+            const chkId = row.querySelector('.packaging-checkbox')?.id;
+            if (chkId && chkId.startsWith('pack-custom-')) {
+                row.remove();
+            }
+        });
+    }
+
+    const packings = calcDetails.packaging || [];
+    document.querySelectorAll('.packaging-row').forEach(row => {
+        row.querySelector('.packaging-checkbox').checked = false;
+    });
+
+    if (packings.length > 0) {
+        packings.forEach(p => {
+            let matched = false;
+            document.querySelectorAll('.packaging-row').forEach(row => {
+                const pName = row.getAttribute('data-name');
+                if (pName && pName.toLowerCase() === p.name.toLowerCase()) {
+                    row.querySelector('.packaging-checkbox').checked = true;
+                    row.querySelector('.packaging-price-input').value = p.price || 0;
+                    matched = true;
+                }
+            });
+            if (!matched) {
+                // Add custom packaging row dynamically
+                const container = document.getElementById('packaging-rows-container');
+                const row = document.createElement('div');
+                row.className = 'packaging-row wizard-toggle-card active';
+                row.setAttribute('data-name', p.name);
+                row.innerHTML = `
+                    <div class="wizard-toggle-card-header">
+                        <input type="checkbox" checked class="packaging-checkbox" id="pack-custom-${Date.now()}-active">
+                        <label for="pack-custom-${Date.now()}-active">${p.name} (Maxsus)</label>
+                    </div>
+                    <div class="wizard-toggle-card-body">
+                        <input type="number" class="packaging-price-input" value="${p.price}" min="0">
+                        <span style="font-size: 0.75rem; color: var(--color-text-muted);">so'm</span>
+                        <button type="button" class="btn-remove-row" style="background:none; border:none; color:var(--color-red); cursor:pointer; margin-left: 8px;"><i class="fa-solid fa-trash"></i></button>
+                    </div>
+                `;
+                container.appendChild(row);
+
+                // Bind custom row events
+                const checkbox = row.querySelector('.packaging-checkbox');
+                const priceInp = row.querySelector('.packaging-price-input');
+                checkbox.addEventListener('change', function() {
+                    if (checkbox.checked) {
+                        row.classList.add('active');
+                        priceInp.removeAttribute('disabled');
+                    } else {
+                        row.classList.remove('active');
+                        priceInp.setAttribute('disabled', 'true');
+                    }
+                    updateWizardCalculation();
+                });
+                priceInp.addEventListener('input', updateWizardCalculation);
+                row.querySelector('.btn-remove-row').addEventListener('click', function() {
+                    row.remove();
+                    updateWizardCalculation();
+                });
+            }
+        });
+    } else {
+        // Fallback for older saves
+        document.querySelectorAll('.packaging-row').forEach(row => {
+            const pName = row.getAttribute('data-name');
+            if (pName === 'Biodegradable paket') {
+                row.querySelector('.packaging-checkbox').checked = true;
+                row.querySelector('.packaging-price-input').value = item.params?.costPackaging || 1500;
+            }
+        });
+    }
+
     // Trigger checkbox state styles synchronization
-    document.querySelectorAll('.decor-checkbox, .sewing-checkbox, .accessory-checkbox, .overhead-checkbox').forEach(chk => {
-        const row = chk.closest('.decoration-row, .sewing-row, .accessory-row, .overhead-row');
+    document.querySelectorAll('.decor-checkbox, .sewing-checkbox, .accessory-checkbox, .overhead-checkbox, .packaging-checkbox').forEach(chk => {
+        const row = chk.closest('.decoration-row, .sewing-row, .accessory-row, .overhead-row, .packaging-row');
         if (row) {
-            const priceInput = row.querySelector('.decor-price-input, .sewing-price-input, .accessory-price-input, .overhead-price-input');
+            const priceInput = row.querySelector('.decor-price-input, .sewing-price-input, .accessory-price-input, .overhead-price-input, .packaging-price-input');
             const qtyInput = row.querySelector('.accessory-qty-input');
             if (chk.checked) {
                 row.classList.add('active');
