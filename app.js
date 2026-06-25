@@ -1865,7 +1865,11 @@ function updateApiUsageUI() {
 
             if (!state.showroomCatalog) state.showroomCatalog = [];
             state.showroomCatalog.push(newModel);
+            
+            // Reset showroom filter to 'All' to ensure the new model is visible
+            state.showroomFilter = 'All';
             saveState();
+            setupShowroomFilter();
 
             showToast(`"${name}" modeli muvaffaqiyatli Showroom katalogiga saqlandi!`, "success");
 
@@ -3121,7 +3125,11 @@ Javobni quyidagi JSON formatida qaytar:
             };
             
             state.showroomCatalog.push(catalogItem);
+            
+            // Reset showroom filter to 'All' to ensure the new model is visible
+            state.showroomFilter = 'All';
             saveState();
+            setupShowroomFilter();
             
             if (typeof renderShowroomCatalog === 'function') {
                 renderShowroomCatalog();
@@ -3419,6 +3427,9 @@ function setupShowroomFilter() {
             btn.style.color = 'var(--color-text-muted)';
             btn.style.borderColor = 'var(--border-color)';
         }
+
+        if (btn.dataset.listenerAdded) return;
+        btn.dataset.listenerAdded = 'true';
 
         btn.addEventListener('click', () => {
             // Remove active styles from all pills
