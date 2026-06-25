@@ -3749,8 +3749,886 @@ function setupShowroomFilter() {
 
 // Open Edit Modal with full parameters
 // Open Edit Modal with full parameters (routed to 5-step wizard)
+// Open Edit Modal with full parameters (routed to showroom modal)
+function addEditFabricRow(type = 'Asosiy mato', price = 150000, consumption = 100) {
+    const container = document.getElementById('edit-fabric-rows-container');
+    if (!container) return;
+
+    const row = document.createElement('div');
+    row.className = 'edit-fabric-row';
+    row.style.cssText = 'display: flex; gap: 8px; align-items: center; background: rgba(255,255,255,0.02); padding: 8px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.04);';
+    
+    row.innerHTML = `
+        <select class="edit-fabric-type-select" style="flex: 2; padding: 6px; border-radius: 6px; border: 1px solid var(--border-color); background: #000; color: #fff; font-size: 0.8rem;">
+            <option value="Asosiy mato">Asosiy mato</option>
+            <option value="Qo'shimcha mato">Qo'shimcha mato</option>
+            <option value="Lipa">Lipa</option>
+            <option value="Kashkorse">Kashkorse</option>
+            <option value="Ribana">Ribana</option>
+            <option value="Ikki iplik">Ikki iplik</option>
+            <option value="Uch iplik">Uch iplik</option>
+            <option value="Boshqa">Boshqa</option>
+        </select>
+        <input type="number" class="edit-fabric-price-input" value="${price}" min="0" placeholder="Narxi/kg" style="flex: 1.5; padding: 6px; border-radius: 6px; border: 1px solid var(--border-color); background: #000; color: #fff; font-size: 0.8rem; text-align: right;">
+        <span style="font-size: 0.75rem; color: var(--color-text-muted);">so'm</span>
+        <input type="number" class="edit-fabric-consumption-input" value="${consumption}" min="0" placeholder="Sarf(gr)" style="flex: 1; padding: 6px; border-radius: 6px; border: 1px solid var(--border-color); background: #000; color: #fff; font-size: 0.8rem; text-align: right;">
+        <span style="font-size: 0.75rem; color: var(--color-text-muted);">gr</span>
+        <button type="button" class="btn-remove-edit-fabric-row" style="background: none; border: none; color: var(--color-red); cursor: pointer; padding: 4px 8px;"><i class="fa-solid fa-trash"></i></button>
+    `;
+
+    container.appendChild(row);
+    row.querySelector('.edit-fabric-type-select').value = type;
+
+    row.querySelectorAll('input, select').forEach(el => {
+        el.addEventListener('input', updateEditModalCalculation);
+        el.addEventListener('change', updateEditModalCalculation);
+    });
+
+    row.querySelector('.btn-remove-edit-fabric-row').addEventListener('click', function() {
+        const rows = container.querySelectorAll('.edit-fabric-row');
+        if (rows.length > 1) {
+            row.remove();
+            updateEditModalCalculation();
+        } else {
+            showToast("Kamida bitta mato bo'lishi shart!", "warning");
+        }
+    });
+
+    updateEditModalCalculation();
+}
+
+function addEditAccessoryRow(name, price, qty, unit, checked = false, isCustom = false) {
+    const container = document.getElementById('edit-accessory-rows-container');
+    if (!container) return;
+
+    const row = document.createElement('div');
+    row.className = 'edit-accessory-row wizard-toggle-card' + (checked ? ' active' : '');
+    row.setAttribute('data-name', name);
+    row.setAttribute('data-unit', unit);
+    row.setAttribute('data-custom', isCustom ? 'true' : 'false');
+
+    const uniqueId = 'edit-acc-' + (isCustom ? 'custom-' + Date.now() + '-' + Math.floor(Math.random()*1000) : name.replace(/\s+/g, '-').toLowerCase());
+    const isGr = unit === 'gr';
+    
+    row.innerHTML = `
+        <div class="wizard-toggle-card-header">
+            <input type="checkbox" ${checked ? 'checked' : ''} class="edit-accessory-checkbox" id="${uniqueId}">
+            <label for="${uniqueId}">${name} ${isCustom ? '(Maxsus)' : ''}</label>
+        </div>
+        <div class="wizard-toggle-card-body" style="display: flex; gap: 4px; align-items: center;">
+            <input type="number" class="edit-accessory-price-input" value="${price}" min="0" style="width: 80px; padding: 4px 6px; border-radius: 4px; border: 1px solid var(--border-color); background: #000; color: #fff; font-size: 0.8rem; text-align: right;" ${checked ? '' : 'disabled'}>
+            <span style="font-size: 0.7rem; color: var(--color-text-muted);">${isGr ? "so'm/kg" : "so'm"}</span>
+            <span style="font-size: 0.7rem; color: var(--color-text-muted);">x</span>
+            <input type="number" class="edit-accessory-qty-input" value="${qty}" min="0" style="width: 50px; padding: 4px 6px; border-radius: 4px; border: 1px solid var(--border-color); background: #000; color: #fff; font-size: 0.8rem; text-align: center;" ${checked ? '' : 'disabled'}>
+            <span style="font-size: 0.7rem; color: var(--color-text-muted);">${isGr ? 'gr' : 'ta'}</span>
+            ${isCustom ? `<button type="button" class="btn-remove-edit-acc-row" style="background: none; border: none; color: var(--color-red); cursor: pointer; margin-left: 6px;"><i class="fa-solid fa-trash"></i></button>` : ''}
+        </div>
+    `;
+
+    container.appendChild(row);
+
+    const chk = row.querySelector('.edit-accessory-checkbox');
+    const pInp = row.querySelector('.edit-accessory-price-input');
+    const qInp = row.querySelector('.edit-accessory-qty-input');
+
+    chk.addEventListener('change', function() {
+        if (chk.checked) {
+            row.classList.add('active');
+            if (pInp) pInp.removeAttribute('disabled');
+            if (qInp) qInp.removeAttribute('disabled');
+        } else {
+            row.classList.remove('active');
+            if (pInp) pInp.setAttribute('disabled', 'true');
+            if (qInp) qInp.setAttribute('disabled', 'true');
+        }
+        updateEditModalCalculation();
+    });
+
+    if (pInp) pInp.addEventListener('input', updateEditModalCalculation);
+    if (qInp) qInp.addEventListener('input', updateEditModalCalculation);
+
+    if (isCustom) {
+        row.querySelector('.btn-remove-edit-acc-row').addEventListener('click', function() {
+            row.remove();
+            updateEditModalCalculation();
+        });
+    }
+}
+
+function addEditPackagingRow(name, price, checked = false, isCustom = false) {
+    const container = document.getElementById('edit-packaging-rows-container');
+    if (!container) return;
+
+    const row = document.createElement('div');
+    row.className = 'edit-packaging-row wizard-toggle-card' + (checked ? ' active' : '');
+    row.setAttribute('data-name', name);
+    row.setAttribute('data-custom', isCustom ? 'true' : 'false');
+
+    const uniqueId = 'edit-pack-' + (isCustom ? 'custom-' + Date.now() + '-' + Math.floor(Math.random()*1000) : name.replace(/\s+/g, '-').toLowerCase());
+
+    row.innerHTML = `
+        <div class="wizard-toggle-card-header">
+            <input type="checkbox" ${checked ? 'checked' : ''} class="edit-packaging-checkbox" id="${uniqueId}">
+            <label for="${uniqueId}">${name} ${isCustom ? '(Maxsus)' : ''}</label>
+        </div>
+        <div class="wizard-toggle-card-body" style="display: flex; gap: 4px; align-items: center;">
+            <input type="number" class="edit-packaging-price-input" value="${price}" min="0" style="width: 80px; padding: 4px 6px; border-radius: 4px; border: 1px solid var(--border-color); background: #000; color: #fff; font-size: 0.8rem; text-align: right;" ${checked ? '' : 'disabled'}>
+            <span style="font-size: 0.7rem; color: var(--color-text-muted);">so'm</span>
+            ${isCustom ? `<button type="button" class="btn-remove-edit-pack-row" style="background: none; border: none; color: var(--color-red); cursor: pointer; margin-left: 6px;"><i class="fa-solid fa-trash"></i></button>` : ''}
+        </div>
+    `;
+
+    container.appendChild(row);
+
+    const chk = row.querySelector('.edit-packaging-checkbox');
+    const pInp = row.querySelector('.edit-packaging-price-input');
+
+    chk.addEventListener('change', function() {
+        if (chk.checked) {
+            row.classList.add('active');
+            if (pInp) pInp.removeAttribute('disabled');
+        } else {
+            row.classList.remove('active');
+            if (pInp) pInp.setAttribute('disabled', 'true');
+        }
+        updateEditModalCalculation();
+    });
+
+    if (pInp) pInp.addEventListener('input', updateEditModalCalculation);
+
+    if (isCustom) {
+        row.querySelector('.btn-remove-edit-pack-row').addEventListener('click', function() {
+            row.remove();
+            updateEditModalCalculation();
+        });
+    }
+}
+
+function addEditDecorRow(name, price, checked = false) {
+    const container = document.getElementById('edit-decor-rows-container');
+    if (!container) return;
+
+    const row = document.createElement('div');
+    row.className = 'edit-decor-row wizard-toggle-card' + (checked ? ' active' : '');
+    row.setAttribute('data-name', name);
+
+    const uniqueId = 'edit-decor-' + name.replace(/\s+/g, '-').toLowerCase();
+
+    row.innerHTML = `
+        <div class="wizard-toggle-card-header">
+            <input type="checkbox" ${checked ? 'checked' : ''} class="edit-decor-checkbox" id="${uniqueId}">
+            <label for="${uniqueId}">${name}</label>
+        </div>
+        <div class="wizard-toggle-card-body" style="display: flex; gap: 4px; align-items: center;">
+            <input type="number" class="edit-decor-price-input" value="${price}" min="0" style="width: 80px; padding: 4px 6px; border-radius: 4px; border: 1px solid var(--border-color); background: #000; color: #fff; font-size: 0.8rem; text-align: right;" ${checked ? '' : 'disabled'}>
+            <span style="font-size: 0.7rem; color: var(--color-text-muted);">so'm</span>
+        </div>
+    `;
+
+    container.appendChild(row);
+
+    const chk = row.querySelector('.edit-decor-checkbox');
+    const pInp = row.querySelector('.edit-decor-price-input');
+
+    chk.addEventListener('change', function() {
+        if (chk.checked) {
+            row.classList.add('active');
+            if (pInp) pInp.removeAttribute('disabled');
+        } else {
+            row.classList.remove('active');
+            if (pInp) pInp.setAttribute('disabled', 'true');
+        }
+        updateEditModalCalculation();
+    });
+
+    if (pInp) pInp.addEventListener('input', updateEditModalCalculation);
+}
+
+function addEditSewingRow(name, price, checked = false) {
+    const container = document.getElementById('edit-sewing-rows-container');
+    if (!container) return;
+
+    const row = document.createElement('div');
+    row.className = 'edit-sewing-row wizard-toggle-card' + (checked ? ' active' : '');
+    row.setAttribute('data-name', name);
+
+    const uniqueId = 'edit-sew-' + name.replace(/\s+/g, '-').toLowerCase();
+
+    row.innerHTML = `
+        <div class="wizard-toggle-card-header">
+            <input type="checkbox" ${checked ? 'checked' : ''} class="edit-sewing-checkbox" id="${uniqueId}">
+            <label for="${uniqueId}">${name}</label>
+        </div>
+        <div class="wizard-toggle-card-body" style="display: flex; gap: 4px; align-items: center;">
+            <input type="number" class="edit-sewing-price-input" value="${price}" min="0" style="width: 80px; padding: 4px 6px; border-radius: 4px; border: 1px solid var(--border-color); background: #000; color: #fff; font-size: 0.8rem; text-align: right;" ${checked ? '' : 'disabled'}>
+            <span style="font-size: 0.7rem; color: var(--color-text-muted);">so'm</span>
+        </div>
+    `;
+
+    container.appendChild(row);
+
+    const chk = row.querySelector('.edit-sewing-checkbox');
+    const pInp = row.querySelector('.edit-sewing-price-input');
+
+    chk.addEventListener('change', function() {
+        if (chk.checked) {
+            row.classList.add('active');
+            if (pInp) pInp.removeAttribute('disabled');
+        } else {
+            row.classList.remove('active');
+            if (pInp) pInp.setAttribute('disabled', 'true');
+        }
+        updateEditModalCalculation();
+    });
+
+    if (pInp) pInp.addEventListener('input', updateEditModalCalculation);
+}
+
+function addEditOverheadRow(name, price, checked = false) {
+    const container = document.getElementById('edit-overhead-rows-container');
+    if (!container) return;
+
+    const row = document.createElement('div');
+    row.className = 'edit-overhead-row wizard-toggle-card' + (checked ? ' active' : '');
+    row.setAttribute('data-name', name);
+
+    const uniqueId = 'edit-oh-' + name.replace(/\s+/g, '-').toLowerCase();
+
+    row.innerHTML = `
+        <div class="wizard-toggle-card-header">
+            <input type="checkbox" ${checked ? 'checked' : ''} class="edit-overhead-checkbox" id="${uniqueId}">
+            <label for="${uniqueId}">${name}</label>
+        </div>
+        <div class="wizard-toggle-card-body" style="display: flex; gap: 4px; align-items: center;">
+            <input type="number" class="edit-overhead-price-input" value="${price}" min="0" style="width: 80px; padding: 4px 6px; border-radius: 4px; border: 1px solid var(--border-color); background: #000; color: #fff; font-size: 0.8rem; text-align: right;" ${checked ? '' : 'disabled'}>
+            <span style="font-size: 0.7rem; color: var(--color-text-muted);">so'm</span>
+        </div>
+    `;
+
+    container.appendChild(row);
+
+    const chk = row.querySelector('.edit-overhead-checkbox');
+    const pInp = row.querySelector('.edit-overhead-price-input');
+
+    chk.addEventListener('change', function() {
+        if (chk.checked) {
+            row.classList.add('active');
+            if (pInp) pInp.removeAttribute('disabled');
+        } else {
+            row.classList.remove('active');
+            if (pInp) pInp.setAttribute('disabled', 'true');
+        }
+        updateEditModalCalculation();
+    });
+
+    if (pInp) pInp.addEventListener('input', updateEditModalCalculation);
+}
+
+function updateEditModalCalculation() {
+    let totalFabric = 0;
+    document.querySelectorAll('.edit-fabric-row').forEach(row => {
+        const price = parseFloat(row.querySelector('.edit-fabric-price-input').value) || 0;
+        const consumption = parseFloat(row.querySelector('.edit-fabric-consumption-input').value) || 0;
+        totalFabric += (price * (consumption / 1000));
+    });
+
+    let totalDecor = 0;
+    document.querySelectorAll('.edit-decor-row').forEach(row => {
+        const active = row.querySelector('.edit-decor-checkbox').checked;
+        const price = parseFloat(row.querySelector('.edit-decor-price-input').value) || 0;
+        if (active) totalDecor += price;
+    });
+
+    let totalSewing = 0;
+    document.querySelectorAll('.edit-sewing-row').forEach(row => {
+        const active = row.querySelector('.edit-sewing-checkbox').checked;
+        const price = parseFloat(row.querySelector('.edit-sewing-price-input').value) || 0;
+        if (active) totalSewing += price;
+    });
+
+    let totalAccessory = 0;
+    document.querySelectorAll('.edit-accessory-row').forEach(row => {
+        const active = row.querySelector('.edit-accessory-checkbox').checked;
+        const price = parseFloat(row.querySelector('.edit-accessory-price-input').value) || 0;
+        const qty = parseFloat(row.querySelector('.edit-accessory-qty-input').value) || 0;
+        const unit = row.getAttribute('data-unit') || 'dona';
+        if (active) {
+            if (unit === 'gr') {
+                totalAccessory += (price * (qty / 1000));
+            } else {
+                totalAccessory += (price * qty);
+            }
+        }
+    });
+
+    let totalOverhead = 0;
+    document.querySelectorAll('.edit-overhead-row').forEach(row => {
+        const active = row.querySelector('.edit-overhead-checkbox').checked;
+        const price = parseFloat(row.querySelector('.edit-overhead-price-input').value) || 0;
+        if (active) totalOverhead += price;
+    });
+
+    let totalPackaging = 0;
+    document.querySelectorAll('.edit-packaging-row').forEach(row => {
+        const active = row.querySelector('.edit-packaging-checkbox').checked;
+        const price = parseFloat(row.querySelector('.edit-packaging-price-input').value) || 0;
+        if (active) totalPackaging += price;
+    });
+
+    const unitCost = totalFabric + totalDecor + totalSewing + totalAccessory + totalOverhead + totalPackaging;
+    const qty = parseInt(document.getElementById('edit-cat-qty').value) || 1;
+    const totalCost = unitCost * qty;
+
+    document.getElementById('edit-live-unit-cost').innerText = Math.round(unitCost).toLocaleString('uz-UZ') + " so'm";
+    document.getElementById('edit-live-total-cost').innerText = Math.round(totalCost).toLocaleString('uz-UZ') + " so'm";
+
+    document.getElementById('edit-summary-fabric').innerText = Math.round(totalFabric).toLocaleString('uz-UZ') + " so'm";
+    document.getElementById('edit-summary-decor').innerText = Math.round(totalDecor).toLocaleString('uz-UZ') + " so'm";
+    document.getElementById('edit-summary-sewing').innerText = Math.round(totalSewing).toLocaleString('uz-UZ') + " so'm";
+    document.getElementById('edit-summary-acc').innerText = Math.round(totalAccessory).toLocaleString('uz-UZ') + " so'm";
+    document.getElementById('edit-summary-pack').innerText = Math.round(totalPackaging + totalOverhead).toLocaleString('uz-UZ') + " so'm";
+}
+
+function initShowroomEditModalListeners() {
+    if (state.showroomEditListenersBound) return;
+    state.showroomEditListenersBound = true;
+
+    document.querySelectorAll('.showroom-edit-tab-btn').forEach(btn => {
+        btn.addEventListener('click', function() {
+            document.querySelectorAll('.showroom-edit-tab-btn').forEach(b => {
+                b.classList.remove('active');
+                b.style.borderBottomColor = 'transparent';
+                b.style.color = 'var(--color-text-muted)';
+            });
+            document.querySelectorAll('.showroom-edit-tab-content').forEach(c => {
+                c.style.display = 'none';
+            });
+
+            btn.classList.add('active');
+            btn.style.borderBottomColor = 'var(--color-prospect)';
+            btn.style.color = '#fff';
+
+            const tabId = btn.getAttribute('data-tab');
+            const targetContent = document.getElementById(tabId);
+            if (targetContent) {
+                targetContent.style.display = 'block';
+            }
+        });
+    });
+
+    const editFileInput = document.getElementById('edit-cat-file-input');
+    const editImageUrlInput = document.getElementById('edit-cat-image-url');
+    const editImagePreviewContainer = document.getElementById('edit-cat-image-preview-container');
+    const editImagePreview = document.getElementById('edit-cat-image-preview');
+    const editImageBase64 = document.getElementById('edit-cat-image-base64');
+    const btnRemoveEditImage = document.getElementById('btn-remove-edit-cat-image');
+
+    if (editFileInput) {
+        editFileInput.addEventListener('change', function(e) {
+            const file = e.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(evt) {
+                    if (editImagePreview) editImagePreview.src = evt.target.result;
+                    if (editImagePreviewContainer) editImagePreviewContainer.style.display = 'flex';
+                    if (editImageBase64) editImageBase64.value = evt.target.result;
+                    if (editImageUrlInput) editImageUrlInput.value = '';
+                };
+                reader.readAsDataURL(file);
+            }
+        });
+    }
+
+    if (btnRemoveEditImage) {
+        btnRemoveEditImage.addEventListener('click', function(e) {
+            e.stopPropagation();
+            if (editFileInput) editFileInput.value = '';
+            if (editImageBase64) editImageBase64.value = '';
+            if (editImageUrlInput) editImageUrlInput.value = '';
+            if (editImagePreview) editImagePreview.src = '';
+            if (editImagePreviewContainer) editImagePreviewContainer.style.display = 'none';
+        });
+    }
+
+    if (editImageUrlInput) {
+        editImageUrlInput.addEventListener('input', function() {
+            const url = editImageUrlInput.value.trim();
+            if (url) {
+                if (editImagePreview) editImagePreview.src = url;
+                if (editImagePreviewContainer) editImagePreviewContainer.style.display = 'flex';
+                if (editImageBase64) editImageBase64.value = '';
+                if (editFileInput) editFileInput.value = '';
+            } else {
+                if (editImagePreview) editImagePreview.src = '';
+                if (editImagePreviewContainer) editImagePreviewContainer.style.display = 'none';
+            }
+        });
+    }
+
+    const btnAddFabric = document.getElementById('btn-add-edit-fabric-row');
+    if (btnAddFabric) {
+        btnAddFabric.addEventListener('click', function() {
+            addEditFabricRow('Qo\'shimcha mato', 150000, 100);
+        });
+    }
+
+    const btnAddAcc = document.getElementById('btn-add-edit-custom-accessory');
+    if (btnAddAcc) {
+        btnAddAcc.addEventListener('click', function() {
+            const nameInput = document.getElementById('edit-custom-accessory-name');
+            const unitSelect = document.getElementById('edit-custom-accessory-unit');
+            const priceInput = document.getElementById('edit-custom-accessory-price');
+            const qtyInput = document.getElementById('edit-custom-accessory-qty');
+
+            const name = nameInput.value.trim();
+            const unit = unitSelect.value;
+            const price = parseFloat(priceInput.value) || 0;
+            const qty = parseFloat(qtyInput.value) || 0;
+
+            if (!name || price <= 0 || qty <= 0) {
+                showToast("Aksessuar nomi, narxi va miqdorini to'g'ri kiriting!", "warning");
+                return;
+            }
+
+            addEditAccessoryRow(name, price, qty, unit, true, true);
+
+            nameInput.value = '';
+            priceInput.value = '';
+            qtyInput.value = '';
+
+            updateEditModalCalculation();
+        });
+    }
+
+    const btnAddPack = document.getElementById('btn-add-edit-custom-packaging');
+    if (btnAddPack) {
+        btnAddPack.addEventListener('click', function() {
+            const nameInput = document.getElementById('edit-custom-packaging-name');
+            const priceInput = document.getElementById('edit-custom-packaging-price');
+
+            const name = nameInput.value.trim();
+            const price = parseFloat(priceInput.value) || 0;
+
+            if (!name || price <= 0) {
+                showToast("Qadoqlash xizmati nomi va narxini to'g'ri kiriting!", "warning");
+                return;
+            }
+
+            addEditPackagingRow(name, price, true, true);
+
+            nameInput.value = '';
+            priceInput.value = '';
+
+            updateEditModalCalculation();
+        });
+    }
+}
+
+window.saveShowroomEditedCatalogItem = function() {
+    const id = document.getElementById('edit-cat-id').value;
+    const itemIdx = state.showroomCatalog.findIndex(i => i.id === id);
+    if (itemIdx === -1) return;
+
+    const name = document.getElementById('edit-cat-name').value.trim();
+    const type = document.getElementById('edit-cat-type').value;
+    const qty = parseInt(document.getElementById('edit-cat-qty').value) || 1;
+    const wholesale = parseFloat(document.getElementById('edit-cat-wholesale').value) || 0;
+    const retail = parseFloat(document.getElementById('edit-cat-retail').value) || 0;
+    const note = document.getElementById('edit-cat-note').value.trim();
+
+    if (!name) {
+        showToast("Model nomini kiriting!", "warning");
+        return;
+    }
+
+    const base64Val = document.getElementById('edit-cat-image-base64').value;
+    const urlVal = document.getElementById('edit-cat-image-url').value.trim();
+    const imageSrc = base64Val || urlVal || '';
+
+    const fabricsData = [];
+    let totalFabric = 0;
+    document.querySelectorAll('.edit-fabric-row').forEach(row => {
+        const fType = row.querySelector('.edit-fabric-type-select').value;
+        const fPrice = parseFloat(row.querySelector('.edit-fabric-price-input').value) || 0;
+        const fConsumption = parseFloat(row.querySelector('.edit-fabric-consumption-input').value) || 0;
+        const costPerUnit = fPrice * (fConsumption / 1000);
+        
+        fabricsData.push({
+            type: fType,
+            pricePerKg: fPrice,
+            consumptionGrams: fConsumption,
+            costPerUnit: costPerUnit
+        });
+        totalFabric += costPerUnit;
+    });
+
+    const decorData = [];
+    let totalDecor = 0;
+    document.querySelectorAll('.edit-decor-row').forEach(row => {
+        const active = row.querySelector('.edit-decor-checkbox').checked;
+        const dName = row.getAttribute('data-name');
+        const dPrice = parseFloat(row.querySelector('.edit-decor-price-input').value) || 0;
+        if (active) {
+            decorData.push({
+                name: dName,
+                price: dPrice
+            });
+            totalDecor += dPrice;
+        }
+    });
+
+    const sewingData = [];
+    let totalSewing = 0;
+    document.querySelectorAll('.edit-sewing-row').forEach(row => {
+        const active = row.querySelector('.edit-sewing-checkbox').checked;
+        const sName = row.getAttribute('data-name');
+        const sPrice = parseFloat(row.querySelector('.edit-sewing-price-input').value) || 0;
+        if (active) {
+            sewingData.push({
+                name: sName,
+                price: sPrice
+            });
+            totalSewing += sPrice;
+        }
+    });
+
+    const accessoryData = [];
+    let totalAccessory = 0;
+    document.querySelectorAll('.edit-accessory-row').forEach(row => {
+        const active = row.querySelector('.edit-accessory-checkbox').checked;
+        const aName = row.getAttribute('data-name');
+        const aPrice = parseFloat(row.querySelector('.edit-accessory-price-input').value) || 0;
+        const aQty = parseFloat(row.querySelector('.edit-accessory-qty-input').value) || 0;
+        const aUnit = row.getAttribute('data-unit') || 'dona';
+        if (active) {
+            let cost = 0;
+            if (aUnit === 'gr') {
+                cost = aPrice * (aQty / 1000);
+            } else {
+                cost = aPrice * aQty;
+            }
+            accessoryData.push({
+                name: aName,
+                price: aPrice,
+                qty: aQty,
+                unit: aUnit,
+                cost: cost
+            });
+            totalAccessory += cost;
+        }
+    });
+
+    const overheadData = [];
+    let totalOverhead = 0;
+    document.querySelectorAll('.edit-overhead-row').forEach(row => {
+        const active = row.querySelector('.edit-overhead-checkbox').checked;
+        const oName = row.getAttribute('data-name');
+        const oPrice = parseFloat(row.querySelector('.edit-overhead-price-input').value) || 0;
+        if (active) {
+            overheadData.push({
+                name: oName,
+                price: oPrice
+            });
+            totalOverhead += oPrice;
+        }
+    });
+
+    const packagingData = [];
+    let totalPackaging = 0;
+    document.querySelectorAll('.edit-packaging-row').forEach(row => {
+        const active = row.querySelector('.edit-packaging-checkbox').checked;
+        const pName = row.getAttribute('data-name');
+        const pPrice = parseFloat(row.querySelector('.edit-packaging-price-input').value) || 0;
+        if (active) {
+            packagingData.push({
+                name: pName,
+                price: pPrice
+            });
+            totalPackaging += pPrice;
+        }
+    });
+
+    const unitCost = totalFabric + totalDecor + totalSewing + totalAccessory + totalOverhead + totalPackaging;
+    const totalCost = unitCost * qty;
+
+    const p = {
+        paramSew: sewingData.find(s => s.name === 'Chok') ? (sewingData.find(s => s.name === 'Chok').price > 0 ? Math.round(totalSewing / (sewingData.find(s => s.name === 'Chok').price || 1)) : 0) : 0,
+        paramOverlock: sewingData.find(s => s.name === 'Overlok') ? 1 : 0,
+        paramFlatlock: sewingData.find(s => s.name === 'Raspashivalka') ? 1 : 0,
+        paramFolds: sewingData.find(s => s.name === 'Bostiriq') ? 1 : 0,
+        paramInserts: sewingData.find(s => s.name === 'Rangli detal ulash') ? 1 : 0,
+        paramPaints: decorData.length > 0 ? 1 : 0,
+        paramAccessories: accessoryData.length > 0 ? 1 : 0,
+        
+        costFabricQty: totalFabric / (fabricsData[0]?.pricePerKg || 150000),
+        costSew: sewingData.find(s => s.name === 'Chok')?.price || 500,
+        costOverlock: sewingData.find(s => s.name === 'Overlok')?.price || 600,
+        costFlatlock: sewingData.find(s => s.name === 'Raspashivalka')?.price || 800,
+        costFolds: sewingData.find(s => s.name === 'Bostiriq')?.price || 400,
+        costInserts: sewingData.find(s => s.name === 'Rangli detal ulash')?.price || 1500,
+        costPaints: decorData[0]?.price || 3000,
+        costAccessories: accessoryData[0]?.price || 2500,
+        costFabricPrice: fabricsData[0]?.pricePerKg || 150000,
+        costElectricity: overheadData.find(o => o.name === 'Elektr energiya')?.price || 1000,
+        costPackaging: packagingData[0]?.price || 1500
+    };
+
+    const originalItem = state.showroomCatalog[itemIdx];
+    const updatedModel = {
+        id: originalItem.id,
+        type: type,
+        name: name,
+        qty: qty,
+        wholesalePrice: wholesale,
+        retailPrice: retail,
+        totalProductionCost: totalCost,
+        imageSrc: imageSrc || originalItem.imageSrc || '',
+        date: originalItem.date || new Date().toISOString().split('T')[0],
+        source: originalItem.source || 'manual_calculation',
+        note: note,
+        params: p,
+        calculationDetails: {
+            fabrics: fabricsData,
+            decorations: decorData,
+            sewing: sewingData,
+            accessories: accessoryData,
+            overheads: overheadData,
+            packaging: packagingData,
+            totals: {
+                fabrics: totalFabric,
+                decorations: totalDecor,
+                sewing: totalSewing,
+                accessories: totalAccessory,
+                overheads: totalOverhead,
+                packaging: totalPackaging,
+                unitCost: unitCost,
+                totalCost: totalCost
+            }
+        }
+    };
+
+    state.showroomCatalog[itemIdx] = updatedModel;
+    saveState();
+    
+    renderShowroomCatalog();
+    closeModal('modal-edit-catalog');
+    showToast(`"${name}" modeli muvaffaqiyatli tahrirlandi va showroomda yangilandi!`, "success");
+};
+
 window.openEditCatalogModal = function(id) {
-    window.editModelInWizard(id);
+    const item = state.showroomCatalog.find(i => i.id === id);
+    if (!item) return;
+
+    initShowroomEditModalListeners();
+
+    document.querySelectorAll('.showroom-edit-tab-btn').forEach((btn, idx) => {
+        if (idx === 0) {
+            btn.classList.add('active');
+            btn.style.borderBottomColor = 'var(--color-prospect)';
+            btn.style.color = '#fff';
+        } else {
+            btn.classList.remove('active');
+            btn.style.borderBottomColor = 'transparent';
+            btn.style.color = 'var(--color-text-muted)';
+        }
+    });
+    document.querySelectorAll('.showroom-edit-tab-content').forEach((c, idx) => {
+        c.style.display = idx === 0 ? 'block' : 'none';
+    });
+
+    document.getElementById('edit-cat-id').value = item.id;
+    document.getElementById('edit-cat-name').value = item.name || '';
+    document.getElementById('edit-cat-type').value = item.type || 'Futbolka';
+    document.getElementById('edit-cat-qty').value = item.qty || 1;
+    document.getElementById('edit-cat-wholesale').value = item.wholesalePrice || '';
+    document.getElementById('edit-cat-retail').value = item.retailPrice || '';
+    document.getElementById('edit-cat-note').value = item.note || '';
+
+    const editImageUrlInput = document.getElementById('edit-cat-image-url');
+    const editImagePreviewContainer = document.getElementById('edit-cat-image-preview-container');
+    const editImagePreview = document.getElementById('edit-cat-image-preview');
+    const editImageBase64 = document.getElementById('edit-cat-image-base64');
+    
+    if (editImageBase64) editImageBase64.value = '';
+    if (item.imageSrc && item.imageSrc.trim() !== '') {
+        if (item.imageSrc.startsWith('data:image')) {
+            if (editImageBase64) editImageBase64.value = item.imageSrc;
+            if (editImageUrlInput) editImageUrlInput.value = '';
+        } else {
+            if (editImageUrlInput) editImageUrlInput.value = item.imageSrc;
+        }
+        if (editImagePreview) editImagePreview.src = item.imageSrc;
+        if (editImagePreviewContainer) editImagePreviewContainer.style.display = 'flex';
+    } else {
+        if (editImageUrlInput) editImageUrlInput.value = '';
+        if (editImagePreview) editImagePreview.src = '';
+        if (editImagePreviewContainer) editImagePreviewContainer.style.display = 'none';
+    }
+
+    const calcDetails = item.calculationDetails || {};
+
+    const fabricContainer = document.getElementById('edit-fabric-rows-container');
+    if (fabricContainer) fabricContainer.innerHTML = '';
+    
+    const fabrics = calcDetails.fabrics || [];
+    if (fabrics.length > 0) {
+        fabrics.forEach(f => {
+            addEditFabricRow(f.type, f.pricePerKg, f.consumptionGrams);
+        });
+    } else {
+        const fabricPrice = item.params?.costFabricPrice || 150000;
+        const fabricQty = item.params?.costFabricQty ? Math.round(item.params.costFabricQty * 1000) : 450;
+        addEditFabricRow('Asosiy mato', fabricPrice, fabricQty);
+    }
+
+    const decorContainer = document.getElementById('edit-decor-rows-container');
+    if (decorContainer) decorContainer.innerHTML = '';
+    
+    const decors = calcDetails.decorations || [];
+    const standardDecors = [
+        { name: 'Kraska bosish', price: 3000 },
+        { name: 'Nakleyka', price: 1000 },
+        { name: 'Kashta', price: 2000 },
+        { name: 'Sublimatsiya', price: 4000 }
+    ];
+    standardDecors.forEach(std => {
+        const saved = decors.find(d => d.name.toLowerCase() === std.name.toLowerCase());
+        const checked = saved ? true : (item.params?.paramPaints > 0 && (std.name.toLowerCase().includes('kraska') || std.name.toLowerCase().includes('pechat')));
+        const price = saved ? saved.price : (checked ? (item.params?.costPaints || std.price) : std.price);
+        addEditDecorRow(std.name, price, checked);
+    });
+
+    const sewingContainer = document.getElementById('edit-sewing-rows-container');
+    if (sewingContainer) sewingContainer.innerHTML = '';
+    
+    const sewings = calcDetails.sewing || [];
+    const standardSewing = [
+        { name: 'Chok', price: 500, paramKey: 'paramSew', costKey: 'costSew' },
+        { name: 'Overlok', price: 600, paramKey: 'paramOverlock', costKey: 'costOverlock' },
+        { name: 'Raspashivalka', price: 800, paramKey: 'paramFlatlock', costKey: 'costFlatlock' },
+        { name: 'Bostiriq', price: 400, paramKey: 'paramFolds', costKey: 'costFolds' },
+        { name: 'Rangli detal ulash', price: 1500, paramKey: 'paramInserts', costKey: 'costInserts' }
+    ];
+    standardSewing.forEach(std => {
+        const saved = sewings.find(s => s.name.toLowerCase() === std.name.toLowerCase());
+        let checked = false;
+        let price = std.price;
+        if (saved) {
+            checked = true;
+            price = saved.price;
+        } else if (item.params) {
+            checked = item.params[std.paramKey] > 0;
+            price = item.params[std.costKey] || std.price;
+        }
+        addEditSewingRow(std.name, price, checked);
+    });
+
+    const accContainer = document.getElementById('edit-accessory-rows-container');
+    if (accContainer) accContainer.innerHTML = '';
+    
+    const accessories = calcDetails.accessories || [];
+    const standardAccs = [
+        { name: 'Zamok', price: 2500, unit: 'dona' },
+        { name: 'Tugma', price: 500, unit: 'dona' },
+        { name: 'Ip', price: 800, unit: 'dona' },
+        { name: 'Rezinka', price: 45000, unit: 'gr' },
+        { name: 'Etiketka', price: 500, unit: 'dona' }
+    ];
+    standardAccs.forEach(std => {
+        const saved = accessories.find(a => a.name.toLowerCase() === std.name.toLowerCase());
+        let checked = false;
+        let price = std.price;
+        let qty = (std.name === 'Rezinka' ? 3 : 1);
+        if (saved) {
+            checked = true;
+            price = saved.price;
+            qty = saved.qty;
+        } else if (item.params?.paramAccessories > 0 && (std.name === 'Zamok' || std.name === 'Etiketka')) {
+            checked = true;
+            price = item.params.costAccessories || std.price;
+            qty = 1;
+        }
+        addEditAccessoryRow(std.name, price, qty, std.unit, checked, false);
+    });
+    accessories.forEach(a => {
+        const isStd = standardAccs.some(std => std.name.toLowerCase() === a.name.toLowerCase());
+        if (!isStd) {
+            addEditAccessoryRow(a.name, a.price, a.qty, a.unit || 'dona', true, true);
+        }
+    });
+
+    const overheadContainer = document.getElementById('edit-overhead-rows-container');
+    if (overheadContainer) overheadContainer.innerHTML = '';
+    
+    const overheads = calcDetails.overheads || [];
+    const standardOverheads = [
+        { name: 'Elektr energiya', price: 1000 },
+        { name: 'Oziq-ovqat', price: 1500 },
+        { name: 'Yo\'l kira', price: 1200 }
+    ];
+    standardOverheads.forEach(std => {
+        const saved = overheads.find(o => o.name.toLowerCase() === std.name.toLowerCase());
+        let checked = false;
+        let price = std.price;
+        if (saved) {
+            checked = true;
+            price = saved.price;
+        } else if (item.params) {
+            if (std.name === 'Elektr energiya') {
+                checked = true;
+                price = item.params.costElectricity || 1000;
+            } else if (std.name === 'Oziq-ovqat') {
+                checked = true;
+                price = 1500;
+            }
+        }
+        addEditOverheadRow(std.name, price, checked);
+    });
+
+    const packContainer = document.getElementById('edit-packaging-rows-container');
+    if (packContainer) packContainer.innerHTML = '';
+    
+    const packings = calcDetails.packaging || [];
+    const standardPackings = [
+        { name: 'Biodegradable paket', price: 1500 },
+        { name: 'Oddiy paket', price: 800 },
+        { name: 'Brendlangan quti', price: 5000 },
+        { name: 'Dazmollash xizmati', price: 1500 },
+        { name: 'Qadoqlash xizmati', price: 1000 },
+        { name: 'Etiketka', price: 500 }
+    ];
+    standardPackings.forEach(std => {
+        const saved = packings.find(p => p.name.toLowerCase() === std.name.toLowerCase());
+        let checked = false;
+        let price = std.price;
+        if (saved) {
+            checked = true;
+            price = saved.price;
+        } else if (item.params) {
+            if (std.name === 'Biodegradable paket') {
+                checked = true;
+                price = item.params.costPackaging || 1500;
+            } else if (std.name === 'Dazmollash xizmati' || std.name === 'Qadoqlash xizmati' || std.name === 'Etiketka') {
+                checked = true;
+                price = std.price;
+            }
+        }
+        addEditPackagingRow(std.name, price, checked, false);
+    });
+    packings.forEach(p => {
+        const isStd = standardPackings.some(std => std.name.toLowerCase() === p.name.toLowerCase());
+        if (!isStd) {
+            addEditPackagingRow(p.name, p.price, true, true);
+        }
+    });
+
+    const qtyInput = document.getElementById('edit-cat-qty');
+    qtyInput.removeEventListener('input', updateEditModalCalculation);
+    qtyInput.addEventListener('input', updateEditModalCalculation);
+
+    updateEditModalCalculation();
+
+    openModal('modal-edit-catalog');
 };
 
 // Edit Model in Wizard
@@ -4162,10 +5040,7 @@ window.editModelInWizard = function(id) {
     goToStep(0);
 };
 
-window.saveEditedCatalogItem = function() {
-    // Legacy function placeholder (routed to wizard now)
-    closeModal('modal-edit-catalog');
-};
+// Direct showroom edit save handler replacement (no longer legacy)
 
 function setupShowroomSale() {
     const form = document.getElementById('form-showroom-sale');

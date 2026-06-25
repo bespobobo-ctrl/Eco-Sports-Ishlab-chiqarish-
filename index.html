@@ -2364,54 +2364,173 @@
     </div>
 
     <div class="modal" id="modal-edit-catalog">
-        <div class="modal-content" style="max-width: 800px;">
-            <div class="modal-header">
-                <h3>Mahsulot Parametrlarini Tahrirlash</h3>
-                <span class="close-modal" id="close-edit-catalog-modal" onclick="closeModal('modal-edit-catalog')">&times;</span>
+        <div class="modal-content" style="max-width: 1100px; width: 95%; background: rgba(10, 10, 15, 0.95); border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 16px; box-shadow: 0 20px 40px rgba(0,0,0,0.5); backdrop-filter: blur(20px);">
+            <div class="modal-header" style="border-bottom: 1px solid rgba(255, 255, 255, 0.05); padding-bottom: 15px;">
+                <h3 style="color: #fff; font-size: 1.3rem; font-weight: 700; display: flex; align-items: center; gap: 8px; margin: 0;">
+                    <i class="fa-solid fa-pen-to-square text-blue" style="color: var(--color-prospect);"></i> 
+                    <span>Showroom: Model Parametrlarini Tahrirlash</span>
+                </h3>
+                <span class="close-modal" id="close-edit-catalog-modal" onclick="closeModal('modal-edit-catalog')" style="color: var(--color-text-muted); font-size: 1.5rem; cursor: pointer; transition: color 0.2s;">&times;</span>
             </div>
-            <div class="worksheet-inputs" style="max-height: 70vh; overflow-y: auto; padding-right: 10px;">
-                <input type="hidden" id="edit-cat-id">
-                
-                <h4 style="margin-bottom: 10px; color: var(--color-won);"><i class="fa-solid fa-list-check"></i> AI Aniqlagan parametrlar (Dona uchun)</h4>
-                <div class="form-row">
-                    <div class="form-group col"><label>Tikuv choklari</label><input type="number" id="edit-param-sew" value="0"></div>
-                    <div class="form-group col"><label>Overlok choklari</label><input type="number" id="edit-param-overlock" value="0"></div>
-                    <div class="form-group col"><label>Raspashivalka</label><input type="number" id="edit-param-flatlock" value="0"></div>
-                </div>
-                <div class="form-row">
-                    <div class="form-group col"><label>Bostiriq/Qayirib</label><input type="number" id="edit-param-folds" value="0"></div>
-                    <div class="form-group col"><label>Rangli mato ulash</label><input type="number" id="edit-param-inserts" value="0"></div>
-                    <div class="form-group col"><label>Kraska/Print yuzasi</label><input type="number" id="edit-param-paints" value="0"></div>
-                </div>
-                <div class="form-row">
-                    <div class="form-group col"><label>Aksessuarlar soni</label><input type="number" id="edit-param-accessories" value="0"></div>
-                    <div class="form-group col"><label>Mato sarfi (kg)</label><input type="number" id="edit-cost-fabric-qty" step="any" value="0"></div>
+            
+            <div class="modal-body-wrapper" style="display: grid; grid-template-columns: 1fr 1.2fr; gap: 20px; max-height: 65vh; overflow-y: auto; padding: 15px 5px; margin-top: 10px;">
+                <!-- Left Column: Basic Info & Pricing -->
+                <div style="background: rgba(255,255,255,0.01); border: 1px solid rgba(255,255,255,0.03); border-radius: 12px; padding: 16px; display: flex; flex-direction: column; gap: 14px;">
+                    <h4 style="margin: 0; font-size: 0.95rem; color: var(--color-prospect); border-bottom: 1px dashed rgba(255,255,255,0.08); padding-bottom: 8px;">
+                        <i class="fa-solid fa-info-circle"></i> Umumiy ma'lumotlar
+                    </h4>
+                    <input type="hidden" id="edit-cat-id">
+                    
+                    <div class="form-group" style="margin: 0; display: flex; flex-direction: column; gap: 4px;">
+                        <label style="color: var(--color-text-muted); font-size: 0.8rem; margin: 0;">Model nomi</label>
+                        <input type="text" id="edit-cat-name" style="width: 100%; padding: 10px; border-radius: 8px; border: 1px solid var(--border-color); background: #000; color: #fff; font-size: 0.9rem;">
+                    </div>
+                    
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+                        <div class="form-group" style="margin: 0; display: flex; flex-direction: column; gap: 4px;">
+                            <label style="color: var(--color-text-muted); font-size: 0.8rem; margin: 0;">Mahsulot turi</label>
+                            <select id="edit-cat-type" style="width: 100%; padding: 10px; border-radius: 8px; border: 1px solid var(--border-color); background: #000; color: #fff; font-size: 0.9rem;">
+                                <option value="Futbolka">Futbolka</option>
+                                <option value="Hudi">Hudi</option>
+                                <option value="Shim">Shim</option>
+                                <option value="Svitshot">Svitshot</option>
+                                <option value="Shorti">Shorti</option>
+                                <option value="Boshqa">Boshqa</option>
+                            </select>
+                        </div>
+                        <div class="form-group" style="margin: 0; display: flex; flex-direction: column; gap: 4px;">
+                            <label style="color: var(--color-text-muted); font-size: 0.8rem; margin: 0;">Buyurtma soni (dona)</label>
+                            <input type="number" id="edit-cat-qty" style="width: 100%; padding: 10px; border-radius: 8px; border: 1px solid var(--border-color); background: #000; color: #fff; font-size: 0.9rem; text-align: right;">
+                        </div>
+                    </div>
+
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+                        <div class="form-group" style="margin: 0; display: flex; flex-direction: column; gap: 4px;">
+                            <label style="color: var(--color-text-muted); font-size: 0.8rem; margin: 0;">Ulgurji narxi (so'm)</label>
+                            <input type="number" id="edit-cat-wholesale" style="width: 100%; padding: 10px; border-radius: 8px; border: 1px solid var(--border-color); background: #000; color: #fff; font-size: 0.9rem; text-align: right;">
+                        </div>
+                        <div class="form-group" style="margin: 0; display: flex; flex-direction: column; gap: 4px;">
+                            <label style="color: var(--color-text-muted); font-size: 0.8rem; margin: 0;">Chakana narxi (so'm)</label>
+                            <input type="number" id="edit-cat-retail" style="width: 100%; padding: 10px; border-radius: 8px; border: 1px solid var(--border-color); background: #000; color: #fff; font-size: 0.9rem; text-align: right;">
+                        </div>
+                    </div>
+
+                    <div class="form-group" style="margin: 0; display: flex; flex-direction: column; gap: 4px;">
+                        <label style="color: var(--color-text-muted); font-size: 0.8rem; margin: 0;">Rasm Yuklash / Havola (URL)</label>
+                        <div style="display: flex; gap: 8px; align-items: center; margin-bottom: 8px;">
+                            <input type="text" id="edit-cat-image-url" placeholder="https://..." style="flex: 1; padding: 10px; border-radius: 8px; border: 1px solid var(--border-color); background: #000; color: #fff; font-size: 0.85rem;">
+                            <button type="button" class="btn btn-secondary" onclick="document.getElementById('edit-cat-file-input').click()" style="padding: 10px; font-size: 0.85rem;"><i class="fa-solid fa-upload"></i> Fayl</button>
+                            <input type="file" id="edit-cat-file-input" accept="image/*" style="display: none;">
+                        </div>
+                        <input type="hidden" id="edit-cat-image-base64">
+                        
+                        <div id="edit-cat-image-preview-container" style="display: none; justify-content: center; align-items: center; border: 1px dashed var(--border-color); border-radius: 8px; padding: 8px; background: rgba(0,0,0,0.2); position: relative; height: 120px;">
+                            <img id="edit-cat-image-preview" src="" style="max-height: 100%; max-width: 100%; border-radius: 4px; object-fit: contain;">
+                            <button type="button" id="btn-remove-edit-cat-image" style="position: absolute; top: 4px; right: 4px; background: rgba(0,0,0,0.6); border: none; color: var(--color-red); border-radius: 50%; width: 24px; height: 24px; display: flex; align-items: center; justify-content: center; cursor: pointer; font-size: 0.75rem;"><i class="fa-solid fa-trash"></i></button>
+                        </div>
+                    </div>
+
+                    <div class="form-group" style="margin: 0; display: flex; flex-direction: column; gap: 4px;">
+                        <label style="color: var(--color-text-muted); font-size: 0.8rem; margin: 0;">Izoh (Qaydlar)</label>
+                        <textarea id="edit-cat-note" rows="2" style="width: 100%; padding: 10px; border-radius: 8px; border: 1px solid var(--border-color); background: #000; color: #fff; font-size: 0.85rem; resize: none;"></textarea>
+                    </div>
                 </div>
 
-                <h4 style="margin: 20px 0 10px; color: var(--color-purple);"><i class="fa-solid fa-calculator"></i> Birlik narxlar va xarajatlar (UZS)</h4>
-                <div class="form-row">
-                    <div class="form-group col"><label>1 ta chok narxi</label><input type="number" id="edit-cost-sew" value="0"></div>
-                    <div class="form-group col"><label>1 ta overlok narxi</label><input type="number" id="edit-cost-overlock" value="0"></div>
-                    <div class="form-group col"><label>1 ta raspashivalka</label><input type="number" id="edit-cost-flatlock" value="0"></div>
-                </div>
-                <div class="form-row">
-                    <div class="form-group col"><label>1 ta bostiriq</label><input type="number" id="edit-cost-folds" value="0"></div>
-                    <div class="form-group col"><label>Rangli detal ulash</label><input type="number" id="edit-cost-inserts" value="0"></div>
-                    <div class="form-group col"><label>1 ta kraska bosish</label><input type="number" id="edit-cost-paints" value="0"></div>
-                </div>
-                <div class="form-row">
-                    <div class="form-group col"><label>Aksessuar donasi narxi</label><input type="number" id="edit-cost-accessories" value="0"></div>
-                    <div class="form-group col"><label>Mato 1 kg narxi</label><input type="number" id="edit-cost-fabric-price" value="0"></div>
-                </div>
-                <div class="form-row">
-                    <div class="form-group col"><label>Elektr energiya (dona)</label><input type="number" id="edit-cost-electricity" value="0"></div>
-                    <div class="form-group col"><label>Qadoqlov xarajati (dona)</label><input type="number" id="edit-cost-packaging" value="0"></div>
+                <!-- Right Column: Cost Details (Tabbed UI) -->
+                <div style="display: flex; flex-direction: column; height: 100%;">
+                    <!-- Tabs Header -->
+                    <div style="display: flex; border-bottom: 1px solid rgba(255,255,255,0.05); gap: 4px; padding-bottom: 8px; margin-bottom: 10px; overflow-x: auto;">
+                        <button type="button" class="showroom-edit-tab-btn active" data-tab="edit-tab-fabrics" style="flex: 1; padding: 8px; background: none; border: none; border-bottom: 2px solid var(--color-prospect); color: #fff; font-size: 0.8rem; font-weight: 600; cursor: pointer; white-space: nowrap;"><i class="fa-solid fa-shirt"></i> Matolar</button>
+                        <button type="button" class="showroom-edit-tab-btn" data-tab="edit-tab-decor-sewing" style="flex: 1; padding: 8px; background: none; border: none; border-bottom: 2px solid transparent; color: var(--color-text-muted); font-size: 0.8rem; font-weight: 600; cursor: pointer; white-space: nowrap;"><i class="fa-solid fa-scissors"></i> Tikuv & Bezak</button>
+                        <button type="button" class="showroom-edit-tab-btn" data-tab="edit-tab-accessories" style="flex: 1; padding: 8px; background: none; border: none; border-bottom: 2px solid transparent; color: var(--color-text-muted); font-size: 0.8rem; font-weight: 600; cursor: pointer; white-space: nowrap;"><i class="fa-solid fa-gem"></i> Aksessuarlar</button>
+                        <button type="button" class="showroom-edit-tab-btn" data-tab="edit-tab-overhead-packaging" style="flex: 1; padding: 8px; background: none; border: none; border-bottom: 2px solid transparent; color: var(--color-text-muted); font-size: 0.8rem; font-weight: 600; cursor: pointer; white-space: nowrap;"><i class="fa-solid fa-box-open"></i> Ishxona & Qadoq</button>
+                    </div>
+
+                    <!-- Tab Contents -->
+                    <div class="showroom-edit-tab-content active" id="edit-tab-fabrics" style="flex: 1;">
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+                            <span style="font-size: 0.85rem; color: var(--color-text-muted);">Mato harajatlarini hisoblash:</span>
+                            <button type="button" class="btn btn-secondary" id="btn-add-edit-fabric-row" style="padding: 5px 12px; font-size: 0.75rem; font-weight: 600;"><i class="fa-solid fa-plus"></i> Mato qo'shish</button>
+                        </div>
+                        <div id="edit-fabric-rows-container" style="display: flex; flex-direction: column; gap: 8px; max-height: 250px; overflow-y: auto; padding-right: 4px;">
+                            <!-- Dynamic fabric rows will go here -->
+                        </div>
+                    </div>
+
+                    <div class="showroom-edit-tab-content" id="edit-tab-decor-sewing" style="display: none; flex: 1;">
+                        <div style="font-size: 0.85rem; color: var(--color-text-muted); margin-bottom: 10px; font-weight: 600;">Bezaklar (Kraska/Print):</div>
+                        <div id="edit-decor-rows-container" class="wizard-toggle-grid" style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 15px;">
+                            <!-- Dynamic or static decors -->
+                        </div>
+                        <div style="font-size: 0.85rem; color: var(--color-text-muted); margin-bottom: 10px; font-weight: 600;">Tikuv xizmatlari (Dona uchun):</div>
+                        <div id="edit-sewing-rows-container" class="wizard-toggle-grid" style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px;">
+                            <!-- Dynamic or static sewing services -->
+                        </div>
+                    </div>
+
+                    <div class="showroom-edit-tab-content" id="edit-tab-accessories" style="display: none; flex: 1;">
+                        <div style="font-size: 0.85rem; color: var(--color-text-muted); margin-bottom: 10px; font-weight: 600;">Aksessuarlar ro'yxati:</div>
+                        <div id="edit-accessory-rows-container" class="wizard-toggle-grid" style="display: flex; flex-direction: column; gap: 8px; max-height: 220px; overflow-y: auto; padding-right: 4px; margin-bottom: 10px;">
+                            <!-- Dynamic or static accessories -->
+                        </div>
+                        
+                        <div style="display: flex; gap: 6px; background: rgba(0,0,0,0.15); padding: 8px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.03);">
+                            <input type="text" id="edit-custom-accessory-name" placeholder="Yangi aksessuar..." style="flex: 2; padding: 6px 10px; border-radius: 6px; border: 1px solid var(--border-color); background: #000; color: #fff; font-size: 0.8rem;">
+                            <select id="edit-custom-accessory-unit" style="flex: 1; padding: 6px 10px; border-radius: 6px; border: 1px solid var(--border-color); background: #000; color: #fff; font-size: 0.8rem;">
+                                <option value="dona">dona</option>
+                                <option value="gr">gram</option>
+                            </select>
+                            <input type="number" id="edit-custom-accessory-price" placeholder="Narxi" style="flex: 1; padding: 6px 10px; border-radius: 6px; border: 1px solid var(--border-color); background: #000; color: #fff; font-size: 0.8rem; text-align: right;">
+                            <input type="number" id="edit-custom-accessory-qty" placeholder="Miqdori" style="flex: 1; padding: 6px 10px; border-radius: 6px; border: 1px solid var(--border-color); background: #000; color: #fff; font-size: 0.8rem; text-align: right;">
+                            <button type="button" class="btn btn-secondary" id="btn-add-edit-custom-accessory" style="padding: 6px 12px; font-size: 0.8rem; border-radius: 6px;"><i class="fa-solid fa-plus"></i></button>
+                        </div>
+                    </div>
+
+                    <div class="showroom-edit-tab-content" id="edit-tab-overhead-packaging" style="display: none; flex: 1;">
+                        <div style="font-size: 0.85rem; color: var(--color-text-muted); margin-bottom: 10px; font-weight: 600;">Ishxona qo'shimcha xarajatlari:</div>
+                        <div id="edit-overhead-rows-container" class="wizard-toggle-grid" style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 15px;">
+                            <!-- Static overheads -->
+                        </div>
+                        <div style="font-size: 0.85rem; color: var(--color-text-muted); margin-bottom: 10px; font-weight: 600;">Qadoqlash xarajatlari:</div>
+                        <div id="edit-packaging-rows-container" class="wizard-toggle-grid" style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px; max-height: 150px; overflow-y: auto;">
+                            <!-- Static packaging + dynamic custom -->
+                        </div>
+                        
+                        <div style="display: flex; gap: 6px; background: rgba(0,0,0,0.15); padding: 8px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.03); margin-top: 8px;">
+                            <input type="text" id="edit-custom-packaging-name" placeholder="Yangi qadoq..." style="flex: 2; padding: 6px 10px; border-radius: 6px; border: 1px solid var(--border-color); background: #000; color: #fff; font-size: 0.8rem;">
+                            <input type="number" id="edit-custom-packaging-price" placeholder="Narxi" style="flex: 1; padding: 6px 10px; border-radius: 6px; border: 1px solid var(--border-color); background: #000; color: #fff; font-size: 0.8rem; text-align: right;">
+                            <button type="button" class="btn btn-secondary" id="btn-add-edit-custom-packaging" style="padding: 6px 12px; font-size: 0.8rem; border-radius: 6px;"><i class="fa-solid fa-plus"></i></button>
+                        </div>
+                    </div>
                 </div>
             </div>
             
-            <div style="margin-top: 20px; display: flex; gap: 10px; border-top: 1px solid rgba(255,255,255,0.1); padding-top: 15px;">
-                <button type="button" class="btn btn-secondary" style="flex: 1;" onclick="closeModal('modal-edit-catalog')">Bekor qilish</button>
-                <button type="button" class="btn btn-primary" style="flex: 2;" onclick="saveEditedCatalogItem()">O'zgarishlarni Saqlash</button>
+            <!-- Sticky bottom pricing bar & buttons -->
+            <div style="margin-top: 15px; border-top: 1px solid rgba(255,255,255,0.08); padding-top: 15px;">
+                <div style="display: flex; justify-content: space-between; align-items: center; background: rgba(255, 255, 255, 0.02); border: 1px solid rgba(255, 255, 255, 0.05); padding: 12px 20px; border-radius: 10px; margin-bottom: 15px;">
+                    <div style="display: flex; gap: 20px;">
+                        <div>
+                            <span style="font-size: 0.75rem; color: var(--color-text-muted); display: block;">Mahsulot Tan Narxi (1 dona)</span>
+                            <strong id="edit-live-unit-cost" style="font-size: 1.25rem; color: var(--color-won);">0 so'm</strong>
+                        </div>
+                        <div style="border-left: 1px solid rgba(255,255,255,0.1); padding-left: 20px;">
+                            <span style="font-size: 0.75rem; color: var(--color-text-muted); display: block;">Jami Buyurtma Tannarxi</span>
+                            <strong id="edit-live-total-cost" style="font-size: 1.25rem; color: var(--color-prospect);">0 so'm</strong>
+                        </div>
+                    </div>
+                    <div style="display: flex; gap: 10px; font-size: 0.75rem; color: var(--color-text-muted);">
+                        <span>Matolar: <strong id="edit-summary-fabric" style="color: #fff;">0</strong></span> |
+                        <span>Bezak: <strong id="edit-summary-decor" style="color: #fff;">0</strong></span> |
+                        <span>Tikuv: <strong id="edit-summary-sewing" style="color: #fff;">0</strong></span> |
+                        <span>Aksessuar: <strong id="edit-summary-acc" style="color: #fff;">0</strong></span> |
+                        <span>Qadoq: <strong id="edit-summary-pack" style="color: #fff;">0</strong></span>
+                    </div>
+                </div>
+                
+                <div style="display: flex; gap: 10px;">
+                    <button type="button" class="btn btn-secondary" style="flex: 1; padding: 12px; font-weight: 600;" onclick="closeModal('modal-edit-catalog')"><i class="fa-solid fa-xmark"></i> Bekor qilish</button>
+                    <button type="button" class="btn btn-primary" id="btn-save-edited-catalog" style="flex: 2; padding: 12px; font-weight: 700; background: var(--color-won); border-color: var(--color-won); color: #000;" onclick="saveShowroomEditedCatalogItem()"><i class="fa-solid fa-floppy-disk"></i> O'zgarishlarni Saqlash</button>
+                </div>
             </div>
         </div>
     </div>
