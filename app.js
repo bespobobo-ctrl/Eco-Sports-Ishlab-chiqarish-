@@ -1068,66 +1068,850 @@ function updateApiUsageUI() {
 // --- MANUAL MODEL ENTRY LOGIC ---
 (function() {
     document.addEventListener('DOMContentLoaded', function() {
-        const form = document.getElementById('form-manual-model');
-        if (!form) return;
+        const wizardForm = document.getElementById('form-manual-model-wizard');
+        if (!wizardForm) return;
 
-        form.addEventListener('submit', function(e) {
-            e.preventDefault();
+        let currentStep = 0;
+        const totalSteps = 7; // Steps 0 to 6
 
-            const name = document.getElementById('manual-model-name').value.trim();
-            const type = document.getElementById('manual-model-type').value;
-            const unitCost = parseFloat(document.getElementById('manual-model-unit-cost').value) || 0;
-            const wholesale = parseFloat(document.getElementById('manual-model-wholesale').value) || 0;
-            const retail = parseFloat(document.getElementById('manual-model-retail').value) || 0;
-            const qty = parseInt(document.getElementById('manual-model-qty').value) || 100;
-            const imgUrl = document.getElementById('manual-model-image').value.trim() || '';
-            const note = document.getElementById('manual-model-note').value.trim();
+        // Product type selection cards
+        const typeCards = document.querySelectorAll('.product-type-card');
+        const hiddenProductType = document.getElementById('wizard-product-type');
+        
+        // FontAwesome icons mapping for products
+        const iconMap = {
+            'Triko': 'fa-solid fa-person-running',
+            'Futbolka': 'fa-solid fa-shirt',
+            'Shortik': 'fa-solid fa-scissors',
+            'Sportifka': 'fa-solid fa-vest-patches',
+            'Kofta': 'fa-solid fa-socks',
+            'Bomber': 'fa-solid fa-universal-access',
+            'Talstofka': 'fa-solid fa-snowman'
+        };
 
-            if (!name || !type || unitCost <= 0 || wholesale <= 0 || retail <= 0) {
-                if (typeof showToast === 'function') {
-                    showToast("Iltimos, barcha majburiy (*) maydonlarni to'ldiring va narxlarni 0 dan yuqori qilib kiriting.", 'warning');
-                } else {
-                    alert("Iltimos, barcha majburiy maydonlarni to'ldiring.");
+        // Initialize icons in type cards
+        typeCards.forEach(card => {
+            const type = card.getAttribute('data-type');
+            const icon = card.querySelector('i');
+            if (icon && iconMap[type]) {
+                icon.className = iconMap[type];
+            }
+        });
+
+        typeCards.forEach(card => {
+            card.addEventListener('click', function() {
+                typeCards.forEach(c => {
+                    c.classList.remove('active');
+                    c.style.background = 'rgba(255, 255, 255, 0.02)';
+                    c.style.borderColor = 'var(--border-color)';
+                    const icon = c.querySelector('i');
+                    if (icon) icon.style.color = 'var(--color-text-muted)';
+                });
+                card.classList.add('active');
+                card.style.background = 'rgba(56, 189, 248, 0.1)';
+                card.style.borderColor = 'var(--color-prospect)';
+                const icon = card.querySelector('i');
+                if (icon) icon.style.color = 'var(--color-prospect)';
+                
+                const type = card.getAttribute('data-type');
+                hiddenProductType.value = type;
+                
+                // Pre-populate model name if empty or default
+                const nameInput = document.getElementById('wizard-model-name');
+                if (!nameInput.value || nameInput.value.startsWith('Eco Runner')) {
+                    nameInput.value = 'Eco Runner ' + type;
                 }
+                
+                updateWizardCalculation();
+            });
+        });
+
+        // Add fabric row
+        const fabricContainer = document.getElementById('fabric-rows-container');
+        const btnAddFabric = document.getElementById('btn-add-fabric-row');
+        let fabricIndex = 1;
+
+        btnAddFabric.addEventListener('click', function() {
+            const row = document.createElement('div');
+            row.className = 'fabric-row card-glass';
+            row.style.cssText = 'padding: 12px; background: rgba(255,255,255,0.02); display: flex; flex-wrap: wrap; gap: 12px; align-items: flex-end; margin-top: 8px;';
+            row.setAttribute('data-index', fabricIndex);
+            
+            row.innerHTML = `
+                <div style="flex: 2; min-width: 150px;">
+                    <label style="font-size: 0.75rem; color: var(--color-text-muted); margin-bottom: 4px; display: block;">Mato Turi</label>
+                    <select class="fabric-type-select" style="width: 100%; padding: 8px; border-radius: 6px; border: 1px solid var(--border-color); background: #000; color: #fff;">
+                        <option value="Asosiy mato">Asosiy mato</option>
+                        <option value="Cho'ntak matosi">Cho'ntak matosi</option>
+                        <option value="Detal matosi">Detal matosi</option>
+                        <option value="Ribana / Manjet">Ribana / Manjet</option>
+                        <option value="Boshqa mato">Boshqa mato</option>
+                    </select>
+                </div>
+                <div style="flex: 1.5; min-width: 100px;">
+                    <label style="font-size: 0.75rem; color: var(--color-text-muted); margin-bottom: 4px; display: block;">1kg narxi (so'm)</label>
+                    <input type="number" class="fabric-price-input" value="150000" min="0" placeholder="0" style="width: 100%; padding: 8px; border-radius: 6px; border: 1px solid var(--border-color); background: #000; color: #fff;">
+                </div>
+                <div style="flex: 1.5; min-width: 100px;">
+                    <label style="font-size: 0.75rem; color: var(--color-text-muted); margin-bottom: 4px; display: block;">Sarfi (gramm)</label>
+                    <input type="number" class="fabric-consumption-input" value="100" min="0" placeholder="0" style="width: 100%; padding: 8px; border-radius: 6px; border: 1px solid var(--border-color); background: #000; color: #fff;">
+                </div>
+                <div style="width: 32px; text-align: center; padding-bottom: 8px;">
+                    <button type="button" class="btn-remove-fabric" style="background:none; border:none; color:var(--color-red); cursor:pointer; font-size:1.1rem;"><i class="fa-solid fa-trash"></i></button>
+                </div>
+            `;
+            fabricContainer.appendChild(row);
+            fabricIndex++;
+            
+            // Bind delete button
+            row.querySelector('.btn-remove-fabric').addEventListener('click', function() {
+                row.remove();
+                updateWizardCalculation();
+            });
+
+            // Bind change inputs
+            row.querySelectorAll('input, select').forEach(input => {
+                input.addEventListener('input', updateWizardCalculation);
+                input.addEventListener('change', updateWizardCalculation);
+            });
+
+            updateWizardCalculation();
+        });
+
+        // Toggle checkbox inputs
+        function setupToggleLogic(checkboxClass, priceInputClass, qtyInputClass) {
+            document.querySelectorAll('.' + checkboxClass).forEach(checkbox => {
+                const parent = checkbox.closest('div').parentElement.parentElement;
+                const priceInput = parent.querySelector('.' + priceInputClass);
+                const qtyInput = parent.querySelector('.' + qtyInputClass);
+
+                const handleToggle = () => {
+                    if (checkbox.checked) {
+                        if (priceInput) priceInput.removeAttribute('disabled');
+                        if (qtyInput) qtyInput.removeAttribute('disabled');
+                    } else {
+                        if (priceInput) priceInput.setAttribute('disabled', 'true');
+                        if (qtyInput) qtyInput.setAttribute('disabled', 'true');
+                    }
+                    updateWizardCalculation();
+                };
+
+                checkbox.addEventListener('change', handleToggle);
+                if (priceInput) priceInput.addEventListener('input', updateWizardCalculation);
+                if (qtyInput) qtyInput.addEventListener('input', updateWizardCalculation);
+            });
+        }
+
+        setupToggleLogic('decor-checkbox', 'decor-price-input', '');
+        setupToggleLogic('sewing-checkbox', 'sewing-price-input', '');
+        setupToggleLogic('accessory-checkbox', 'accessory-price-input', 'accessory-qty-input');
+        setupToggleLogic('overhead-checkbox', 'overhead-price-input', '');
+
+        // Add custom items
+        // Sewing
+        document.getElementById('btn-add-custom-sewing').addEventListener('click', function() {
+            const nameInput = document.getElementById('custom-sewing-name');
+            const priceInput = document.getElementById('custom-sewing-price');
+            const name = nameInput.value.trim();
+            const price = parseFloat(priceInput.value) || 0;
+
+            if (!name || price <= 0) return;
+
+            const container = document.getElementById('sewing-rows-container');
+            const row = document.createElement('div');
+            row.className = 'sewing-row card-glass';
+            row.style.cssText = 'padding: 8px 12px; background: rgba(255,255,255,0.01); display: flex; align-items: center; justify-content: space-between; margin-top: 8px;';
+            row.setAttribute('data-name', name);
+            row.innerHTML = `
+                <div style="display: flex; align-items: center; gap: 8px;">
+                    <input type="checkbox" checked class="sewing-checkbox" style="width: 16px; height: 16px; cursor: pointer;">
+                    <span style="font-size: 0.85rem;">${name} (Maxsus)</span>
+                </div>
+                <div style="display: flex; align-items: center; gap: 8px;">
+                    <input type="number" class="sewing-price-input" value="${price}" min="0" style="width: 100px; padding: 5px; border-radius: 6px; border: 1px solid var(--border-color); background: #000; color: #fff; text-align: right;">
+                    <span style="font-size: 0.75rem; color: var(--color-text-muted);">so'm</span>
+                    <button type="button" class="btn-remove-row" style="background:none; border:none; color:var(--color-red); cursor:pointer; margin-left: 8px;"><i class="fa-solid fa-trash"></i></button>
+                </div>
+            `;
+            container.appendChild(row);
+
+            nameInput.value = '';
+            priceInput.value = '';
+
+            // Setup listeners
+            const checkbox = row.querySelector('.sewing-checkbox');
+            const priceInp = row.querySelector('.sewing-price-input');
+            checkbox.addEventListener('change', function() {
+                if (checkbox.checked) priceInp.removeAttribute('disabled');
+                else priceInp.setAttribute('disabled', 'true');
+                updateWizardCalculation();
+            });
+            priceInp.addEventListener('input', updateWizardCalculation);
+            row.querySelector('.btn-remove-row').addEventListener('click', function() {
+                row.remove();
+                updateWizardCalculation();
+            });
+
+            updateWizardCalculation();
+        });
+
+        // Accessories
+        document.getElementById('btn-add-custom-accessory').addEventListener('click', function() {
+            const nameInput = document.getElementById('custom-accessory-name');
+            const priceInput = document.getElementById('custom-accessory-price');
+            const qtyInput = document.getElementById('custom-accessory-qty');
+            const name = nameInput.value.trim();
+            const price = parseFloat(priceInput.value) || 0;
+            const qty = parseInt(qtyInput.value) || 1;
+
+            if (!name || price <= 0) return;
+
+            const container = document.getElementById('accessory-rows-container');
+            const row = document.createElement('div');
+            row.className = 'accessory-row card-glass';
+            row.style.cssText = 'padding: 8px 12px; background: rgba(255,255,255,0.01); display: flex; align-items: center; justify-content: space-between; margin-top: 8px;';
+            row.setAttribute('data-name', name);
+            row.innerHTML = `
+                <div style="display: flex; align-items: center; gap: 8px;">
+                    <input type="checkbox" checked class="accessory-checkbox" style="width: 16px; height: 16px; cursor: pointer;">
+                    <span style="font-size: 0.85rem;">${name} (Maxsus)</span>
+                </div>
+                <div style="display: flex; align-items: center; gap: 8px;">
+                    <input type="number" class="accessory-price-input" value="${price}" min="0" style="width: 90px; padding: 5px; border-radius: 6px; border: 1px solid var(--border-color); background: #000; color: #fff; text-align: right;">
+                    <span style="font-size: 0.75rem; color: var(--color-text-muted);">x</span>
+                    <input type="number" class="accessory-qty-input" value="${qty}" min="1" style="width: 45px; padding: 5px; border-radius: 6px; border: 1px solid var(--border-color); background: #000; color: #fff; text-align: center;">
+                    <span style="font-size: 0.75rem; color: var(--color-text-muted);">so'm</span>
+                    <button type="button" class="btn-remove-row" style="background:none; border:none; color:var(--color-red); cursor:pointer; margin-left: 8px;"><i class="fa-solid fa-trash"></i></button>
+                </div>
+            `;
+            container.appendChild(row);
+
+            nameInput.value = '';
+            priceInput.value = '';
+            qtyInput.value = '1';
+
+            // Setup listeners
+            const checkbox = row.querySelector('.accessory-checkbox');
+            const priceInp = row.querySelector('.accessory-price-input');
+            const qtyInp = row.querySelector('.accessory-qty-input');
+            checkbox.addEventListener('change', function() {
+                if (checkbox.checked) {
+                    priceInp.removeAttribute('disabled');
+                    qtyInp.removeAttribute('disabled');
+                } else {
+                    priceInp.setAttribute('disabled', 'true');
+                    qtyInp.setAttribute('disabled', 'true');
+                }
+                updateWizardCalculation();
+            });
+            priceInp.addEventListener('input', updateWizardCalculation);
+            qtyInp.addEventListener('input', updateWizardCalculation);
+            row.querySelector('.btn-remove-row').addEventListener('click', function() {
+                row.remove();
+                updateWizardCalculation();
+            });
+
+            updateWizardCalculation();
+        });
+
+        // Overheads
+        document.getElementById('btn-add-custom-overhead').addEventListener('click', function() {
+            const nameInput = document.getElementById('custom-overhead-name');
+            const priceInput = document.getElementById('custom-overhead-price');
+            const name = nameInput.value.trim();
+            const price = parseFloat(priceInput.value) || 0;
+
+            if (!name || price <= 0) return;
+
+            const container = document.getElementById('overhead-rows-container');
+            const row = document.createElement('div');
+            row.className = 'overhead-row card-glass';
+            row.style.cssText = 'padding: 8px 12px; background: rgba(255,255,255,0.01); display: flex; align-items: center; justify-content: space-between; margin-top: 8px;';
+            row.setAttribute('data-name', name);
+            row.innerHTML = `
+                <div style="display: flex; align-items: center; gap: 8px;">
+                    <input type="checkbox" checked class="overhead-checkbox" style="width: 16px; height: 16px; cursor: pointer;">
+                    <span style="font-size: 0.85rem;">${name} (Maxsus)</span>
+                </div>
+                <div style="display: flex; align-items: center; gap: 8px;">
+                    <input type="number" class="overhead-price-input" value="${price}" min="0" style="width: 100px; padding: 5px; border-radius: 6px; border: 1px solid var(--border-color); background: #000; color: #fff; text-align: right;">
+                    <span style="font-size: 0.75rem; color: var(--color-text-muted);">so'm</span>
+                    <button type="button" class="btn-remove-row" style="background:none; border:none; color:var(--color-red); cursor:pointer; margin-left: 8px;"><i class="fa-solid fa-trash"></i></button>
+                </div>
+            `;
+            container.appendChild(row);
+
+            nameInput.value = '';
+            priceInput.value = '';
+
+            // Setup listeners
+            const checkbox = row.querySelector('.overhead-checkbox');
+            const priceInp = row.querySelector('.overhead-price-input');
+            checkbox.addEventListener('change', function() {
+                if (checkbox.checked) priceInp.removeAttribute('disabled');
+                else priceInp.setAttribute('disabled', 'true');
+                updateWizardCalculation();
+            });
+            priceInp.addEventListener('input', updateWizardCalculation);
+            row.querySelector('.btn-remove-row').addEventListener('click', function() {
+                row.remove();
+                updateWizardCalculation();
+            });
+
+            updateWizardCalculation();
+        });
+
+
+        // Core Calculation Engine
+        function updateWizardCalculation() {
+            // Step 1: Fabrics
+            let totalFabric = 0;
+            document.querySelectorAll('.fabric-row').forEach(row => {
+                const price = parseFloat(row.querySelector('.fabric-price-input').value) || 0;
+                const consumption = parseFloat(row.querySelector('.fabric-consumption-input').value) || 0;
+                totalFabric += (price * consumption) / 1000;
+            });
+
+            // Step 2: Decorations
+            let totalDecor = 0;
+            document.querySelectorAll('.decoration-row').forEach(row => {
+                const active = row.querySelector('.decor-checkbox').checked;
+                const price = parseFloat(row.querySelector('.decor-price-input').value) || 0;
+                if (active) totalDecor += price;
+            });
+
+            // Step 3: Sewing
+            let totalSewing = 0;
+            document.querySelectorAll('.sewing-row').forEach(row => {
+                const active = row.querySelector('.sewing-checkbox').checked;
+                const price = parseFloat(row.querySelector('.sewing-price-input').value) || 0;
+                if (active) totalSewing += price;
+            });
+
+            // Step 4: Accessories
+            let totalAccessory = 0;
+            document.querySelectorAll('.accessory-row').forEach(row => {
+                const active = row.querySelector('.accessory-checkbox').checked;
+                const price = parseFloat(row.querySelector('.accessory-price-input').value) || 0;
+                const qty = parseFloat(row.querySelector('.accessory-qty-input').value) || 0;
+                if (active) totalAccessory += (price * qty);
+            });
+
+            // Step 5: Overheads
+            let totalOverhead = 0;
+            document.querySelectorAll('.overhead-row').forEach(row => {
+                const active = row.querySelector('.overhead-checkbox').checked;
+                const price = parseFloat(row.querySelector('.overhead-price-input').value) || 0;
+                if (active) totalOverhead += price;
+            });
+
+            // Totals
+            const unitCost = totalFabric + totalDecor + totalSewing + totalAccessory + totalOverhead;
+            const qty = parseInt(document.getElementById('wizard-model-qty').value) || 100;
+            const totalCost = unitCost * qty;
+
+            // Update Live UI
+            document.getElementById('live-total-tannarx').innerText = Math.round(unitCost).toLocaleString('uz-UZ') + " so'm";
+            document.getElementById('live-step-fabric').innerText = Math.round(totalFabric).toLocaleString('uz-UZ') + " so'm";
+            document.getElementById('live-step-decor').innerText = Math.round(totalDecor).toLocaleString('uz-UZ') + " so'm";
+            document.getElementById('live-step-sewing').innerText = Math.round(totalSewing).toLocaleString('uz-UZ') + " so'm";
+            document.getElementById('live-step-accessories').innerText = Math.round(totalAccessory).toLocaleString('uz-UZ') + " so'm";
+            document.getElementById('live-step-overhead').innerText = Math.round(totalOverhead).toLocaleString('uz-UZ') + " so'm";
+
+            // Update Summary step
+            const summaryTannarx = document.getElementById('wizard-summary-tannarx');
+            const summaryTotal = document.getElementById('wizard-summary-total-cost');
+            const summaryQtyLabel = document.getElementById('wizard-summary-qty-label');
+            if (summaryTannarx) summaryTannarx.innerText = Math.round(unitCost).toLocaleString('uz-UZ') + " so'm";
+            if (summaryTotal) summaryTotal.innerText = Math.round(totalCost).toLocaleString('uz-UZ') + " so'm";
+            if (summaryQtyLabel) summaryQtyLabel.innerText = qty.toLocaleString('uz-UZ');
+
+            // Suggested markups
+            const recWholesale = Math.round(unitCost * 1.35);
+            const recRetail = Math.round(unitCost * 1.60);
+            
+            const wsLabel = document.getElementById('wizard-rec-wholesale');
+            const rtLabel = document.getElementById('wizard-rec-retail');
+            if (wsLabel) wsLabel.innerText = recWholesale.toLocaleString('uz-UZ');
+            if (rtLabel) rtLabel.innerText = recRetail.toLocaleString('uz-UZ');
+
+            return {
+                totalFabric,
+                totalDecor,
+                totalSewing,
+                totalAccessory,
+                totalOverhead,
+                unitCost,
+                totalCost,
+                qty,
+                recWholesale,
+                recRetail
+            };
+        }
+
+        // Attach listeners to default elements
+        document.getElementById('wizard-model-qty').addEventListener('input', updateWizardCalculation);
+        document.querySelectorAll('.fabric-price-input, .fabric-consumption-input, .fabric-type-select').forEach(input => {
+            input.addEventListener('input', updateWizardCalculation);
+            input.addEventListener('change', updateWizardCalculation);
+        });
+
+        // Navigation controls
+        const prevBtn = document.getElementById('wizard-prev-btn');
+        const nextBtn = document.getElementById('wizard-next-btn');
+        const submitBtn = document.getElementById('wizard-submit-btn');
+
+        function updateStepUI() {
+            // Show active pane, hide others
+            document.querySelectorAll('.wizard-step-pane').forEach(pane => {
+                const stepNum = parseInt(pane.getAttribute('data-step'));
+                if (stepNum === currentStep) {
+                    pane.style.display = 'block';
+                } else {
+                    pane.style.display = 'none';
+                }
+            });
+
+            // Update step indicators
+            const nodes = document.querySelectorAll('.step-indicator-node');
+            nodes.forEach((node, idx) => {
+                node.classList.remove('active', 'completed');
+                if (idx === currentStep) {
+                    node.classList.add('active');
+                } else if (idx < currentStep) {
+                    node.classList.add('completed');
+                }
+            });
+
+            // Active progress line
+            const activeLine = document.getElementById('wizard-progress-active');
+            const percent = (currentStep / (totalSteps - 1)) * 90;
+            activeLine.style.width = percent + '%';
+
+            // Buttons visibility
+            if (currentStep === 0) {
+                prevBtn.style.visibility = 'hidden';
+            } else {
+                prevBtn.style.visibility = 'visible';
+            }
+
+            if (currentStep === totalSteps - 1) {
+                nextBtn.style.display = 'none';
+                submitBtn.style.display = 'inline-block';
+            } else {
+                nextBtn.style.display = 'inline-block';
+                submitBtn.style.display = 'none';
+            }
+
+            // Populate recommended prices on step 6
+            if (currentStep === 6) {
+                const calc = updateWizardCalculation();
+                const wsInput = document.getElementById('wizard-wholesale-price');
+                const rtInput = document.getElementById('wizard-retail-price');
+                if (wsInput && (!wsInput.value || parseFloat(wsInput.value) <= 0)) {
+                    wsInput.value = calc.recWholesale;
+                }
+                if (rtInput && (!rtInput.value || parseFloat(rtInput.value) <= 0)) {
+                    rtInput.value = calc.recRetail;
+                }
+            }
+        }
+
+        prevBtn.addEventListener('click', function() {
+            if (currentStep > 0) {
+                currentStep--;
+                updateStepUI();
+            }
+        });
+
+        nextBtn.addEventListener('click', function() {
+            // Validation
+            if (currentStep === 0) {
+                const name = document.getElementById('wizard-model-name').value.trim();
+                if (!name) {
+                    showToast("Iltimos, model nomini kiriting.", "warning");
+                    return;
+                }
+            }
+            if (currentStep < totalSteps - 1) {
+                currentStep++;
+                updateStepUI();
+            }
+        });
+
+        // Clickable indicator nodes (only completed or current ones)
+        document.querySelectorAll('.step-indicator-node').forEach((node, idx) => {
+            node.addEventListener('click', function() {
+                // Allow jumping to any step if name is filled
+                const name = document.getElementById('wizard-model-name').value.trim();
+                if (!name) {
+                    showToast("Iltimos, avval 0-bosqichda model nomini kiriting.", "warning");
+                    return;
+                }
+                currentStep = idx;
+                updateStepUI();
+            });
+        });
+
+        // Submit wizard - Save to showroom
+        submitBtn.addEventListener('click', function() {
+            const name = document.getElementById('wizard-model-name').value.trim();
+            const type = document.getElementById('wizard-product-type').value;
+            const qty = parseInt(document.getElementById('wizard-model-qty').value) || 100;
+            const imageSrc = document.getElementById('wizard-model-image').value.trim() || '';
+            const wholesale = parseFloat(document.getElementById('wizard-wholesale-price').value) || 0;
+            const retail = parseFloat(document.getElementById('wizard-retail-price').value) || 0;
+            const note = document.getElementById('wizard-note').value.trim();
+
+            if (!name || wholesale <= 0 || retail <= 0) {
+                showToast("Iltimos, narxlarni to'g'ri kiriting.", "warning");
                 return;
             }
 
+            // Run final calculation
+            const calc = updateWizardCalculation();
+
+            // Build detailed fabrics array
+            const fabricsData = [];
+            document.querySelectorAll('.fabric-row').forEach(row => {
+                const fType = row.querySelector('.fabric-type-select').value;
+                const fPrice = parseFloat(row.querySelector('.fabric-price-input').value) || 0;
+                const fConsumption = parseFloat(row.querySelector('.fabric-consumption-input').value) || 0;
+                fabricsData.push({
+                    type: fType,
+                    pricePerKg: fPrice,
+                    consumptionGrams: fConsumption,
+                    costPerUnit: (fPrice * fConsumption) / 1000
+                });
+            });
+
+            // Build detailed decorations array
+            const decorData = [];
+            document.querySelectorAll('.decoration-row').forEach(row => {
+                const active = row.querySelector('.decor-checkbox').checked;
+                const dName = row.querySelector('label').innerText;
+                const dPrice = parseFloat(row.querySelector('.decor-price-input').value) || 0;
+                if (active) {
+                    decorData.push({
+                        name: dName,
+                        price: dPrice
+                    });
+                }
+            });
+
+            // Build detailed sewing array
+            const sewingData = [];
+            document.querySelectorAll('.sewing-row').forEach(row => {
+                const active = row.querySelector('.sewing-checkbox').checked;
+                const sName = row.getAttribute('data-name');
+                const sPrice = parseFloat(row.querySelector('.sewing-price-input').value) || 0;
+                if (active) {
+                    sewingData.push({
+                        name: sName,
+                        price: sPrice
+                    });
+                }
+            });
+
+            // Build detailed accessories array
+            const accessoryData = [];
+            document.querySelectorAll('.accessory-row').forEach(row => {
+                const active = row.querySelector('.accessory-checkbox').checked;
+                const aName = row.getAttribute('data-name');
+                const aPrice = parseFloat(row.querySelector('.accessory-price-input').value) || 0;
+                const aQty = parseFloat(row.querySelector('.accessory-qty-input').value) || 0;
+                if (active) {
+                    accessoryData.push({
+                        name: aName,
+                        price: aPrice,
+                        qty: aQty,
+                        cost: aPrice * aQty
+                    });
+                }
+            });
+
+            // Build detailed overheads array
+            const overheadData = [];
+            document.querySelectorAll('.overhead-row').forEach(row => {
+                const active = row.querySelector('.overhead-checkbox').checked;
+                const oName = row.getAttribute('data-name');
+                const oPrice = parseFloat(row.querySelector('.overhead-price-input').value) || 0;
+                if (active) {
+                    overheadData.push({
+                        name: oName,
+                        price: oPrice
+                    });
+                }
+            });
+
             const newModel = {
                 id: 'MANUAL-' + Date.now() + '-' + Math.floor(Math.random() * 10000),
-                name: name,
                 type: type,
-                images: imgUrl ? [imgUrl] : [],
-                unitCost: unitCost,
+                name: name,
+                qty: qty,
                 wholesalePrice: wholesale,
                 retailPrice: retail,
-                orderQty: qty,
+                totalProductionCost: calc.totalCost,
+                imageSrc: imageSrc || 'https://images.unsplash.com/photo-1578587018452-892bacefd3f2?w=500', // Unsplash apparel stack placeholder if empty
+                date: new Date().toISOString().split('T')[0],
+                source: 'manual_calculation',
                 note: note,
-                source: 'manual',
-                createdAt: new Date().toISOString()
+                calculationDetails: {
+                    fabrics: fabricsData,
+                    decorations: decorData,
+                    sewing: sewingData,
+                    accessories: accessoryData,
+                    overheads: overheadData,
+                    totals: {
+                        fabrics: calc.totalFabric,
+                        decorations: calc.totalDecor,
+                        sewing: calc.totalSewing,
+                        accessories: calc.totalAccessory,
+                        overheads: calc.totalOverhead,
+                        unitCost: calc.unitCost,
+                        totalCost: calc.totalCost
+                    }
+                }
             };
 
-            if (!state.showroomCatalog) {
-                state.showroomCatalog = [];
-            }
+            if (!state.showroomCatalog) state.showroomCatalog = [];
             state.showroomCatalog.push(newModel);
             saveState();
 
-            if (typeof showToast === 'function') {
-                showToast(`"${name}" modeli muvaffaqiyatli Showroom katalogiga qo'shildi!`, 'success');
-            } else {
-                alert('Model muvaffaqiyatli saqlandi!');
-            }
+            showToast(`"${name}" modeli muvaffaqiyatli Showroom katalogiga saqlandi!`, "success");
 
-            form.reset();
+            // Reset wizard
+            wizardForm.reset();
+            document.getElementById('wizard-model-name').value = '';
+            document.getElementById('wizard-model-image').value = '';
+            document.getElementById('wizard-wholesale-price').value = '';
+            document.getElementById('wizard-retail-price').value = '';
+            document.getElementById('wizard-note').value = '';
+            
+            // Remove custom added rows
+            document.querySelectorAll('.fabric-row').forEach((row, idx) => {
+                if (idx > 0) row.remove();
+            });
+            document.querySelectorAll('.sewing-row, .accessory-row, .overhead-row').forEach(row => {
+                if (row.querySelector('.btn-remove-row')) row.remove();
+                else {
+                    // Predefined items checkbox reset
+                    const chk = row.querySelector('input[type="checkbox"]');
+                    if (chk) {
+                        const name = row.getAttribute('data-name');
+                        if (name === 'Chok' || name === 'Overlok' || name === 'Elektr energiya' || name === 'Oziq-ovqat' || name === 'Yo\'l kira' || name === 'Yo\'l kira (Transport)') {
+                            chk.checked = true;
+                        } else {
+                            chk.checked = false;
+                        }
+                        const pInp = row.querySelector('.sewing-price-input, .accessory-price-input, .overhead-price-input');
+                        const qInp = row.querySelector('.accessory-qty-input');
+                        if (chk.checked) {
+                            if (pInp) pInp.removeAttribute('disabled');
+                            if (qInp) qInp.removeAttribute('disabled');
+                        } else {
+                            if (pInp) pInp.setAttribute('disabled', 'true');
+                            if (qInp) qInp.setAttribute('disabled', 'true');
+                        }
+                    }
+                }
+            });
 
-            // Showroom tabiga o'tkazish
+            // Select Triko card
+            typeCards[0].click();
+            currentStep = 0;
+            updateStepUI();
+            updateWizardCalculation();
+
+            // Redirect to showroom
             setTimeout(function() {
                 const btnShowroom = document.getElementById('sub-btn-showroom');
                 if (btnShowroom) btnShowroom.click();
             }, 600);
         });
+
+        // Initialize
+        updateStepUI();
+        updateWizardCalculation();
     });
 })();
+
+
+// --- VIEW MANUAL DETAILS MODAL LOGIC ---
+window.openCalculationDetailsModal = function(id) {
+    const item = state.showroomCatalog.find(i => i.id === id);
+    if (!item || !item.calculationDetails) return;
+
+    const calc = item.calculationDetails;
+    const body = document.getElementById('manual-details-body');
+    if (!body) return;
+
+    let fabricsHtml = '';
+    calc.fabrics.forEach(f => {
+        fabricsHtml += `
+            <tr style="border-bottom: 1px solid rgba(255,255,255,0.05);">
+                <td style="padding: 8px 0; color:#fff;">${f.type}</td>
+                <td style="padding: 8px 0; text-align:right;">${Math.round(f.pricePerKg).toLocaleString('uz-UZ')} so'm</td>
+                <td style="padding: 8px 0; text-align:right;">${f.consumptionGrams} gr</td>
+                <td style="padding: 8px 0; text-align:right; font-weight:bold; color:var(--color-won);">${Math.round(f.costPerUnit).toLocaleString('uz-UZ')} so'm</td>
+            </tr>
+        `;
+    });
+
+    let decorHtml = '';
+    if (calc.decorations && calc.decorations.length > 0) {
+        calc.decorations.forEach(d => {
+            decorHtml += `
+                <tr style="border-bottom: 1px solid rgba(255,255,255,0.05);">
+                    <td style="padding: 8px 0; color:#fff;">${d.name}</td>
+                    <td style="padding: 8px 0; text-align:right; font-weight:bold; color:var(--color-won);">${Math.round(d.price).toLocaleString('uz-UZ')} so'm</td>
+                </tr>
+            `;
+        });
+    } else {
+        decorHtml = '<tr><td colspan="2" style="padding: 8px 0; color:var(--color-text-muted); font-style:italic;">Bezaklar ishlatilmagan</td></tr>';
+    }
+
+    let sewingHtml = '';
+    if (calc.sewing && calc.sewing.length > 0) {
+        calc.sewing.forEach(s => {
+            sewingHtml += `
+                <tr style="border-bottom: 1px solid rgba(255,255,255,0.05);">
+                    <td style="padding: 8px 0; color:#fff;">${s.name}</td>
+                    <td style="padding: 8px 0; text-align:right; font-weight:bold; color:var(--color-won);">${Math.round(s.price).toLocaleString('uz-UZ')} so'm</td>
+                </tr>
+            `;
+        });
+    } else {
+        sewingHtml = '<tr><td colspan="2" style="padding: 8px 0; color:var(--color-text-muted); font-style:italic;">Tikuv xizmatlari kiritilmagan</td></tr>';
+    }
+
+    let accHtml = '';
+    if (calc.accessories && calc.accessories.length > 0) {
+        calc.accessories.forEach(a => {
+            accHtml += `
+                <tr style="border-bottom: 1px solid rgba(255,255,255,0.05);">
+                    <td style="padding: 8px 0; color:#fff;">${a.name}</td>
+                    <td style="padding: 8px 0; text-align:right;">${Math.round(a.price).toLocaleString('uz-UZ')} so'm</td>
+                    <td style="padding: 8px 0; text-align:right;">${a.qty} ta</td>
+                    <td style="padding: 8px 0; text-align:right; font-weight:bold; color:var(--color-won);">${Math.round(a.cost).toLocaleString('uz-UZ')} so'm</td>
+                </tr>
+            `;
+        });
+    } else {
+        accHtml = '<tr><td colspan="4" style="padding: 8px 0; color:var(--color-text-muted); font-style:italic;">Aksessuarlar kiritilmagan</td></tr>';
+    }
+
+    let overheadHtml = '';
+    if (calc.overheads && calc.overheads.length > 0) {
+        calc.overheads.forEach(o => {
+            overheadHtml += `
+                <tr style="border-bottom: 1px solid rgba(255,255,255,0.05);">
+                    <td style="padding: 8px 0; color:#fff;">${o.name}</td>
+                    <td style="padding: 8px 0; text-align:right; font-weight:bold; color:var(--color-won);">${Math.round(o.price).toLocaleString('uz-UZ')} so'm</td>
+                </tr>
+            `;
+        });
+    } else {
+        overheadHtml = '<tr><td colspan="2" style="padding: 8px 0; color:var(--color-text-muted); font-style:italic;">Ishxona xarajatlari kiritilmagan</td></tr>';
+    }
+
+    body.innerHTML = `
+        <div style="margin-bottom: 16px; border-bottom: 1px solid var(--border-color); padding-bottom: 12px;">
+            <div style="display:flex; justify-content:space-between; margin-bottom: 6px;">
+                <span style="color:var(--color-text-muted);">Model:</span>
+                <strong style="color:var(--color-prospect); font-size:1.05rem;">${item.name || item.type}</strong>
+            </div>
+            <div style="display:flex; justify-content:space-between; margin-bottom: 6px;">
+                <span style="color:var(--color-text-muted);">Mahsulot turi:</span>
+                <strong>${item.type}</strong>
+            </div>
+            <div style="display:flex; justify-content:space-between; margin-bottom: 6px;">
+                <span style="color:var(--color-text-muted);">Buyurtma soni:</span>
+                <strong>${item.qty} ta</strong>
+            </div>
+            <div style="display:flex; justify-content:space-between;">
+                <span style="color:var(--color-text-muted);">Sana:</span>
+                <strong>${item.date}</strong>
+            </div>
+        </div>
+
+        <div style="margin-bottom: 16px;">
+            <h4 style="color:var(--color-prospect); margin: 0 0 8px; font-size:0.95rem; border-left: 3px solid var(--color-prospect); padding-left: 8px;"><i class="fa-solid fa-layer-group"></i> 1. Matolar xarajati: Jami ${Math.round(calc.totals.fabrics).toLocaleString('uz-UZ')} so'm</h4>
+            <table style="width:100%; border-collapse:collapse; font-size:0.8rem;">
+                <thead>
+                    <tr style="border-bottom: 1px solid rgba(255,255,255,0.1); color:var(--color-text-muted); text-align:left;">
+                        <th style="padding: 4px 0;">Mato turi</th>
+                        <th style="padding: 4px 0; text-align:right;">1kg narxi</th>
+                        <th style="padding: 4px 0; text-align:right;">Sarf</th>
+                        <th style="padding: 4px 0; text-align:right;">Summa</th>
+                    </tr>
+                </thead>
+                <tbody>${fabricsHtml}</tbody>
+            </table>
+        </div>
+
+        <div style="margin-bottom: 16px;">
+            <h4 style="color:var(--color-prospect); margin: 0 0 8px; font-size:0.95rem; border-left: 3px solid var(--color-prospect); padding-left: 8px;"><i class="fa-solid fa-palette"></i> 2. Bezaklar xarajati: Jami ${Math.round(calc.totals.decor).toLocaleString('uz-UZ')} so'm</h4>
+            <table style="width:100%; border-collapse:collapse; font-size:0.8rem;">
+                <tbody>${decorHtml}</tbody>
+            </table>
+        </div>
+
+        <div style="margin-bottom: 16px;">
+            <h4 style="color:var(--color-prospect); margin: 0 0 8px; font-size:0.95rem; border-left: 3px solid var(--color-prospect); padding-left: 8px;"><i class="fa-solid fa-scissors"></i> 3. Tikuv xizmatlari: Jami ${Math.round(calc.totals.sewing).toLocaleString('uz-UZ')} so'm</h4>
+            <table style="width:100%; border-collapse:collapse; font-size:0.8rem;">
+                <tbody>${sewingHtml}</tbody>
+            </table>
+        </div>
+
+        <div style="margin-bottom: 16px;">
+            <h4 style="color:var(--color-prospect); margin: 0 0 8px; font-size:0.95rem; border-left: 3px solid var(--color-prospect); padding-left: 8px;"><i class="fa-solid fa-puzzle-piece"></i> 4. Aksessuarlar xarajati: Jami ${Math.round(calc.totals.accessories).toLocaleString('uz-UZ')} so'm</h4>
+            <table style="width:100%; border-collapse:collapse; font-size:0.8rem;">
+                <thead>
+                    <tr style="border-bottom: 1px solid rgba(255,255,255,0.1); color:var(--color-text-muted); text-align:left;">
+                        <th style="padding: 4px 0;">Nomi</th>
+                        <th style="padding: 4px 0; text-align:right;">Narxi</th>
+                        <th style="padding: 4px 0; text-align:right;">Soni</th>
+                        <th style="padding: 4px 0; text-align:right;">Summa</th>
+                    </tr>
+                </thead>
+                <tbody>${accHtml}</tbody>
+            </table>
+        </div>
+
+        <div style="margin-bottom: 16px;">
+            <h4 style="color:var(--color-prospect); margin: 0 0 8px; font-size:0.95rem; border-left: 3px solid var(--color-prospect); padding-left: 8px;"><i class="fa-solid fa-building-user"></i> 5. Ishxona xarajatlari: Jami ${Math.round(calc.totals.overheads).toLocaleString('uz-UZ')} so'm</h4>
+            <table style="width:100%; border-collapse:collapse; font-size:0.8rem;">
+                <tbody>${overheadHtml}</tbody>
+            </table>
+        </div>
+
+        <div style="background: rgba(56, 189, 248, 0.08); border: 1px solid rgba(56, 189, 248, 0.2); border-radius: 8px; padding: 12px; margin-top: 20px;">
+            <div style="display:flex; justify-content:space-between; margin-bottom: 4px;">
+                <span><strong>1 dona uchun Tannarx:</strong></span>
+                <strong style="color:var(--color-won); font-size:1.1rem;">${Math.round(calc.totals.unitCost).toLocaleString('uz-UZ')} so'm</strong>
+            </div>
+            <div style="display:flex; justify-content:space-between; margin-bottom: 4px;">
+                <span><strong>Buyurtma Ulgurji Narxi:</strong></span>
+                <strong style="color:var(--color-won);">${Math.round(item.wholesalePrice).toLocaleString('uz-UZ')} so'm</strong>
+            </div>
+            <div style="display:flex; justify-content:space-between; margin-bottom: 8px;">
+                <span><strong>Chakana Narxi:</strong></span>
+                <strong style="color:var(--color-blue);">${Math.round(item.retailPrice).toLocaleString('uz-UZ')} so'm</strong>
+            </div>
+            <div style="border-top:1px solid rgba(56, 189, 248, 0.2); padding-top: 8px; display:flex; justify-content:space-between;">
+                <span><strong>Jami Tannarx (${item.qty} ta):</strong></span>
+                <strong>${Math.round(calc.totals.totalCost).toLocaleString('uz-UZ')} so'm</strong>
+            </div>
+            ${item.note ? `<div style="margin-top: 10px; font-size: 0.8rem; color: var(--color-text-muted); border-top:1px dashed rgba(255,255,255,0.05); padding-top: 8px;">
+                <strong>Izoh:</strong> ${item.note}
+            </div>` : ''}
+        </div>
+    `;
+
+    openModal('modal-manual-details');
+};
 
 // --- AI CALCULATOR CORE LOGIC ---
 function setupAICalculator() {
@@ -2370,7 +3154,7 @@ function renderShowroomCatalog() {
             <div style="padding: 16px; flex: 1; display: flex; flex-direction: column; justify-content: space-between;">
                 <div>
                     <div style="display: flex; justify-content: space-between; align-items: start; margin-bottom: 8px;">
-                        <h4 style="margin: 0; font-size: 1.1rem; color: var(--color-won);">${item.type}</h4>
+                        <h4 style="margin: 0; font-size: 1.1rem; color: var(--color-won);">${item.name || item.type}</h4>
                         <span class="badge" style="background: rgba(255,255,255,0.1); font-size: 0.75rem;">${item.date}</span>
                     </div>
                     <p style="margin: 0 0 16px; font-size: 0.85rem; color: var(--color-text-muted);">Ishlab chiqarish quvvati: ${item.qty || 0} ta</p>
@@ -2385,6 +3169,12 @@ function renderShowroomCatalog() {
                     </div>
                 </div>
                 
+                ${item.calculationDetails ? `
+                <button class="btn btn-primary btn-block" style="padding: 8px; margin-bottom: 8px; background: rgba(56, 189, 248, 0.12); border: 1px solid rgba(56, 189, 248, 0.25); color: var(--color-prospect);" onclick="openCalculationDetailsModal('${item.id}')">
+                    <i class="fa-solid fa-calculator"></i> Tannarx Tafsilotlari
+                </button>
+                ` : ''}
+
                 <button class="btn btn-secondary btn-block" style="padding: 8px;" onclick="openEditCatalogModal('${item.id}')">
                     <i class="fa-solid fa-sliders"></i> To'liq Tahrirlash
                 </button>
