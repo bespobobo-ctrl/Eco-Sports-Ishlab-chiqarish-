@@ -468,76 +468,83 @@
                         /* Premium Accordion Styling */
                         .manual-section-card {
                             border: 1px solid var(--border-color);
-                            background: rgba(24, 25, 38, 0.4);
-                            border-radius: 12px;
+                            background: rgba(18, 19, 30, 0.45);
+                            border-radius: 14px;
                             margin-bottom: 16px;
-                            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+                            transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
                             overflow: hidden;
+                            backdrop-filter: blur(10px);
+                            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
                         }
                         .manual-section-card:hover {
-                            border-color: rgba(56, 189, 248, 0.2);
+                            border-color: rgba(56, 189, 248, 0.25);
+                            background: rgba(24, 25, 38, 0.55);
                         }
                         .manual-section-card.active {
-                            border-color: var(--color-prospect);
-                            background: rgba(24, 25, 38, 0.7);
-                            box-shadow: 0 0 15px rgba(56, 189, 248, 0.12);
+                            border-color: rgba(56, 189, 248, 0.5);
+                            background: rgba(18, 19, 30, 0.75);
+                            box-shadow: 0 0 25px rgba(56, 189, 248, 0.12), inset 0 0 10px rgba(56, 189, 248, 0.03);
                         }
                         .manual-section-card.completed {
-                            border-color: rgba(52, 211, 153, 0.25);
+                            border-color: rgba(52, 211, 153, 0.3);
+                            background: rgba(12, 13, 20, 0.5);
                         }
                         .manual-section-header {
-                            padding: 16px 20px;
+                            padding: 18px 24px;
                             display: flex;
                             justify-content: space-between;
                             align-items: center;
                             cursor: pointer;
                             user-select: none;
-                            background: rgba(255, 255, 255, 0.01);
+                            background: rgba(255, 255, 255, 0.005);
                             transition: background 0.2s ease;
                         }
                         .manual-section-header:hover {
-                            background: rgba(255, 255, 255, 0.03);
+                            background: rgba(255, 255, 255, 0.02);
                         }
                         .manual-section-title-wrap {
                             display: flex;
                             align-items: center;
-                            gap: 12px;
+                            gap: 14px;
                         }
                         .step-number-badge {
-                            width: 28px;
-                            height: 28px;
+                            width: 32px;
+                            height: 32px;
                             border-radius: 50%;
-                            background: rgba(255, 255, 255, 0.05);
-                            border: 1px solid var(--border-color);
+                            background: rgba(255, 255, 255, 0.02);
+                            border: 1.5px solid var(--border-color);
                             display: flex;
                             align-items: center;
                             justify-content: center;
                             font-size: 0.85rem;
-                            font-weight: 700;
+                            font-weight: 800;
                             color: var(--color-text-muted);
-                            transition: all 0.3s ease;
+                            transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
                         }
                         .manual-section-card.active .step-number-badge {
-                            background: var(--color-prospect-bg);
-                            border-color: var(--color-prospect);
-                            color: var(--color-prospect);
-                            box-shadow: 0 0 8px rgba(56, 189, 248, 0.3);
+                            background: linear-gradient(135deg, var(--color-prospect), #0ea5e9);
+                            border-color: transparent;
+                            color: #000;
+                            box-shadow: 0 0 12px rgba(56, 189, 248, 0.5);
                         }
                         .manual-section-card.completed .step-number-badge {
-                            background: var(--color-won-bg);
-                            border-color: var(--color-won);
-                            color: var(--color-won);
+                            background: linear-gradient(135deg, var(--color-won), #059669);
+                            border-color: transparent;
+                            color: #000;
+                            box-shadow: 0 0 12px rgba(52, 211, 153, 0.4);
                         }
                         .manual-section-title {
-                            font-size: 0.95rem;
+                            font-size: 1rem;
                             font-weight: 700;
                             color: var(--color-text-main);
                             display: flex;
                             align-items: center;
-                            gap: 8px;
+                            gap: 10px;
+                            letter-spacing: 0.2px;
                         }
                         .manual-section-card.active .manual-section-title {
                             color: #fff;
+                            text-shadow: 0 0 10px rgba(255, 255, 255, 0.1);
                         }
                         .step-header-info {
                             display: flex;
@@ -554,76 +561,105 @@
                             text-overflow: ellipsis;
                             white-space: nowrap;
                             color: var(--color-won);
-                            font-weight: 600;
-                            background: rgba(52, 211, 153, 0.07);
-                            padding: 3px 10px;
-                            border-radius: 6px;
-                            border: 1px solid rgba(52, 211, 153, 0.2);
-                            font-size: 0.75rem;
+                            font-weight: 700;
+                            background: rgba(52, 211, 153, 0.08);
+                            padding: 4px 12px;
+                            border-radius: 20px;
+                            border: 1px solid rgba(52, 211, 153, 0.25);
+                            font-size: 0.72rem;
+                            box-shadow: 0 2px 8px rgba(0,0,0,0.15);
                         }
                         .step-status-indicator {
-                            font-size: 0.72rem;
-                            font-weight: 700;
-                            padding: 3px 8px;
-                            border-radius: 6px;
+                            font-size: 0.7rem;
+                            font-weight: 800;
+                            padding: 4px 10px;
+                            border-radius: 20px;
                             text-transform: uppercase;
-                            letter-spacing: 0.5px;
+                            letter-spacing: 0.8px;
+                            box-shadow: 0 2px 8px rgba(0,0,0,0.15);
                         }
                         .status-waiting {
-                            background: rgba(255, 255, 255, 0.03);
+                            background: rgba(255, 255, 255, 0.02);
                             color: var(--color-text-muted);
                             border: 1px solid rgba(255, 255, 255, 0.05);
                         }
                         .status-filling {
-                            background: var(--color-prospect-bg);
+                            background: rgba(56, 189, 248, 0.12);
                             color: var(--color-prospect);
-                            border: 1px solid rgba(56, 189, 248, 0.2);
+                            border: 1px solid rgba(56, 189, 248, 0.3);
+                            box-shadow: 0 0 8px rgba(56, 189, 248, 0.1);
                         }
                         .status-completed {
-                            background: var(--color-won-bg);
+                            background: rgba(52, 211, 153, 0.12);
                             color: var(--color-won);
-                            border: 1px solid rgba(52, 211, 153, 0.2);
+                            border: 1px solid rgba(52, 211, 153, 0.3);
                         }
                         .manual-section-body {
-                            padding: 20px;
+                            padding: 24px;
                             border-top: 1px solid var(--border-color);
-                            background: rgba(0,0,0,0.1);
+                            background: rgba(0, 0, 0, 0.12);
+                            display: none;
                         }
+                        
+                        @keyframes slideDownFade {
+                            from {
+                                opacity: 0;
+                                transform: translateY(-12px);
+                            }
+                            to {
+                                opacity: 1;
+                                transform: translateY(0);
+                            }
+                        }
+                        
+                        .manual-section-card.active .manual-section-body {
+                            display: block;
+                            animation: slideDownFade 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+                        }
+                        
                         .manual-section-card.collapsed .manual-section-body {
                             display: none;
                         }
+                        
+                        /* Step 0 Product Selection Cards */
                         .product-type-card {
-                            padding: 16px 12px;
-                            border-radius: 8px;
+                            padding: 18px 12px;
+                            border-radius: 12px;
                             border: 1px solid var(--border-color);
-                            background: rgba(255, 255, 255, 0.02);
+                            background: rgba(255, 255, 255, 0.015);
                             text-align: center;
                             cursor: pointer;
-                            transition: all 0.2s ease;
+                            transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
                             display: flex;
                             flex-direction: column;
                             align-items: center;
                             justify-content: center;
+                            position: relative;
+                            overflow: hidden;
                         }
                         .product-type-card:hover {
-                            border-color: rgba(56, 189, 248, 0.3);
-                            background: rgba(255,255,255,0.04);
-                            transform: translateY(-2px);
+                            border-color: rgba(56, 189, 248, 0.35);
+                            background: rgba(255, 255, 255, 0.035);
+                            transform: translateY(-3px);
+                            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
                         }
                         .product-type-card.active {
-                            border-color: var(--color-prospect);
-                            background: rgba(56, 189, 248, 0.1);
+                            border-color: transparent;
+                            background: linear-gradient(135deg, rgba(56, 189, 248, 0.12), rgba(192, 132, 252, 0.12));
                             color: #fff;
-                            box-shadow: 0 0 8px rgba(56, 189, 248, 0.2);
+                            box-shadow: 0 0 20px rgba(56, 189, 248, 0.2), inset 0 0 0 1.5px var(--color-prospect);
+                            transform: translateY(-2px);
                         }
                         .product-type-card i {
-                            font-size: 1.5rem;
-                            margin-bottom: 8px;
+                            font-size: 1.6rem;
+                            margin-bottom: 10px;
                             color: var(--color-text-muted);
-                            transition: color 0.2s ease;
+                            transition: all 0.3s ease;
                         }
                         .product-type-card.active i {
                             color: var(--color-prospect);
+                            transform: scale(1.1);
+                            filter: drop-shadow(0 0 6px rgba(56, 189, 248, 0.6));
                         }
                         .product-type-card:hover i {
                             color: var(--color-prospect);
@@ -632,21 +668,21 @@
                         /* Premium Grid Layout for options */
                         .wizard-toggle-grid {
                             display: grid;
-                            grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+                            grid-template-columns: repeat(auto-fill, minmax(230px, 1fr));
                             gap: 16px;
                             margin-bottom: 20px;
                         }
                         
                         /* Premium Toggle Card */
                         .wizard-toggle-card {
-                            background: rgba(255, 255, 255, 0.02) !important;
+                            background: rgba(255, 255, 255, 0.015) !important;
                             border: 1px solid var(--border-color) !important;
                             border-radius: 12px !important;
                             padding: 16px !important;
                             display: flex;
                             flex-direction: column;
                             gap: 12px;
-                            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+                            transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
                             cursor: pointer;
                             position: relative;
                             overflow: hidden;
@@ -658,21 +694,45 @@
                             left: 0;
                             width: 0%;
                             height: 3px;
-                            background: var(--color-prospect);
+                            background: linear-gradient(90deg, var(--color-prospect), var(--color-negotiation));
                             transition: width 0.3s ease;
                         }
                         .wizard-toggle-card:hover {
-                            border-color: rgba(56, 189, 248, 0.25) !important;
-                            background: rgba(255, 255, 255, 0.03) !important;
+                            border-color: rgba(56, 189, 248, 0.3) !important;
+                            background: rgba(255, 255, 255, 0.035) !important;
                             transform: translateY(-2px);
+                            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.25);
                         }
                         .wizard-toggle-card.active {
-                            background: rgba(56, 189, 248, 0.05) !important;
-                            border-color: rgba(56, 189, 248, 0.4) !important;
-                            box-shadow: 0 4px 15px rgba(56, 189, 248, 0.1);
+                            background: linear-gradient(135deg, rgba(56, 189, 248, 0.06), rgba(255, 255, 255, 0.005)) !important;
+                            border-color: rgba(56, 189, 248, 0.45) !important;
+                            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3), 0 0 15px rgba(56, 189, 248, 0.12) !important;
                         }
                         .wizard-toggle-card.active::before {
                             width: 100%;
+                        }
+                        
+                        /* Sub-section Headers inside Steps */
+                        .wizard-sub-header {
+                            font-size: 0.85rem;
+                            font-weight: 800;
+                            color: var(--color-prospect);
+                            text-transform: uppercase;
+                            letter-spacing: 1px;
+                            display: flex;
+                            align-items: center;
+                            gap: 8px;
+                            margin: 28px 0 16px;
+                            border-bottom: 1.5px dashed rgba(255, 255, 255, 0.08);
+                            padding-bottom: 8px;
+                            width: 100%;
+                        }
+                        .wizard-sub-header i {
+                            font-size: 0.95rem;
+                            filter: drop-shadow(0 0 4px rgba(56, 189, 248, 0.5));
+                        }
+                        .wizard-sub-header:first-of-type {
+                            margin-top: 4px;
                         }
                         
                         /* Custom Checkboxes */
@@ -681,9 +741,9 @@
                             height: 18px;
                             border-radius: 4px;
                             border: 1.5px solid var(--border-color);
-                            background: rgba(0,0,0,0.3);
+                            background: rgba(0,0,0,0.4);
                             cursor: pointer;
-                            transition: all 0.2s ease;
+                            transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
                             appearance: none;
                             position: relative;
                             display: flex;
@@ -694,13 +754,14 @@
                         .wizard-toggle-card input[type="checkbox"]:checked {
                             background: var(--color-prospect);
                             border-color: var(--color-prospect);
+                            box-shadow: 0 0 8px rgba(56, 189, 248, 0.4);
                         }
                         .wizard-toggle-card input[type="checkbox"]:checked::after {
                             content: '\f00c';
                             font-family: 'Font Awesome 6 Free';
                             font-weight: 900;
                             color: #000;
-                            font-size: 0.7rem;
+                            font-size: 0.75rem;
                         }
                         
                         .wizard-toggle-card-header {
@@ -710,11 +771,12 @@
                         }
                         .wizard-toggle-card-header label {
                             font-size: 0.85rem;
-                            font-weight: 600;
+                            font-weight: 700;
                             color: var(--color-text-main);
                             cursor: pointer;
                             user-select: none;
                             margin: 0;
+                            letter-spacing: 0.1px;
                         }
                         
                         .wizard-toggle-card-body {
@@ -722,27 +784,27 @@
                             align-items: center;
                             justify-content: space-between;
                             gap: 8px;
-                            margin-top: auto; /* Push to the bottom */
+                            margin-top: auto;
                         }
                         .wizard-toggle-card-body input[type="number"] {
                             width: 100%;
                             padding: 8px 12px;
                             border-radius: 8px;
                             border: 1px solid var(--border-color);
-                            background: rgba(0,0,0,0.4) !important;
+                            background: rgba(0,0,0,0.45) !important;
                             color: #fff;
-                            font-weight: bold;
+                            font-weight: 700;
                             text-align: right;
                             font-size: 0.9rem;
                             transition: all 0.2s ease;
                         }
                         .wizard-toggle-card-body input[type="number"]:focus {
-                            border-color: var(--color-prospect);
-                            background: rgba(0,0,0,0.6) !important;
-                            box-shadow: 0 0 6px rgba(56, 189, 248, 0.2);
+                            border-color: rgba(56, 189, 248, 0.6);
+                            background: rgba(0,0,0,0.65) !important;
+                            box-shadow: 0 0 10px rgba(56, 189, 248, 0.25);
                         }
                         .wizard-toggle-card-body input[type="number"]:disabled {
-                            opacity: 0.4;
+                            opacity: 0.35;
                             cursor: not-allowed;
                         }
                         .wizard-toggle-card-body .inputs-row {
@@ -754,24 +816,25 @@
                         .wizard-toggle-card-body .inputs-row input[type="number"] {
                             padding: 6px 10px;
                         }
-
+                        
                         /* Horizontal Fabric Rows */
                         .fabric-row {
                             display: grid;
                             grid-template-columns: 2.2fr 1.5fr 1.5fr auto;
                             gap: 16px;
                             align-items: flex-end;
-                            background: rgba(255, 255, 255, 0.02) !important;
+                            background: rgba(255, 255, 255, 0.015) !important;
                             border: 1px solid var(--border-color) !important;
                             border-radius: 12px;
                             padding: 16px 20px !important;
                             margin-top: 12px;
-                            transition: all 0.3s ease;
+                            transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
                         }
                         .fabric-row:hover {
-                            border-color: rgba(56, 189, 248, 0.25) !important;
-                            background: rgba(255, 255, 255, 0.04) !important;
-                            box-shadow: 0 4px 20px rgba(0,0,0,0.15);
+                            border-color: rgba(56, 189, 248, 0.3) !important;
+                            background: rgba(255, 255, 255, 0.035) !important;
+                            box-shadow: 0 6px 20px rgba(0,0,0,0.25);
+                            transform: translateY(-1px);
                         }
                         
                         /* Dashed Custom Add Bar */
@@ -780,17 +843,17 @@
                             gap: 10px;
                             margin-top: 16px;
                             padding: 16px;
-                            background: rgba(255,255,255,0.01);
-                            border: 1.5px dashed rgba(255,255,255,0.1);
+                            background: rgba(0, 0, 0, 0.15);
+                            border: 1.5px dashed rgba(56, 189, 248, 0.25);
                             border-radius: 12px;
                             align-items: center;
                         }
                         
                         .wizard-nav-row {
                             display: flex;
-                            margin-top: 20px;
+                            margin-top: 24px;
                             border-top: 1px solid var(--border-color);
-                            padding-top: 16px;
+                            padding-top: 20px;
                         }
                     </style>
 
@@ -1112,14 +1175,14 @@
                                     </div>
                                 </div>
 
-                                <!-- Bo'lim 4: Aksessuarlar -->
+                                <!-- Bo'lim 4: Aksessuarlar va Ishxona xarajatlari -->
                                 <div class="manual-section-card collapsed" data-step="4" id="step-card-4">
                                     <div class="manual-section-header">
                                         <div class="manual-section-title-wrap">
                                             <div class="step-number-badge">4</div>
                                             <div class="manual-section-title">
                                                 <i class="fa-solid fa-puzzle-piece text-blue"></i>
-                                                <span>4-Bosqich: Aksessuarlar va qo'shimchalar</span>
+                                                <span>4-Bosqich: Aksessuarlar va Ishxona xarajatlari</span>
                                             </div>
                                         </div>
                                         <div class="step-header-info">
@@ -1129,6 +1192,12 @@
                                     </div>
                                     
                                     <div class="manual-section-body">
+                                        <!-- Aksessuarlar qismi -->
+                                        <div class="wizard-sub-header">
+                                            <i class="fa-solid fa-puzzle-piece"></i>
+                                            <span>Aksessuarlar (Furnituralar)</span>
+                                        </div>
+                                        
                                         <div id="accessory-rows-container" class="wizard-toggle-grid">
                                             <div class="accessory-row wizard-toggle-card" data-name="Bel arqoni">
                                                 <div class="wizard-toggle-card-header">
@@ -1197,6 +1266,61 @@
                                             <input type="number" id="custom-accessory-qty" value="1" min="1" placeholder="Soni" style="width: 55px; padding: 8px; border-radius: 6px; border: 1px solid var(--border-color); background: #000; color: #fff; font-size: 0.85rem; text-align: center;">
                                             <button type="button" class="btn btn-secondary" id="btn-add-custom-accessory" style="padding: 8px 16px;"><i class="fa-solid fa-plus"></i></button>
                                         </div>
+
+                                        <!-- Ishxona xarajatlari qismi -->
+                                        <div class="wizard-sub-header">
+                                            <i class="fa-solid fa-building-user"></i>
+                                            <span>Ishxona xarajatlari va soliqlar (dona boshiga)</span>
+                                        </div>
+                                        
+                                        <div id="overhead-rows-container" class="wizard-toggle-grid">
+                                            <div class="overhead-row wizard-toggle-card" data-name="Elektr energiya">
+                                                <div class="wizard-toggle-card-header">
+                                                    <input type="checkbox" checked class="overhead-checkbox" id="oh-elektr-active">
+                                                    <label for="oh-elektr-active">Elektr energiya</label>
+                                                </div>
+                                                <div class="wizard-toggle-card-body">
+                                                    <input type="number" class="overhead-price-input" value="1000" min="0">
+                                                    <span style="font-size: 0.75rem; color: var(--color-text-muted);">so'm</span>
+                                                </div>
+                                            </div>
+                                            <div class="overhead-row wizard-toggle-card" data-name="Oziq-ovqat">
+                                                <div class="wizard-toggle-card-header">
+                                                    <input type="checkbox" checked class="overhead-checkbox" id="oh-oziq-ovqat-active">
+                                                    <label for="oh-oziq-ovqat-active">Oziq-ovqat xarajatlari</label>
+                                                </div>
+                                                <div class="wizard-toggle-card-body">
+                                                    <input type="number" class="overhead-price-input" value="1500" min="0">
+                                                    <span style="font-size: 0.75rem; color: var(--color-text-muted);">so'm</span>
+                                                </div>
+                                            </div>
+                                            <div class="overhead-row wizard-toggle-card" data-name="Yo'l kira">
+                                                <div class="wizard-toggle-card-header">
+                                                    <input type="checkbox" checked class="overhead-checkbox" id="oh-yol-kira-active">
+                                                    <label for="oh-yol-kira-active">Yo'l kira (Transport)</label>
+                                                </div>
+                                                <div class="wizard-toggle-card-body">
+                                                    <input type="number" class="overhead-price-input" value="500" min="0">
+                                                    <span style="font-size: 0.75rem; color: var(--color-text-muted);">so'm</span>
+                                                </div>
+                                            </div>
+                                            <div class="overhead-row wizard-toggle-card" data-name="NDS">
+                                                <div class="wizard-toggle-card-header">
+                                                    <input type="checkbox" class="overhead-checkbox" id="oh-nds-active">
+                                                    <label for="oh-nds-active">NDS (QQS)</label>
+                                                </div>
+                                                <div class="wizard-toggle-card-body">
+                                                    <input type="number" class="overhead-price-input" value="4000" min="0" disabled>
+                                                    <span style="font-size: 0.75rem; color: var(--color-text-muted);">so'm</span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        
+                                        <div class="custom-add-bar">
+                                            <input type="text" id="custom-overhead-name" placeholder="Yangi xarajat nomi..." style="flex: 2; padding: 8px; border-radius: 6px; border: 1px solid var(--border-color); background: #000; color: #fff; font-size: 0.85rem;">
+                                            <input type="number" id="custom-overhead-price" placeholder="Narxi" style="flex: 1; padding: 8px; border-radius: 6px; border: 1px solid var(--border-color); background: #000; color: #fff; font-size: 0.85rem; text-align: right;">
+                                            <button type="button" class="btn btn-secondary" id="btn-add-custom-overhead" style="padding: 8px 16px;"><i class="fa-solid fa-plus"></i></button>
+                                        </div>
                                         
                                         <div class="wizard-nav-row" style="justify-content: space-between;">
                                             <button type="button" class="btn btn-secondary btn-prev-step" data-prev="3" style="padding: 10px 20px;"><i class="fa-solid fa-arrow-left"></i> Ortga</button>
@@ -1205,14 +1329,14 @@
                                     </div>
                                 </div>
 
-                                <!-- Bo'lim 5: Ishxona xarajatlari -->
+                                <!-- Bo'lim 5: Yakuniy Narxlar va Izoh -->
                                 <div class="manual-section-card collapsed" data-step="5" id="step-card-5">
                                     <div class="manual-section-header">
                                         <div class="manual-section-title-wrap">
                                             <div class="step-number-badge">5</div>
                                             <div class="manual-section-title">
-                                                <i class="fa-solid fa-building-user text-blue"></i>
-                                                <span>5-Bosqich: Ishxona xarajatlari va soliqlar (dona boshiga)</span>
+                                                <i class="fa-solid fa-check-double text-blue"></i>
+                                                <span>5-Bosqich: Yakuniy Narxlar va Izoh</span>
                                             </div>
                                         </div>
                                         <div class="step-header-info">
@@ -1222,99 +1346,12 @@
                                     </div>
                                     
                                     <div class="manual-section-body">
-                                        <div id="overhead-rows-container" style="display: flex; flex-direction: column; gap: 8px; margin-bottom: 16px;">
-                                            <div class="overhead-row card-glass" style="padding: 8px 12px; background: rgba(255,255,255,0.01); display: flex; align-items: center; justify-content: space-between;" data-name="Elektr energiya">
-                                                <div style="display: flex; align-items: center; gap: 8px;">
-                                                    <input type="checkbox" checked class="overhead-checkbox" style="width: 16px; height: 16px; cursor: pointer;">
-                                                    <span style="font-size: 0.85rem;">Elektr energiya</span>
-                                                </div>
-                                                <div style="display: flex; align-items: center; gap: 8px;">
-                                                    <input type="number" class="overhead-price-input" value="1000" min="0" style="width: 100px; padding: 5px; border-radius: 6px; border: 1px solid var(--border-color); background: #000; color: #fff; text-align: right;">
-                                                    <span style="font-size: 0.75rem; color: var(--color-text-muted);">so'm</span>
-                                                </div>
-                                            </div>
-                                            <div class="overhead-row card-glass" style="padding: 8px 12px; background: rgba(255,255,255,0.01); display: flex; align-items: center; justify-content: space-between;" data-name="Oziq-ovqat">
-                                                <div style="display: flex; align-items: center; gap: 8px;">
-                                                    <input type="checkbox" checked class="overhead-checkbox" style="width: 16px; height: 16px; cursor: pointer;">
-                                                    <span style="font-size: 0.85rem;">Oziq-ovqat xarajatlari</span>
-                                         <div id="overhead-rows-container" class="wizard-toggle-grid">
-                                             <div class="overhead-row wizard-toggle-card" data-name="Elektr energiya">
-                                                 <div class="wizard-toggle-card-header">
-                                                     <input type="checkbox" checked class="overhead-checkbox" id="oh-elektr-active">
-                                                     <label for="oh-elektr-active">Elektr energiya</label>
-                                                 </div>
-                                                 <div class="wizard-toggle-card-body">
-                                                     <input type="number" class="overhead-price-input" value="1000" min="0">
-                                                     <span style="font-size: 0.75rem; color: var(--color-text-muted);">so'm</span>
-                                                 </div>
-                                             </div>
-                                             <div class="overhead-row wizard-toggle-card" data-name="Oziq-ovqat">
-                                                 <div class="wizard-toggle-card-header">
-                                                     <input type="checkbox" checked class="overhead-checkbox" id="oh-oziq-ovqat-active">
-                                                     <label for="oh-oziq-ovqat-active">Oziq-ovqat xarajatlari</label>
-                                                 </div>
-                                                 <div class="wizard-toggle-card-body">
-                                                     <input type="number" class="overhead-price-input" value="1500" min="0">
-                                                     <span style="font-size: 0.75rem; color: var(--color-text-muted);">so'm</span>
-                                                 </div>
-                                             </div>
-                                             <div class="overhead-row wizard-toggle-card" data-name="Yo'l kira">
-                                                 <div class="wizard-toggle-card-header">
-                                                     <input type="checkbox" checked class="overhead-checkbox" id="oh-yol-kira-active">
-                                                     <label for="oh-yol-kira-active">Yo'l kira (Transport)</label>
-                                                 </div>
-                                                 <div class="wizard-toggle-card-body">
-                                                     <input type="number" class="overhead-price-input" value="500" min="0">
-                                                     <span style="font-size: 0.75rem; color: var(--color-text-muted);">so'm</span>
-                                                 </div>
-                                             </div>
-                                             <div class="overhead-row wizard-toggle-card" data-name="NDS">
-                                                 <div class="wizard-toggle-card-header">
-                                                     <input type="checkbox" class="overhead-checkbox" id="oh-nds-active">
-                                                     <label for="oh-nds-active">NDS (QQS)</label>
-                                                 </div>
-                                                 <div class="wizard-toggle-card-body">
-                                                     <input type="number" class="overhead-price-input" value="4000" min="0" disabled>
-                                                     <span style="font-size: 0.75rem; color: var(--color-text-muted);">so'm</span>
-                                                 </div>
-                                             </div>
-                                         </div>
-                                         <div class="custom-add-bar">
-                                             <input type="text" id="custom-overhead-name" placeholder="Yangi xarajat nomi..." style="flex: 2; padding: 8px; border-radius: 6px; border: 1px solid var(--border-color); background: #000; color: #fff; font-size: 0.85rem;">
-                                             <input type="number" id="custom-overhead-price" placeholder="Narxi" style="flex: 1; padding: 8px; border-radius: 6px; border: 1px solid var(--border-color); background: #000; color: #fff; font-size: 0.85rem; text-align: right;">
-                                             <button type="button" class="btn btn-secondary" id="btn-add-custom-overhead" style="padding: 8px 16px;"><i class="fa-solid fa-plus"></i></button>
-                                         </div>
-                                        
-                                        <div class="wizard-nav-row" style="justify-content: space-between;">
-                                            <button type="button" class="btn btn-secondary btn-prev-step" data-prev="4" style="padding: 10px 20px;"><i class="fa-solid fa-arrow-left"></i> Ortga</button>
-                                            <button type="button" class="btn btn-primary btn-next-step" data-next="6" style="padding: 10px 20px; font-weight: 600;">Kiyingisi <i class="fa-solid fa-arrow-right"></i></button>
-                                        </div>
-                                    </div>
-                                </div>
-
-                                <!-- Bo'lim 6: Narxlar va Yakun -->
-                                <div class="manual-section-card collapsed" data-step="6" id="step-card-6">
-                                    <div class="manual-section-header">
-                                        <div class="manual-section-title-wrap">
-                                            <div class="step-number-badge">6</div>
-                                            <div class="manual-section-title">
-                                                <i class="fa-solid fa-check-double text-blue"></i>
-                                                <span>6-Bosqich: Yakuniy Narxlar va Izoh</span>
-                                            </div>
-                                        </div>
-                                        <div class="step-header-info">
-                                            <span class="step-summary-text" id="step-6-summary" style="display: none;"></span>
-                                            <span class="step-status-indicator status-waiting" id="step-6-status">Kutilmoqda</span>
-                                        </div>
-                                    </div>
-                                    
-                                    <div class="manual-section-body">
-                                        <div class="card-glass" style="padding: 16px; background: rgba(255,255,255,0.02); margin-bottom: 16px;">
+                                        <div class="card-glass" style="padding: 16px; background: rgba(255,255,255,0.02); margin-bottom: 16px; border-radius: 10px;">
                                             <h4 style="margin: 0 0 12px; font-size: 0.9rem; color: var(--color-prospect);">Hisob-kitob natijasi:</h4>
                                             <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px; font-size: 0.85rem;">
                                                 <div>1 dona uchun Tannarx:</div>
                                                 <div style="text-align: right; font-weight: bold;" id="wizard-summary-tannarx">0 so'm</div>
-                                                <div>Jami ishlab chiqarish (<span id="wizard-summary-qty-label">100</span> dona):</div>
+                                                <div>Jami ishlab chiqarish (<span id="wizard-summary-qty-label">1</span> dona):</div>
                                                 <div style="text-align: right; font-weight: bold;" id="wizard-summary-total-cost">0 so'm</div>
                                             </div>
                                         </div>
@@ -1336,7 +1373,7 @@
                                         </div>
                                         
                                         <div class="wizard-nav-row" style="gap: 12px;">
-                                            <button type="button" class="btn btn-secondary btn-prev-step" data-prev="5" style="flex: 1; padding: 12px 24px;">
+                                            <button type="button" class="btn btn-secondary btn-prev-step" data-prev="4" style="flex: 1; padding: 12px 24px;">
                                                 <i class="fa-solid fa-arrow-left"></i> Ortga
                                             </button>
                                             <button type="button" class="btn btn-won" id="wizard-submit-btn" style="flex: 2; padding: 12px 24px; font-size: 1rem; font-weight: 700;">

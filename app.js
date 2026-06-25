@@ -1511,12 +1511,12 @@ function updateApiUsageUI() {
         const completedSteps = new Set();
 
         function goToStep(stepNum) {
-            if (stepNum < 0 || stepNum > 6) return;
+            if (stepNum < 0 || stepNum > 5) return;
 
             // Update calculations first
             const calc = updateWizardCalculation();
 
-            for (let idx = 0; idx <= 6; idx++) {
+            for (let idx = 0; idx <= 5; idx++) {
                 const card = document.getElementById('step-card-' + idx);
                 if (!card) continue;
 
@@ -1550,8 +1550,8 @@ function updateApiUsageUI() {
             activeStep = stepNum;
             updateStepSummaries(calc);
 
-            // Suggested prices populating on step 6
-            if (stepNum === 6) {
+            // Suggested prices populating on step 5
+            if (stepNum === 5) {
                 const wsInput = document.getElementById('wizard-wholesale-price');
                 const rtInput = document.getElementById('wizard-retail-price');
                 if (wsInput && (!wsInput.value || parseFloat(wsInput.value) <= 0)) {
@@ -1571,7 +1571,7 @@ function updateApiUsageUI() {
                     return false;
                 }
             }
-            if (stepNum === 6) {
+            if (stepNum === 5) {
                 const wholesale = parseFloat(document.getElementById('wizard-wholesale-price').value) || 0;
                 const retail = parseFloat(document.getElementById('wizard-retail-price').value) || 0;
                 if (wholesale <= 0 || retail <= 0) {
@@ -1648,52 +1648,31 @@ function updateApiUsageUI() {
                 }
             }
 
-            // 4-qadam (Aksessuarlar)
+            // 4-qadam (Aksessuarlar va Ishxona)
             const s4 = document.getElementById('step-4-summary');
             if (s4) {
-                const accList = [];
-                document.querySelectorAll('.accessory-row').forEach(row => {
-                    const active = row.querySelector('.accessory-checkbox').checked;
-                    if (active) {
-                        accList.push(row.getAttribute('data-name'));
-                    }
-                });
-                if (accList.length > 0) {
-                    s4.innerText = `Aksessuarlar: ${accList.length} ta - ${Math.round(calc.totalAccessory).toLocaleString('uz-UZ')} so'm`;
+                const accCount = Array.from(document.querySelectorAll('.accessory-row')).filter(row => row.querySelector('.accessory-checkbox').checked).length;
+                const ohCount = Array.from(document.querySelectorAll('.overhead-row')).filter(row => row.querySelector('.overhead-checkbox').checked).length;
+                const totalAccOh = calc.totalAccessory + calc.totalOverhead;
+                
+                if (totalAccOh > 0) {
+                    s4.innerText = `Aksessuar/Ishxona: ${accCount + ohCount} ta - ${Math.round(totalAccOh).toLocaleString('uz-UZ')} so'm`;
                     s4.style.display = 'inline-block';
                 } else {
                     s4.style.display = 'none';
                 }
             }
 
-            // 5-qadam (Ishxona)
+            // 5-qadam (Yakun)
             const s5 = document.getElementById('step-5-summary');
             if (s5) {
-                const ohList = [];
-                document.querySelectorAll('.overhead-row').forEach(row => {
-                    const active = row.querySelector('.overhead-checkbox').checked;
-                    if (active) {
-                        ohList.push(row.getAttribute('data-name'));
-                    }
-                });
-                if (ohList.length > 0) {
-                    s5.innerText = `Ishxona: ${Math.round(calc.totalOverhead).toLocaleString('uz-UZ')} so'm`;
-                    s5.style.display = 'inline-block';
-                } else {
-                    s5.style.display = 'none';
-                }
-            }
-
-            // 6-qadam (Yakun)
-            const s6 = document.getElementById('step-6-summary');
-            if (s6) {
                 const wholesale = parseFloat(document.getElementById('wizard-wholesale-price').value) || 0;
                 const retail = parseFloat(document.getElementById('wizard-retail-price').value) || 0;
                 if (wholesale > 0 || retail > 0) {
-                    s6.innerText = `Ulgurji: ${Math.round(wholesale).toLocaleString('uz-UZ')} / Chakana: ${Math.round(retail).toLocaleString('uz-UZ')} so'm`;
-                    s6.style.display = 'inline-block';
+                    s5.innerText = `Ulgurji: ${Math.round(wholesale).toLocaleString('uz-UZ')} / Chakana: ${Math.round(retail).toLocaleString('uz-UZ')} so'm`;
+                    s5.style.display = 'inline-block';
                 } else {
-                    s6.style.display = 'none';
+                    s5.style.display = 'none';
                 }
             }
         }
@@ -1773,8 +1752,8 @@ function updateApiUsageUI() {
                 return;
             }
             if (wholesale <= 0 || retail <= 0) {
-                showToast("Iltimos, narxlarni to'g'ri kiriting (6-qadam).", "warning");
-                goToStep(6);
+                showToast("Iltimos, narxlarni to'g'ri kiriting (5-qadam).", "warning");
+                goToStep(5);
                 return;
             }
 
