@@ -855,6 +855,198 @@
                             border-top: 1px solid var(--border-color);
                             padding-top: 20px;
                         }
+
+                        /* ==========================================================================
+                           PREMIUM SHOWROOM DIRECT EDIT MODAL STYLES
+                           ========================================================================== */
+                        
+                        /* Premium Inputs & Selects inside Showroom Edit Modal */
+                        #modal-edit-catalog input[type="text"],
+                        #modal-edit-catalog input[type="number"],
+                        #modal-edit-catalog select,
+                        #modal-edit-catalog textarea {
+                            background: rgba(0, 0, 0, 0.4) !important;
+                            border: 1.5px solid rgba(255, 255, 255, 0.08) !important;
+                            color: #fff !important;
+                            border-radius: 10px !important;
+                            padding: 10px 12px !important;
+                            font-size: 0.9rem !important;
+                            font-weight: 500 !important;
+                            transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1) !important;
+                            box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.2) !important;
+                        }
+                        
+                        #modal-edit-catalog input[type="text"]:focus,
+                        #modal-edit-catalog input[type="number"]:focus,
+                        #modal-edit-catalog select:focus,
+                        #modal-edit-catalog textarea:focus {
+                            border-color: rgba(56, 189, 248, 0.5) !important;
+                            background: rgba(0, 0, 0, 0.6) !important;
+                            box-shadow: 0 0 12px rgba(56, 189, 248, 0.25), inset 0 1px 2px rgba(0,0,0,0.5) !important;
+                            outline: none !important;
+                        }
+                        
+                        /* Make Compact Inputs inside Tabs */
+                        #modal-edit-catalog .showroom-edit-tab-content input,
+                        #modal-edit-catalog .showroom-edit-tab-content select {
+                            padding: 8px 10px !important;
+                            font-size: 0.825rem !important;
+                        }
+                        
+                        /* Premium Image Preview Container */
+                        .edit-cat-image-preview-wrapper {
+                            position: relative;
+                            width: 100%;
+                            height: 200px;
+                            border-radius: 12px;
+                            overflow: hidden;
+                            border: 1.5px dashed rgba(255, 255, 255, 0.08);
+                            background: radial-gradient(circle at center, rgba(56, 189, 248, 0.08) 0%, rgba(0,0,0,0.4) 100%), rgba(10, 10, 15, 0.6);
+                            display: flex;
+                            justify-content: center;
+                            align-items: center;
+                            transition: all 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+                            box-shadow: 0 10px 25px rgba(0,0,0,0.3);
+                        }
+                        .edit-cat-image-preview-wrapper:hover {
+                            border-color: rgba(56, 189, 248, 0.3);
+                            box-shadow: 0 12px 30px rgba(0,0,0,0.45), 0 0 15px rgba(56, 189, 248, 0.05);
+                        }
+                        .edit-cat-image-preview-img {
+                            max-height: 90%;
+                            max-width: 90%;
+                            border-radius: 8px;
+                            object-fit: contain;
+                            z-index: 2;
+                            transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+                        }
+                        .edit-cat-image-preview-wrapper:hover .edit-cat-image-preview-img {
+                            transform: scale(1.03);
+                        }
+                        
+                        /* Overlay on Hover */
+                        .edit-cat-image-overlay {
+                            position: absolute;
+                            top: 0;
+                            left: 0;
+                            width: 100%;
+                            height: 100%;
+                            background: rgba(10, 10, 15, 0.7);
+                            backdrop-filter: blur(6px);
+                            display: flex;
+                            justify-content: center;
+                            align-items: center;
+                            opacity: 0;
+                            pointer-events: none;
+                            transition: opacity 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+                            z-index: 3;
+                        }
+                        .edit-cat-image-preview-wrapper:hover .edit-cat-image-overlay {
+                            opacity: 1;
+                            pointer-events: auto;
+                        }
+                        
+                        /* Overlay Buttons */
+                        .edit-cat-image-overlay-btn {
+                            background: rgba(248, 113, 113, 0.15) !important;
+                            border: 1px solid rgba(248, 113, 113, 0.4) !important;
+                            color: #f87171 !important;
+                            padding: 10px 18px !important;
+                            border-radius: 8px !important;
+                            font-size: 0.85rem !important;
+                            font-weight: 700 !important;
+                            cursor: pointer !important;
+                            display: flex !important;
+                            align-items: center !important;
+                            gap: 8px !important;
+                            transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1) !important;
+                        }
+                        .edit-cat-image-overlay-btn:hover {
+                            background: rgba(248, 113, 113, 0.35) !important;
+                            border-color: rgba(248, 113, 113, 0.7) !important;
+                            color: #fff !important;
+                            box-shadow: 0 0 15px rgba(248, 113, 113, 0.3) !important;
+                            transform: scale(1.05) !important;
+                        }
+                        
+                        /* Custom tab styling inside Showroom Edit Modal */
+                        .showroom-edit-tab-btn {
+                            flex: 1;
+                            padding: 10px 8px !important;
+                            background: none !important;
+                            border: none !important;
+                            border-bottom: 2px solid transparent !important;
+                            color: var(--color-text-muted) !important;
+                            font-size: 0.8rem !important;
+                            font-weight: 700 !important;
+                            cursor: pointer !important;
+                            white-space: nowrap !important;
+                            transition: all 0.2s ease !important;
+                            display: flex !important;
+                            align-items: center !important;
+                            justify-content: center !important;
+                            gap: 6px !important;
+                        }
+                        .showroom-edit-tab-btn:hover {
+                            color: #fff !important;
+                            background: rgba(255,255,255,0.02) !important;
+                        }
+                        .showroom-edit-tab-btn.active {
+                            border-bottom: 2px solid var(--color-prospect) !important;
+                            color: #fff !important;
+                            background: rgba(56, 189, 248, 0.05) !important;
+                        }
+                        
+                        /* Sticky bottom pricing bar */
+                        .summary-billing-bar {
+                            background: linear-gradient(90deg, rgba(255, 255, 255, 0.02), rgba(255, 255, 255, 0.005)) !important;
+                            border: 1px solid rgba(255, 255, 255, 0.05) !important;
+                            border-radius: 12px !important;
+                            padding: 14px 20px !important;
+                            box-shadow: inset 0 1px 1px rgba(255,255,255,0.02) !important;
+                        }
+                        
+                        /* Toggle card overrides to prevent collapsing */
+                        #modal-edit-catalog .wizard-toggle-card {
+                            display: flex !important;
+                            flex-direction: column !important;
+                            justify-content: space-between !important;
+                            background: rgba(255, 255, 255, 0.015) !important;
+                            border: 1.5px solid rgba(255, 255, 255, 0.03) !important;
+                            border-radius: 10px !important;
+                            padding: 10px 12px !important;
+                            gap: 6px !important;
+                            height: 78px !important;
+                            flex-shrink: 0 !important;
+                            overflow: visible !important;
+                            transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1) !important;
+                        }
+                        
+                        #modal-edit-catalog .wizard-toggle-card:hover {
+                            border-color: rgba(56, 189, 248, 0.2) !important;
+                            background: rgba(255, 255, 255, 0.03) !important;
+                            transform: translateY(-1px) !important;
+                        }
+                        
+                        /* Checkbox checked style overrides */
+                        #modal-edit-catalog .wizard-toggle-card.active {
+                            background: linear-gradient(135deg, rgba(56, 189, 248, 0.04), rgba(255, 255, 255, 0.002)) !important;
+                            border-color: rgba(56, 189, 248, 0.35) !important;
+                            box-shadow: 0 6px 15px rgba(0, 0, 0, 0.2), 0 0 10px rgba(56, 189, 248, 0.05) !important;
+                            opacity: 1 !important;
+                            filter: none !important;
+                        }
+                        
+                        /* Unchecked state style overrides: elegant, semi-transparent disabled look */
+                        #modal-edit-catalog .wizard-toggle-card:not(.active) {
+                            opacity: 0.45 !important;
+                            filter: grayscale(0.8) !important;
+                            background: rgba(0, 0, 0, 0.2) !important;
+                        }
+                        
+                        #modal-edit-catalog .wizard-toggle-card:not(.active) .wizard-toggle-card-body {
+                            pointer-events: none !important;
+                        }
                     </style>
 
                     <div class="layout-double-grid" style="margin-top: 16px;">
@@ -2424,9 +2616,13 @@
                         </div>
                         <input type="hidden" id="edit-cat-image-base64">
                         
-                        <div id="edit-cat-image-preview-container" style="display: none; justify-content: center; align-items: center; border: 1px dashed var(--border-color); border-radius: 8px; padding: 8px; background: rgba(0,0,0,0.2); position: relative; height: 120px;">
-                            <img id="edit-cat-image-preview" src="" style="max-height: 100%; max-width: 100%; border-radius: 4px; object-fit: contain;">
-                            <button type="button" id="btn-remove-edit-cat-image" style="position: absolute; top: 4px; right: 4px; background: rgba(0,0,0,0.6); border: none; color: var(--color-red); border-radius: 50%; width: 24px; height: 24px; display: flex; align-items: center; justify-content: center; cursor: pointer; font-size: 0.75rem;"><i class="fa-solid fa-trash"></i></button>
+                        <div id="edit-cat-image-preview-container" class="edit-cat-image-preview-wrapper" style="display: none;">
+                            <img id="edit-cat-image-preview" class="edit-cat-image-preview-img" src="">
+                            <div class="edit-cat-image-overlay">
+                                <button type="button" id="btn-remove-edit-cat-image" class="edit-cat-image-overlay-btn">
+                                    <i class="fa-solid fa-trash"></i> Rasmni o'chirish
+                                </button>
+                            </div>
                         </div>
                     </div>
 
@@ -2507,7 +2703,7 @@
             
             <!-- Sticky bottom pricing bar & buttons -->
             <div style="margin-top: 15px; border-top: 1px solid rgba(255,255,255,0.08); padding-top: 15px;">
-                <div style="display: flex; justify-content: space-between; align-items: center; background: rgba(255, 255, 255, 0.02); border: 1px solid rgba(255, 255, 255, 0.05); padding: 12px 20px; border-radius: 10px; margin-bottom: 15px;">
+                <div class="summary-billing-bar" style="display: flex; justify-content: space-between; align-items: center; background: rgba(255, 255, 255, 0.02); border: 1px solid rgba(255, 255, 255, 0.05); padding: 12px 20px; border-radius: 10px; margin-bottom: 15px;">
                     <div style="display: flex; gap: 20px;">
                         <div>
                             <span style="font-size: 0.75rem; color: var(--color-text-muted); display: block;">Mahsulot Tan Narxi (1 dona)</span>
