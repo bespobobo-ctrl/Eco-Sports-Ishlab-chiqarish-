@@ -1,0 +1,1259 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Eco Sports Ishlab Chiqarish - HubSpot CRM dizaynidagi boshqaruv paneli. Sotuv, ombor, ishlab chiqarish, bichuv, pres-kraska, dazmon va xizmatlar monitoringi.">
+    <title>Eco Sports | CRM & Ishlab Chiqarish Tizimi</title>
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
+    <!-- Font Awesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- CSS Style -->
+    <link rel="stylesheet" href="style2.css?v=premium1">
+    
+    <!-- PWA Manifest & Meta -->
+    <link rel="manifest" href="manifest.json">
+    <meta name="theme-color" content="#0b0c10">
+    <link rel="apple-touch-icon" href="icons/icon.svg">
+    <!-- Supabase JS Client -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+</head>
+<body>
+    <div class="app-wrapper">
+        <!-- Top Navigation Bar (SPA — barcha tablar) -->
+        <header class="navbar">
+            <div class="navbar-left">
+                <div class="brand-logo">
+                    <i class="fa-solid fa-leaf"></i>
+                </div>
+                <div class="brand-text">
+                    <h2>Eco Sports</h2>
+                    <span>CRM & Ishlab Chiqarish</span>
+                </div>
+            </div>
+
+            <nav class="navbar-menu" id="main-nav">
+                <a href="#" class="nav-link active" data-tab="sales">
+                    <i class="fa-solid fa-square-poll-vertical"></i> Sotuv
+                </a>
+                <a href="#" class="nav-link" data-tab="warehouse">
+                    <i class="fa-solid fa-warehouse"></i> Ombor-Ta'minot
+                </a>
+                <a href="#" class="nav-link" data-tab="cutting">
+                    <i class="fa-solid fa-scissors"></i> Bichuv
+                </a>
+                <a href="#" class="nav-link" data-tab="production">
+                    <i class="fa-solid fa-shirt"></i> Ishlab Chiqarish
+                </a>
+                <a href="#" class="nav-link" data-tab="paint">
+                    <i class="fa-solid fa-palette"></i> Pres-Kraska
+                </a>
+                <a href="#" class="nav-link" data-tab="pack">
+                    <i class="fa-solid fa-box-open"></i> Dazmon-Qadoqlash
+                </a>
+                <a href="#" class="nav-link" data-tab="workers">
+                    <i class="fa-solid fa-users"></i> Xodimlar
+                </a>
+                <a href="#" class="nav-link" data-tab="services">
+                    <i class="fa-solid fa-handshake"></i> Uslugi
+                </a>
+                <a href="pages/settings/index.html" class="nav-link" title="Sozlamalar">
+                    <i class="fa-solid fa-gear"></i> Sozlamalar
+                </a>
+            </nav>
+
+            <div class="navbar-right">
+                <div class="nav-search">
+                    <i class="fa-solid fa-magnifying-glass"></i>
+                    <input type="text" placeholder="Qidiruv..." id="global-search">
+                </div>
+                <div class="sys-time" id="clock">11:00:21</div>
+                <div class="status-dot-wrapper" id="sync-status-container" title="Supabase Sinxronizatsiya holati. SQL skriptini ko'rish uchun bosing." style="cursor: pointer; display: flex; align-items: center; gap: 6px; padding: 4px 8px; background: rgba(255,255,255,0.03); border-radius: 6px;" onclick="openSupabaseSetupModal()">
+                    <span class="status-dot" id="sync-status-dot"></span>
+                    <span id="sync-status-text" style="font-size: 0.75rem; color: var(--color-text-muted);">Bulut: Kutilmoqda</span>
+                </div>
+                <!-- PWA Install Button -->
+                <button class="btn btn-primary" id="btn-install-app" style="padding: 6px 12px; font-size: 0.85rem;"><i class="fa-solid fa-download"></i> O'rnatish</button>
+                
+                <button class="btn btn-icon-reset" id="btn-system-reset" title="Tizimni tozalash (LocalStorage)">
+                    <i class="fa-solid fa-arrows-rotate"></i>
+                </button>
+                <div class="user-avatar-wrapper">
+                    <img src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=100&q=80" alt="Avatar" class="user-avatar">
+                </div>
+            </div>
+        </header>
+
+        <!-- Sub-Header for Controls and Actions -->
+        <section class="subheader">
+            <div class="subheader-left">
+                <h1 id="view-title">Eco Sports Showroom</h1>
+            </div>
+            <div class="subheader-right" id="subheader-actions-container">
+                <span class="badge" style="background:var(--border-color); color:var(--color-won); padding:8px 12px; font-size:0.8rem;"><i class="fa-solid fa-store"></i> Eco Showroom</span>
+            </div>
+        </section>
+
+        <!-- Main Content Grid -->
+        <main class="content-container">
+
+            <!-- 1. SOTUV TAB (HubSpot CRM layout divided in two sections) -->
+            <div class="tab-pane active" id="tab-sales">
+                <!-- Sub-tab Navigation (Segmented Controls) -->
+                <div class="sub-nav-segmented">
+                    <button class="sub-tab-btn active" data-subtab="showroom" id="sub-btn-showroom">
+                        <i class="fa-solid fa-store"></i> Eco Sports Showroom
+                    </button>
+                </div>
+
+                <!-- Sub-tab 1: Model & AI Hisob (Visual AI Analyzer & Cost Worksheet) -->
+                <!-- Sub-tab 2: Showroom Katalogi -->
+                <div class="sub-pane active" id="sub-pane-showroom">
+                    <div class="card-glass" style="margin-top: 16px;">
+                        <div class="card-glass-header" style="display: flex; justify-content: space-between; align-items: center;">
+                            <h3><i class="fa-solid fa-store text-blue"></i> Eco Sports Modellari Katalogi</h3>
+                            <div style="display: flex; gap: 10px;">
+                                <button class="btn btn-secondary" onclick="renderShowroomCatalog()"><i class="fa-solid fa-rotate-right"></i> Yangilash</button>
+                                <button class="btn btn-danger" onclick="clearShowroom()" style="background: var(--color-red); border: none; color: white;"><i class="fa-solid fa-trash-can"></i> Showroomni Tozalash</button>
+                            </div>
+                        </div>
+
+                        <!-- Filter Bar -->
+                        <div class="showroom-filter-bar" style="
+                            display: flex;
+                            align-items: center;
+                            gap: 10px;
+                            padding: 16px 20px;
+                            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+                            flex-wrap: wrap;
+                        ">
+                            <span style="color: var(--color-text-muted); font-size: 0.85rem; font-weight: 500; margin-right: 8px;"><i class="fa-solid fa-filter"></i> Mahsulot turi bo'yicha filter:</span>
+                            <button class="btn btn-xs filter-pill active" data-filter="All" style="border-radius: 20px; padding: 6px 14px; background: rgba(56, 189, 248, 0.15); color: var(--color-prospect); border: 1px solid rgba(56, 189, 248, 0.3);">Barchasi</button>
+                            <button class="btn btn-xs filter-pill" data-filter="Futbolka" style="border-radius: 20px; padding: 6px 14px; background: rgba(255,255,255,0.03); color: var(--color-text-muted); border: 1px solid var(--border-color);">Futbolka</button>
+                            <button class="btn btn-xs filter-pill" data-filter="Triko" style="border-radius: 20px; padding: 6px 14px; background: rgba(255,255,255,0.03); color: var(--color-text-muted); border: 1px solid var(--border-color);">Triko</button>
+                            <button class="btn btn-xs filter-pill" data-filter="Sportifka" style="border-radius: 20px; padding: 6px 14px; background: rgba(255,255,255,0.03); color: var(--color-text-muted); border: 1px solid var(--border-color);">Sportifka</button>
+                            <button class="btn btn-xs filter-pill" data-filter="Shortik" style="border-radius: 20px; padding: 6px 14px; background: rgba(255,255,255,0.03); color: var(--color-text-muted); border: 1px solid var(--border-color);">Shortik</button>
+                            <button class="btn btn-xs filter-pill" data-filter="Kofta" style="border-radius: 20px; padding: 6px 14px; background: rgba(255,255,255,0.03); color: var(--color-text-muted); border: 1px solid var(--border-color);">Kofta</button>
+                        </div>
+                        
+                        <!-- Catalog Grid -->
+                        <div id="showroom-catalog-grid" style="
+                            display: grid; 
+                            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); 
+                            gap: 20px; 
+                            padding: 20px 0;
+                        ">
+                            <!-- JS orqali to'ldiriladi -->
+                        </div>
+                        
+                        <!-- Bo'sh bo'lsa -->
+                        <div id="showroom-empty-state" style="text-align: center; padding: 40px; color: var(--color-text-muted); display: none;">
+                            <i class="fa-solid fa-folder-open fa-3x" style="margin-bottom: 15px; opacity: 0.5;"></i>
+                            <p>Katalogda hali mahsulotlar yo'q. AI yordamida tahlil qilib "Showroomga Saqlash" tugmasini bosing.</p>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+
+            <!-- 2. OMBOR-TAMINOT TAB -->
+            <div class="tab-pane" id="tab-warehouse">
+                <!-- Sub-nav: Mato Ombori | Aksessuar Ombori -->
+                <div class="sub-nav-segmented" style="margin-bottom: 16px;">
+                    <button class="sub-tab-btn active" id="btn-warehouse-mato" onclick="switchWarehouseSubTab('mato')">
+                        <i class="fa-solid fa-scroll"></i> Mato Ombori
+                    </button>
+                    <button class="sub-tab-btn" id="btn-warehouse-aksesuar" onclick="switchWarehouseSubTab('aksesuar')">
+                        <i class="fa-solid fa-boxes-packing"></i> Aksessuar Ombori
+                    </button>
+                </div>
+
+                <!-- WMS - Virtual Racks Visualizer -->
+                <div class="card-glass" style="margin-bottom: 24px; padding: 20px;">
+                    <div class="card-glass-header" style="border-bottom: none; padding-bottom: 8px;">
+                        <h3><i class="fa-solid fa-cubes text-blue"></i> WMS - Virtual Yacheykalar Xaritasi</h3>
+                        <span class="badge" style="background: rgba(56, 189, 248, 0.1); color: var(--color-prospect);" id="wms-active-zone-badge">Zona A (Matolar)</span>
+                    </div>
+                    <div style="font-size: 0.75rem; color: var(--color-text-muted); margin-bottom: 16px;">
+                        Yacheykani tanlash orqali undagi xomashyoni ko'rishingiz, audit (miqdorini yangilash) qilishingiz yoki boshqa yacheykaga ko'chirishingiz mumkin.
+                    </div>
+                    
+                    <div class="rack-explorer-container" style="display: flex; gap: 20px; align-items: stretch; flex-wrap: wrap;">
+                        <!-- Left: rack rows grid -->
+                        <div class="rack-grid-wrap" style="flex: 2; min-width: 320px; background: rgba(0,0,0,0.2); border: 1px solid var(--border-color); border-radius: 12px; padding: 16px; display: flex; flex-direction: column; gap: 14px;">
+                            <div class="rack-labels" style="display: flex; justify-content: space-between; font-size: 0.7rem; color: var(--color-text-muted); font-weight: bold; text-transform: uppercase;">
+                                <span>Qator 1</span>
+                                <span>Qator 2</span>
+                                <span>Qator 3</span>
+                                <span>Qator 4</span>
+                            </div>
+                            
+                            <div class="rack-rows-grid" id="wms-racks-grid" style="display: grid; grid-template-rows: repeat(3, 1fr); gap: 12px;">
+                                <!-- Loaded dynamically by JS -->
+                            </div>
+                            
+                            <div class="rack-legend" style="display: flex; gap: 16px; font-size: 0.7rem; color: var(--color-text-muted); flex-wrap: wrap; margin-top: 5px;">
+                                <div style="display:flex; align-items:center; gap:5px;"><span style="width:10px; height:10px; border-radius:3px; background: rgba(52, 211, 153, 0.2); border: 1px solid var(--color-won);"></span> Zaxira etarli</div>
+                                <div style="display:flex; align-items:center; gap:5px;"><span style="width:10px; height:10px; border-radius:3px; background: rgba(251, 146, 60, 0.2); border: 1px solid var(--color-qualified);"></span> Kamaygan zaxira (<15)</div>
+                                <div style="display:flex; align-items:center; gap:5px;"><span style="width:10px; height:10px; border-radius:3px; background: rgba(255,255,255,0.01); border: 1px dashed rgba(255,255,255,0.1);"></span> Bo'sh yacheyka</div>
+                            </div>
+                        </div>
+                        
+                        <!-- Right: selected rack quick details -->
+                        <div class="rack-detail-card" style="flex: 1; min-width: 250px; background: rgba(255,255,255,0.01); border: 1px dashed var(--border-color); border-radius: 12px; padding: 16px; display: flex; flex-direction: column; justify-content: center; align-items: center; text-align: center;" id="wms-rack-details">
+                            <i class="fa-solid fa-box-open" style="font-size: 2.2rem; color: var(--color-text-muted); opacity: 0.3; margin-bottom: 12px;"></i>
+                            <h4 style="font-size: 0.9rem; margin-bottom: 4px; color: var(--color-text-main);">Yacheyka tanlanmagan</h4>
+                            <p style="font-size: 0.75rem; color: var(--color-text-muted);">Batafsil ma'lumot olish uchun chap tarafdagi yacheykalardan birini bosing.</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="layout-double-grid">
+                    <div class="grid-left-large">
+                        <div class="card-glass">
+                            <div class="card-glass-header">
+                                <h3 id="warehouse-table-title">Mato Ombori Zaxirasi</h3>
+                            </div>
+                            <div class="table-scroll">
+                                <table class="table-premium" id="table-warehouse-inventory">
+                                    <thead>
+                                        <tr>
+                                            <th>Kod</th>
+                                            <th>Nomi</th>
+                                            <th>Turi</th>
+                                            <th>Rangi</th>
+                                            <th>Yacheyka (WMS)</th>
+                                            <th>Zaxira soni</th>
+                                            <th>O'lchov birligi</th>
+                                            <th>Narxi</th>
+                                            <th>Ekologik daraja</th>
+                                            <th>Amallar</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="tbody-warehouse">
+                                        <!-- Loaded by JS -->
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="grid-right-small">
+                        <div class="card-glass">
+                            <div class="card-glass-header">
+                                <h3>Zaxira Kamaygan Xomashyolar</h3>
+                            </div>
+                            <div class="low-stock-list" id="low-stock-container">
+                                <!-- Loaded dynamically -->
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 3. BICHUV TAB -->
+            <div class="tab-pane" id="tab-cutting">
+                <div class="layout-double-grid">
+                    <div class="grid-left-large">
+                        <div class="card-glass">
+                            <div class="card-glass-header">
+                                <h3>Matolarni Bichish Buyruqlari</h3>
+                            </div>
+                            <div class="cutting-cards-grid" id="container-cutting-cards" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 15px; margin-top: 15px; padding-right: 5px; max-height: 600px; overflow-y: auto;">
+                                <!-- Loaded by JS -->
+                            </div>
+                        </div>
+                    </div>
+                    <div class="grid-right-small">
+                        <div class="card-glass" style="margin-bottom: 20px; border: 1px solid var(--color-prospect); box-shadow: 0 8px 32px rgba(103, 114, 229, 0.15);">
+                            <div class="card-glass-header" style="background: rgba(103, 114, 229, 0.1); border-bottom: 1px solid rgba(103, 114, 229, 0.2);">
+                                <h3><i class="fa-solid fa-scissors" style="color: var(--color-prospect);"></i> Yangi Nastil va Bichuv Buyrug'i</h3>
+                            </div>
+                            <form id="form-cutting" style="padding: 15px;">
+                                <div class="form-group">
+                                    <label>Bichiladigan mahsulot nomi *</label>
+                                    <input type="text" id="cut-name" required placeholder="Masalan: Green Eco Hoodie (Olive)">
+                                </div>
+                                <div class="form-group">
+                                    <label>Mahsulot turi *</label>
+                                    <select id="cut-type" required>
+                                        <option value="Hudi">Hudi</option>
+                                        <option value="Futbolka">Futbolka</option>
+                                        <option value="Shim">Shim</option>
+                                    </select>
+                                </div>
+                                <div class="form-row">
+                                    <div class="form-group col">
+                                        <label>Ishlatiladigan mato *</label>
+                                        <select id="cut-fabric-id" required>
+                                            <!-- Loaded from warehouse items of type 'Mato' -->
+                                        </select>
+                                    </div>
+                                    <div class="form-group col">
+                                        <label>Umumiy sarf og'irligi (kg) *</label>
+                                        <input type="number" id="cut-weight" min="0" step="0.1" required readonly placeholder="Avtomatik hisoblanadi" style="background: rgba(0,0,0,0.2); cursor: not-allowed; border: 1px solid var(--border-color); color: var(--color-won); font-weight: bold;">
+                                    </div>
+                                </div>
+                                <div class="form-row">
+                                    <div class="form-group col">
+                                        <label>Nastil uzunligi (sm) *</label>
+                                        <input type="number" id="cut-nastil-len" min="1" required placeholder="Masalan: 1200">
+                                    </div>
+                                    <div class="form-group col">
+                                        <label>Matoning eni (sm) *</label>
+                                        <input type="number" id="cut-nastil-width" min="1" required placeholder="Masalan: 180">
+                                    </div>
+                                </div>
+
+                                <!-- Nastil Rulonlari Bo'limi -->
+                                <div class="form-group" style="background: rgba(255,255,255,0.02); padding: 12px; border-radius: 6px; border: 1px solid var(--border-color); margin-bottom: 15px;">
+                                    <label style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+                                        <span><i class="fa-solid fa-layer-group" style="color: var(--color-prospect);"></i> Nastil Rulonlari (kg)</span>
+                                        <button type="button" id="btn-add-roll" class="btn btn-xs btn-primary" style="padding: 4px 8px; font-size: 0.75rem;">+ Rulon qo'shish</button>
+                                    </label>
+                                    <div id="nastil-rolls-container" style="display: flex; flex-direction: column; gap: 8px;">
+                                        <!-- Initial roll input -->
+                                        <div class="roll-input-row" style="display: flex; gap: 8px; align-items: center; flex-wrap: wrap;">
+                                            <span class="roll-label" style="font-size: 0.8rem; color: var(--color-text-muted); width: 60px;">1-Rulon:</span>
+                                            <input type="number" class="roll-weight-input" min="0.1" step="0.1" required placeholder="Og'irlik (kg)" style="flex: 1; min-width: 80px; max-width: 120px;">
+                                            <div class="color-swatch-container">
+                                                <div class="color-swatch" data-color="Qora" style="background: #111;" title="Qora"></div>
+                                                <div class="color-swatch" data-color="To'q Ko'k" style="background: #1a237e;" title="To'q Ko'k"></div>
+                                                <div class="color-swatch" data-color="Antra" style="background: #37474f;" title="Antra"></div>
+                                                <div class="color-swatch" data-color="Melanj" style="background: #9e9e9e;" title="Melanj"></div>
+                                                <div class="color-swatch" data-color="Oq" style="background: #f5f5f5;" title="Oq"></div>
+                                            </div>
+                                            <input type="hidden" class="roll-color-input" required>
+                                            <button type="button" class="btn btn-xs btn-danger btn-remove-roll" style="padding: 4px 8px;" disabled><i class="fa-solid fa-trash"></i></button>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="form-row">
+                                    <div class="form-group col" style="flex: 2;">
+                                        <label>Ranglar bo'yicha sarf va chiqadigan dona *</label>
+                                        <div id="color-qty-container" style="display: flex; flex-direction: column; gap: 10px; margin-bottom: 8px;">
+                                            <span style="font-size: 0.75rem; color: var(--color-text-muted);">Avval rulon va rangini tanlang...</span>
+                                        </div>
+                                    </div>
+                                    <div class="form-group col">
+                                        <label>Umumiy chiqadigan dona *</label>
+                                        <input type="number" id="cut-qty" min="0" required placeholder="Jami dona (Avto-hisob yoki qo'lda)">
+                                    </div>
+                                </div>
+                                <div class="form-row" style="margin-top: 15px; align-items: stretch;">
+                                    <div class="form-group col">
+                                        <label>Bitta mahsulot uchun rasxod (kg) *</label>
+                                        <input type="number" id="cut-unit-weight" min="0.01" step="0.01" required placeholder="Masalan: 0.35">
+                                    </div>
+                                    <div class="form-group col" style="display: flex; flex-direction: column; justify-content: center; background: rgba(0,0,0,0.2); padding: 10px 14px; border-radius: 8px; border: 1px dashed var(--color-orange);">
+                                        <span style="font-size: 0.75rem; color: var(--color-text-muted); margin-bottom: 4px;">Kroyga chiqib ketgan rasxod (Chiqindi)</span>
+                                        <div style="font-size: 1.1rem; font-weight: bold; color: var(--color-orange);" id="cut-waste-display">0.00 kg (0%)</div>
+                                    </div>
+                                </div>
+                                <div class="form-row">
+                                    <div class="form-group col">
+                                        <label>Bichuvchining F.I.Sh *</label>
+                                        <select id="cut-staff" required>
+                                            <!-- Filtered staff with Bichuvchi role -->
+                                        </select>
+                                    </div>
+                                </div>
+                                <button type="submit" class="btn btn-primary btn-block" style="background: linear-gradient(135deg, var(--color-prospect), #4754c4); border: none; font-size: 1.05rem; padding: 12px;"><i class="fa-solid fa-check-double"></i> Bichildi</button>
+                            </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 4. ISHLAB CHIQARISH TAB (Tikuv Konveyeri — Kanban + Quruvchi) -->
+        <div class="tab-pane" id="tab-production">
+                <!-- Sub-nav: Kanban Taxta | Konveyer Quruvchi -->
+                <div class="prod-subnav">
+                    <button class="prod-subnav-btn active" data-prodview="board">
+                        <i class="fa-solid fa-table-columns"></i> Kanban Taxta
+                    </button>
+                    <button class="prod-subnav-btn" data-prodview="builder">
+                        <i class="fa-solid fa-diagram-project"></i> Konveyer Quruvchi
+                    </button>
+                    <button class="prod-subnav-btn" data-prodview="workshop">
+                        <i class="fa-solid fa-cube"></i> 3D Virtual Sex
+                    </button>
+                </div>
+
+                <!-- VIEW A: Kanban board -->
+                <div class="prodview active" id="prodview-board">
+                    <div class="kanban-wrapper">
+                        <!-- Summary KPI bar -->
+                        <div class="kanban-summary">
+                            <div class="ks-stat">
+                                <span class="ks-ico ks-ico-blue"><i class="fa-solid fa-layer-group"></i></span>
+                                <div class="ks-text"><strong id="ks-total">0</strong><span>Jami partiya</span></div>
+                            </div>
+                            <div class="ks-stat">
+                                <span class="ks-ico ks-ico-purple"><i class="fa-solid fa-gears"></i></span>
+                                <div class="ks-text"><strong id="ks-progress">0</strong><span>Konveyerda</span></div>
+                            </div>
+                            <div class="ks-stat">
+                                <span class="ks-ico ks-ico-green"><i class="fa-solid fa-circle-check"></i></span>
+                                <div class="ks-text"><strong id="ks-done">0</strong><span>Tayyor</span></div>
+                            </div>
+                            <div class="ks-stat">
+                                <span class="ks-ico ks-ico-orange"><i class="fa-solid fa-shirt"></i></span>
+                                <div class="ks-text"><strong id="ks-qty">0</strong><span>Jami dona</span></div>
+                            </div>
+                            <div class="ks-hint">
+                                <i class="fa-solid fa-hand-pointer"></i> Kartani sudrab (drag) keyingi bosqichga o'tkazing
+                            </div>
+                        </div>
+
+                        <!-- Kanban Board (columns rendered by JS) -->
+                        <div class="kanban-board" id="kanban-board">
+                            <!-- Loaded dynamically -->
+                        </div>
+                    </div>
+                </div>
+
+                <!-- VIEW B: Konveyer Quruvchi (Pipeline Builder) -->
+                <div class="prodview" id="prodview-builder">
+                    <div class="builder-toolbar">
+                        <div class="bt-left">
+                            <h3><i class="fa-solid fa-diagram-project"></i> Ish Zanjirini Loyihalash</h3>
+                            <span>Bloklarni sudrab tartiblang, nomi/rangi/ikonkasini tahrirlang yoki yangi bosqich qo'shing.</span>
+                        </div>
+                        <div class="bt-right">
+                            <div class="view-toggle" id="builder-view-toggle">
+                                <button class="vt-btn active" data-mode="2d"><i class="fa-solid fa-grip-lines"></i> 2D</button>
+                                <button class="vt-btn" data-mode="3d"><i class="fa-solid fa-cube"></i> 3D</button>
+                            </div>
+                            <button class="btn btn-primary" id="btn-add-stage"><i class="fa-solid fa-plus"></i> Bosqich qo'shish</button>
+                            <button class="btn btn-secondary" id="btn-reset-stages" title="Standart zanjirga qaytarish"><i class="fa-solid fa-rotate-left"></i></button>
+                        </div>
+                    </div>
+
+                    <div class="builder-scene" id="builder-scene">
+                        <div class="builder-chain" id="builder-chain">
+                            <!-- Stage blocks rendered by JS -->
+                        </div>
+                        <div class="builder-3d-hint" id="builder-3d-hint">
+                            <i class="fa-solid fa-arrows-up-down-left-right"></i> Sahnani aylantirish uchun sichqoncha bilan sudrang
+                        </div>
+                    </div>
+                </div>
+
+                <!-- VIEW C: 3D Virtual Sex (Three.js workshop) -->
+                <div class="prodview" id="prodview-workshop">
+                    <div class="workshop-stage">
+                        <div id="workshop-canvas-wrap">
+                            <canvas id="workshop-canvas"></canvas>
+                        </div>
+
+                        <!-- Monitor (doska) sahifa navigatsiyasi -->
+                        <div class="board-nav" id="board-nav">
+                            <button class="bn-btn active" data-page="0"><i class="fa-solid fa-chart-pie"></i> Umumiy</button>
+                            <button class="bn-btn" data-page="1"><i class="fa-solid fa-user-tag"></i> Chevar modellar</button>
+                            <button class="bn-btn" data-page="2"><i class="fa-solid fa-sack-dollar"></i> Chevar summa</button>
+                            <button class="bn-btn" data-page="3"><i class="fa-solid fa-calendar-check"></i> Oylik hisobot</button>
+                        </div>
+
+                        <div class="workshop-hud">
+                            <i class="fa-solid fa-circle-info"></i>
+                            Mashinani <b>bosing</b> &nbsp;·&nbsp;
+                            <b>V</b> — dastgohni ko'chirish &nbsp;·&nbsp;
+                            <b>R</b> — gorizontal burish &nbsp;·&nbsp;
+                            <i class="fa-solid fa-arrows-rotate"></i> bo'sh joyni sudrab aylantiring
+                        </div>
+
+                        <!-- Konveyer lentasini qurish (temir yo'l rejimi) -->
+                        <div class="belt-tools" id="belt-tools">
+                            <span class="bt-label"><i class="fa-solid fa-road"></i> Lenta:</span>
+                            <button class="belt-btn" id="belt-add"><i class="fa-solid fa-plus"></i> Nuqta</button>
+                            <button class="belt-btn" id="belt-new"><i class="fa-solid fa-road-circle-check"></i> Yangi yo'l</button>
+                            <button class="belt-btn" id="belt-connect"><i class="fa-solid fa-link"></i> Ulash</button>
+                            <button class="belt-btn" id="belt-undo" title="Oxirgi nuqtani o'chirish"><i class="fa-solid fa-rotate-left"></i></button>
+                            <button class="belt-btn" id="belt-reset" title="Standart yo'l"><i class="fa-solid fa-broom"></i></button>
+                        </div>
+
+                        <!-- Lenta nuqta qo'shish rejimi ishorasi -->
+                        <div class="belt-add-hint" id="belt-add-hint">
+                            <i class="fa-solid fa-location-dot"></i>
+                            Nuqta qo'shish: <b>yerni bosing</b> · nuqtani bosing — <b>o'chirish</b> · tugatish: <b>Esc</b> yoki ➕
+                        </div>
+
+                        <!-- Lenta ulash rejimi ishorasi -->
+                        <div class="belt-connect-hint" id="belt-connect-hint">
+                            <i class="fa-solid fa-link"></i>
+                            Ulash: <b>1-nuqtani</b> bosing, so'ng <b>2-nuqtani</b> bosing · <b>Esc</b> bekor
+                        </div>
+
+                        <!-- Mahsulot ustiga borilganda tooltip -->
+                        <div class="workshop-tooltip" id="workshop-tooltip"></div>
+
+                        <!-- "V" ko'chirish rejimi ishorasi -->
+                        <div class="workshop-move-hint" id="workshop-move-hint">
+                            <i class="fa-solid fa-up-down-left-right"></i>
+                            Ko'chirilmoqda — <b>bosing</b> qo'yish · <b>R</b> burish · <b>Esc</b> bekor
+                            <button class="mh-rotate" id="rotate-btn" title="Gorizontal burish"><i class="fa-solid fa-rotate"></i> Burish</button>
+                        </div>
+
+                        <div id="workshop-loading" class="workshop-loading">
+                            <i class="fa-solid fa-spinner fa-spin"></i> 3D sex yuklanmoqda...
+                        </div>
+
+                        <!-- Click info panel -->
+                        <div id="workshop-info" class="workshop-info">
+                            <div class="wi-header">
+                                <div class="wi-title">
+                                    <span class="wi-dot" id="wi-dot"></span>
+                                    <h3 id="wi-title">Bosqich</h3>
+                                </div>
+                                <button class="wi-close" id="wi-close">&times;</button>
+                            </div>
+                            <div class="wi-body" id="wi-body"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 5. PRES-KRASKA TAB -->
+            <div class="tab-pane" id="tab-paint">
+                <div class="layout-double-grid">
+                    <div class="grid-left-large">
+                        <div class="card-glass">
+                            <div class="card-glass-header">
+                                <h3>Pres va Kraska Jurnali (Logo & Bo'yoq bosish)</h3>
+                            </div>
+                            <div class="table-scroll">
+                                <table class="table-premium" id="table-paint-logs">
+                                    <thead>
+                                        <tr>
+                                            <th>Sana</th>
+                                            <th>Partiya/Buyurtma</th>
+                                            <th>Pres turi</th>
+                                            <th>Bo'yoq turi</th>
+                                            <th>Soni</th>
+                                            <th>Rang / Dizayn</th>
+                                            <th>QC Holati</th>
+                                            <th>Amallar</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="tbody-paint">
+                                        <!-- Loaded by JS -->
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="grid-right-small">
+                        <div class="card-glass">
+                            <div class="card-glass-header">
+                                <h3>Bo'yoq Kimyoviy Xavfsizligi</h3>
+                            </div>
+                            <div class="paint-safety-info">
+                                <div class="safety-badge">
+                                    <i class="fa-solid fa-shield-halved text-green"></i>
+                                    <h4>OEKO-TEX® Standarti</h4>
+                                    <p>Bo'yoqlarimiz tarkibida formaldegidlar va zaharli erituvchilar mavjud emas.</p>
+                                </div>
+                                <div class="paint-inventory-list">
+                                    <div class="paint-inv-item">
+                                        <span>Ekologik yashil bo'yoq (Suvli):</span>
+                                        <strong>45 L</strong>
+                                    </div>
+                                    <div class="paint-inv-item">
+                                        <span>Organik oq bo'yoq (Suvli):</span>
+                                        <strong>32 L</strong>
+                                    </div>
+                                    <div class="paint-inv-item">
+                                        <span>Ko'mir qora bo'yoq:</span>
+                                        <strong>50 L</strong>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 6. DAZMON-QADOQLASH TAB -->
+            <div class="tab-pane" id="tab-pack">
+                <div class="layout-double-grid">
+                    <div class="grid-left-large">
+                        <div class="card-glass">
+                            <div class="card-glass-header">
+                                <h3>Dazmollash va Qadoqlash Nazorat Jurnali</h3>
+                            </div>
+                            <div class="table-scroll">
+                                <table class="table-premium" id="table-pack-logs">
+                                    <thead>
+                                        <tr>
+                                            <th>Sana</th>
+                                            <th>Buyurtma Nomi</th>
+                                            <th>Dazmollangan</th>
+                                            <th>Yaroqli (QC Pass)</th>
+                                            <th>Nuqsonli (Defect)</th>
+                                            <th>Qadoqlovchi</th>
+                                            <th>Qadoqlash turi</th>
+                                            <th>Tayyor mahsulotga topshirildi</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="tbody-pack">
+                                        <!-- Loaded by JS -->
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="grid-right-small">
+                        <div class="card-glass">
+                            <div class="card-glass-header">
+                                <h3>Sifat Nazorati (QC) Ko'rsatkichi</h3>
+                            </div>
+                            <div class="qc-metrics-panel">
+                                <div class="circular-progress-mock accent-blue">
+                                    <span class="eff-value" id="qc-pass-rate">98.2%</span>
+                                    <span class="eff-lbl">QC Sifat darajasi</span>
+                                </div>
+                                <div class="eff-summary-list">
+                                    <div class="eff-summary-item">
+                                        <span>Jami dazmollangan:</span>
+                                        <strong id="qc-total-ironed">0 ta</strong>
+                                    </div>
+                                    <div class="eff-summary-item text-green">
+                                        <span>Sifatli qadoqlangan:</span>
+                                        <strong id="qc-total-passed">0 ta</strong>
+                                    </div>
+                                    <div class="eff-summary-item text-red">
+                                        <span>Nuqsonli (Brak):</span>
+                                        <strong id="qc-total-failed">0 ta</strong>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 7. XODIMLAR TAB -->
+            <div class="tab-pane" id="tab-workers">
+                <div class="layout-double-grid">
+                    <div class="grid-left-large">
+                        <div class="card-glass">
+                            <div class="card-glass-header">
+                                <h3>Xodimlar Ro'yxati</h3>
+                            </div>
+                            <div class="table-scroll">
+                                <table class="table-premium" id="table-staff-list">
+                                    <thead>
+                                        <tr>
+                                            <th>Ishchi kodi</th>
+                                            <th>F.I.Sh</th>
+                                            <th>Lavozimi</th>
+                                            <th>Mas'ul liniyasi</th>
+                                            <th>Tariflar (Hudi/Futbolka/Shim)</th>
+                                            <th>Ishlagan kunlik soni</th>
+                                            <th>Jami ish haqi</th>
+                                            <th>Statusi</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="tbody-workers">
+                                        <!-- Loaded by JS -->
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="grid-right-small">
+                        <div class="card-glass">
+                            <div class="card-glass-header">
+                                <h3>Tikish Ishini Ro'yxatdan O'tkazish</h3>
+                            </div>
+                            <form id="form-staff-work-entry">
+                                <div class="form-group">
+                                    <label>Sana *</label>
+                                    <input type="date" id="work-entry-date" required>
+                                </div>
+                                <div class="form-group">
+                                    <label>Xodim *</label>
+                                    <select id="work-entry-staff" required>
+                                        <!-- Loaded dynamically -->
+                                    </select>
+                                </div>
+                                <div class="form-group">
+                                    <label>Faol Buyurtma *</label>
+                                    <select id="work-entry-order" required>
+                                        <!-- Loaded dynamically -->
+                                    </select>
+                                </div>
+                                <div class="form-group">
+                                    <label>Tikilgan/Qadoqlangan soni *</label>
+                                    <input type="number" id="work-entry-qty" min="1" required placeholder="Masalan: 20">
+                                </div>
+                                <button type="submit" class="btn btn-primary btn-block">
+                                    <i class="fa-solid fa-floppy-disk"></i> Ish hisobini saqlash
+                                </button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 8. USLUGI TAB -->
+            <div class="tab-pane" id="tab-services">
+                <div class="layout-double-grid">
+                    <div class="grid-left-large">
+                        <div class="card-glass">
+                            <div class="card-glass-header">
+                                <h3>Tashqi Usluga (Kondratlar / Autsorsing) Xizmatlari Jurnali</h3>
+                            </div>
+                            <div class="table-scroll">
+                                <table class="table-premium" id="table-services-logs">
+                                    <thead>
+                                        <tr>
+                                            <th>Kontrakt kodi</th>
+                                            <th>Usluga beruvchi</th>
+                                            <th>Xizmat turi</th>
+                                            <th>Buyurtma nomi</th>
+                                            <th>Berilgan soni</th>
+                                            <th>Kelishilgan narx (dona)</th>
+                                            <th>Jami shartnoma summasi</th>
+                                            <th>Topshirish muddati</th>
+                                            <th>Holati</th>
+                                            <th>Amallar</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="tbody-services">
+                                        <!-- Loaded by JS -->
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="grid-right-small">
+                        <div class="card-glass">
+                            <div class="card-glass-header">
+                                <h3>Uslugalar Bo'yicha Tahlil</h3>
+                            </div>
+                            <div class="services-analysis-panel">
+                                <div class="anal-stat">
+                                    <span>Jami autsorsing bitimlari:</span>
+                                    <strong id="usluga-total-deals">0 ta</strong>
+                                </div>
+                                <div class="anal-stat text-purple">
+                                    <span>Jami to'langan summa:</span>
+                                    <strong id="usluga-total-amount">0 so'm</strong>
+                                </div>
+                                <div class="outsourcing-notice">
+                                    <i class="fa-solid fa-circle-info text-blue"></i>
+                                    <p>Tashqi xizmatlar (Uslugas) orqali odatda mahsulotlarga murakkab kashta tikish yoki tugma qadash ishlari autsors qilinadi.</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </main>
+    </div>
+    <!-- System Modals -->>
+
+    <!-- Warehouse Modal -->
+    <div class="modal" id="modal-warehouse">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Yangi Xomashyo/Material Qo'shish</h3>
+                <span class="close-modal" id="close-warehouse-modal">&times;</span>
+            </div>
+            <form id="form-warehouse">
+                <div class="form-group">
+                    <label>Xomashyo nomi *</label>
+                    <input type="text" id="ware-name" required placeholder="Masalan: Organik paxta matosi">
+                </div>
+                <div class="form-row">
+                    <div class="form-group col">
+                        <label>Turi *</label>
+                        <select id="ware-type" required>
+                            <option value="Mato">Mato</option>
+                            <option value="Furnitura">Furnitura</option>
+                            <option value="Aksessuar">Aksessuar</option>
+                            <option value="Bo'yoq">Bo'yoq</option>
+                        </select>
+                    </div>
+                    <div class="form-group col">
+                        <label>Rangi</label>
+                        <input type="text" id="ware-color" placeholder="Masalan: Olive Green">
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group col">
+                        <label>Miqdori *</label>
+                        <input type="number" id="ware-qty" step="any" required placeholder="100">
+                    </div>
+                    <div class="form-group col">
+                        <label>O'lchov birligi *</label>
+                        <input type="text" id="ware-unit" required placeholder="kg, dona, litr">
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group col">
+                        <label>Narxi (USD/dona yoki kg) *</label>
+                        <input type="number" id="ware-price" step="any" required placeholder="12.50">
+                    </div>
+                    <div class="form-group col">
+                        <label>Ekologik Reyting</label>
+                        <select id="ware-eco" required>
+                            <option value="A+">A+ (Juda toza)</option>
+                            <option value="A">A (Ekologik)</option>
+                            <option value="B+">B+ (O'rtacha)</option>
+                            <option value="B">B (Standart)</option>
+                        </select>
+                    </div>
+                </div>
+                <!-- WMS Location coordinates selection -->
+                <div class="form-row" style="background: rgba(255,255,255,0.01); border: 1px dashed var(--border-color); padding: 10px; border-radius: 8px; margin-bottom: 15px;">
+                    <div class="form-group col">
+                        <label>Zona (WMS Zone) *</label>
+                        <select id="ware-zone" required>
+                            <option value="A">Zona A (Matolar)</option>
+                            <option value="B">Zona B (Aksessuarlar)</option>
+                        </select>
+                    </div>
+                    <div class="form-group col">
+                        <label>Qator (Rack Column) *</label>
+                        <select id="ware-rack-col" required>
+                            <option value="1">Qator 1</option>
+                            <option value="2">Qator 2</option>
+                            <option value="3">Qator 3</option>
+                            <option value="4">Qator 4</option>
+                        </select>
+                    </div>
+                    <div class="form-group col">
+                        <label>Tokcha (Shelf Level) *</label>
+                        <select id="ware-rack-row" required>
+                            <option value="1">Tokcha 1 (Pastki)</option>
+                            <option value="2">Tokcha 2 (O'rta)</option>
+                            <option value="3">Tokcha 3 (Yuqori)</option>
+                        </select>
+                    </div>
+                </div>
+                <button type="submit" class="btn btn-primary btn-block">Zaxiraga kiritish</button>
+            </form>
+        </div>
+    </div>
+
+
+    <!-- Paint Modal -->
+    <div class="modal" id="modal-paint">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Pres / Kraska Partiyasi Qo'shish</h3>
+                <span class="close-modal" id="close-paint-modal">&times;</span>
+            </div>
+            <form id="form-paint">
+                <div class="form-group">
+                    <label>Buyurtma/Partiya Tanlang *</label>
+                    <select id="paint-order-id" required>
+                        <!-- Loaded from active cutting/production orders -->
+                    </select>
+                </div>
+                <div class="form-row">
+                    <div class="form-group col">
+                        <label>Pres/Chop Turi *</label>
+                        <select id="paint-press-type" required>
+                            <option value="Termotransfer (Logo)">Termotransfer (Logo)</option>
+                            <option value="Ipak ekranli bosma">Ipak ekranli bosma (Silk screen)</option>
+                            <option value="To'liq Bo'yash">To'liq Bo'yash (Dyeing)</option>
+                            <option value="Sublimatsiya">Sublimatsiya</option>
+                        </select>
+                    </div>
+                    <div class="form-group col">
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group col">
+                        <label>Ishlov berilgan donalar soni *</label>
+                        <input type="number" id="paint-qty" min="1" required placeholder="100">
+                    </div>
+                    <div class="form-group col">
+                        <label>Rang va Dizayn tavsifi *</label>
+                        <input type="text" id="paint-desc" required placeholder="Masalan: Old logo oq rangda">
+                    </div>
+                </div>
+                <button type="submit" class="btn btn-primary btn-block">Partiyani Saqlash</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Ironing / Pack Modal -->
+    <div class="modal" id="modal-pack">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Dazmon va Qadoqlash Hisoboti</h3>
+                <span class="close-modal" id="close-pack-modal">&times;</span>
+            </div>
+            <form id="form-pack">
+                <div class="form-group">
+                    <label>Faol ishlab chiqarish partiyasi *</label>
+                    <select id="pack-order-id" required>
+                        <!-- Loaded from production items -->
+                    </select>
+                </div>
+                <div class="form-row">
+                    <div class="form-group col">
+                        <label>Sifatli Dazmollangan (Dona) *</label>
+                        <input type="number" id="pack-qty-passed" min="1" required placeholder="100">
+                    </div>
+                    <div class="form-group col">
+                        <label>Nuqsonli / Defekt (Dona) *</label>
+                        <input type="number" id="pack-qty-failed" min="0" required placeholder="0">
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group col">
+                        <label>Mas'ul Qadoqlovchi *</label>
+                        <select id="pack-staff" required>
+                            <!-- Filtered staff with Qadoqlovchi role -->
+                        </select>
+                    </div>
+                    <div class="form-group col">
+                        <label>Qadoq turi *</label>
+                        <select id="pack-bag-type" required>
+                            <option value="Biodegradable paket">Biodegradable paket (Ekologik)</option>
+                            <option value="Qayta ishlangan Kraft qutisi">Kraft qutisi</option>
+                            <option value="Standart polietilen">Standart polietilen</option>
+                        </select>
+                    </div>
+                </div>
+                <button type="submit" class="btn btn-primary btn-block">Qadoqlash hisobotini yozish</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Outsourced Services Modal -->
+    <div class="modal" id="modal-service">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Yangi Autsorsing (Usluga) Shartnomasi</h3>
+                <span class="close-modal" id="close-service-modal">&times;</span>
+            </div>
+            <form id="form-service">
+                <div class="form-group">
+                    <label>Usluga beruvchi (Subpudratchi nomi) *</label>
+                    <input type="text" id="serv-provider" required placeholder="Masalan: Farg'ona Kashtachilik MCHJ">
+                </div>
+                <div class="form-group">
+                    <label>Xizmat turi *</label>
+                    <select id="serv-type" required>
+                        <option value="Kompyuterli Kashta tikish">Kompyuterli Kashta tikish (Embroidery)</option>
+                        <option value="Tugma va Tugmateshik ochish">Tugma va Tugmateshik ochish</option>
+                        <option value="Yuvish va Ozonlash">Yuvish va Ozonlash (Washing)</option>
+                        <option value="Kichik detallarni tikish">Kichik detallarni tikish (Subcontracting)</option>
+                    </select>
+                </div>
+                <div class="form-row">
+                    <div class="form-group col">
+                        <label>Mahsulot / Buyurtma *</label>
+                        <input type="text" id="serv-order" required placeholder="Masalan: White T-Shirt (Logo)">
+                    </div>
+                    <div class="form-group col">
+                        <label>Topshirilgan mahsulot soni *</label>
+                        <input type="number" id="serv-qty" min="1" required placeholder="500">
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group col">
+                        <label>Dona boshiga xizmat haqi (so'm) *</label>
+                        <input type="number" id="serv-rate" required placeholder="1500">
+                    </div>
+                    <div class="form-group col">
+                        <label>Topshirish muddati *</label>
+                        <input type="date" id="serv-deadline" required>
+                    </div>
+                </div>
+                <button type="submit" class="btn btn-primary btn-block">Kontraktni ro'yxatdan o'tkazish</button>
+            </form>
+        </div>
+    </div>
+
+    <div class="modal" id="modal-edit-catalog">
+        <div class="modal-content" style="max-width: 800px;">
+            <div class="modal-header">
+                <h3>Mahsulot Parametrlarini Tahrirlash</h3>
+                <span class="close-modal" id="close-edit-catalog-modal" onclick="closeModal('modal-edit-catalog')">&times;</span>
+            </div>
+            <div class="worksheet-inputs" style="max-height: 70vh; overflow-y: auto; padding-right: 10px;">
+                <input type="hidden" id="edit-cat-id">
+                
+                <h4 style="margin-bottom: 10px; color: var(--color-won);"><i class="fa-solid fa-list-check"></i> AI Aniqlagan parametrlar (Dona uchun)</h4>
+                <div class="form-row">
+                    <div class="form-group col"><label>Tikuv choklari</label><input type="number" id="edit-param-sew" value="0"></div>
+                    <div class="form-group col"><label>Overlok choklari</label><input type="number" id="edit-param-overlock" value="0"></div>
+                    <div class="form-group col"><label>Raspashivalka</label><input type="number" id="edit-param-flatlock" value="0"></div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group col"><label>Bostiriq/Qayirib</label><input type="number" id="edit-param-folds" value="0"></div>
+                    <div class="form-group col"><label>Rangli mato ulash</label><input type="number" id="edit-param-inserts" value="0"></div>
+                    <div class="form-group col"><label>Kraska/Print yuzasi</label><input type="number" id="edit-param-paints" value="0"></div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group col"><label>Aksessuarlar soni</label><input type="number" id="edit-param-accessories" value="0"></div>
+                    <div class="form-group col"><label>Mato sarfi (kg)</label><input type="number" id="edit-cost-fabric-qty" step="any" value="0"></div>
+                </div>
+
+                <h4 style="margin: 20px 0 10px; color: var(--color-purple);"><i class="fa-solid fa-calculator"></i> Birlik narxlar va xarajatlar (UZS)</h4>
+                <div class="form-row">
+                    <div class="form-group col"><label>1 ta chok narxi</label><input type="number" id="edit-cost-sew" value="0"></div>
+                    <div class="form-group col"><label>1 ta overlok narxi</label><input type="number" id="edit-cost-overlock" value="0"></div>
+                    <div class="form-group col"><label>1 ta raspashivalka</label><input type="number" id="edit-cost-flatlock" value="0"></div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group col"><label>1 ta bostiriq</label><input type="number" id="edit-cost-folds" value="0"></div>
+                    <div class="form-group col"><label>Rangli detal ulash</label><input type="number" id="edit-cost-inserts" value="0"></div>
+                    <div class="form-group col"><label>1 ta kraska bosish</label><input type="number" id="edit-cost-paints" value="0"></div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group col"><label>Aksessuar donasi narxi</label><input type="number" id="edit-cost-accessories" value="0"></div>
+                    <div class="form-group col"><label>Mato 1 kg narxi</label><input type="number" id="edit-cost-fabric-price" value="0"></div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group col"><label>Elektr energiya (dona)</label><input type="number" id="edit-cost-electricity" value="0"></div>
+                    <div class="form-group col"><label>Qadoqlov xarajati (dona)</label><input type="number" id="edit-cost-packaging" value="0"></div>
+                </div>
+            </div>
+            
+            <div style="margin-top: 20px; display: flex; gap: 10px; border-top: 1px solid rgba(255,255,255,0.1); padding-top: 15px;">
+                <button type="button" class="btn btn-secondary" style="flex: 1;" onclick="closeModal('modal-edit-catalog')">Bekor qilish</button>
+                <button type="button" class="btn btn-primary" style="flex: 2;" onclick="saveEditedCatalogItem()">O'zgarishlarni Saqlash</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Cutting Details Modal -->
+    <div class="modal" id="modal-cutting-details">
+        <div class="modal-content" style="max-width: 600px;">
+            <div class="modal-header">
+                <h3>Bichuv Buyrug'i Tafsilotlari</h3>
+                <span class="close-modal" id="close-cutting-details-modal" onclick="closeModal('modal-cutting-details')">&times;</span>
+            </div>
+            <div id="cutting-details-content" style="margin-top: 15px; display: flex; flex-direction: column; gap: 15px;">
+                <!-- Dynamically filled -->
+            </div>
+        </div>
+    </div>
+
+    <!-- Kanban: Bichuvdan ish qabul qilish modali -->
+    <div class="modal" id="modal-kanban">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3><i class="fa-solid fa-scissors"></i> Bichuvdan Ish Qabul Qilish</h3>
+                <span class="close-modal" onclick="closeModal('modal-kanban')">&times;</span>
+            </div>
+            <form id="form-kanban">
+                <div class="form-group">
+                    <label>Model / Partiya nomi *</label>
+                    <input type="text" id="kanban-model" required placeholder="Masalan: Eco Green Hoodie (Olive)">
+                </div>
+                <div class="form-row">
+                    <div class="form-group col">
+                        <label>Mahsulot turi *</label>
+                        <select id="kanban-turi" required>
+                            <option value="Hudi">Hudi</option>
+                            <option value="Futbolka">Futbolka</option>
+                            <option value="Shim">Shim</option>
+                            <option value="Trikotaj">Trikotaj</option>
+                            <option value="Sport Kiyim">Sport Kiyim</option>
+                            <option value="Kurtka">Kurtka</option>
+                        </select>
+                    </div>
+                    <div class="form-group col">
+                        <label>Bichilgan dona soni *</label>
+                        <input type="number" id="kanban-qty" min="1" required placeholder="300">
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group col">
+                        <label>Tikuv liniyasi *</label>
+                        <select id="kanban-liniya" required>
+                            <option value="Liniya A">Liniya A</option>
+                            <option value="Liniya B">Liniya B</option>
+                            <option value="Liniya C">Liniya C</option>
+                        </select>
+                    </div>
+                    <div class="form-group col">
+                        <label>Mas'ul tikuvchi</label>
+                        <select id="kanban-masul">
+                            <!-- Loaded dynamically -->
+                        </select>
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group col">
+                        <label>Topshirish muddati *</label>
+                        <input type="date" id="kanban-deadline" required>
+                    </div>
+                    <div class="form-group col">
+                        <label>Muhimlik darajasi</label>
+                        <select id="kanban-prio">
+                            <option value="normal">Oddiy</option>
+                            <option value="high">Shoshilinch</option>
+                            <option value="low">Past</option>
+                        </select>
+                    </div>
+                </div>
+                <button type="submit" class="btn btn-primary btn-block"><i class="fa-solid fa-plus"></i> Konveyerga qo'shish</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Kanban: Ishni keyingi bo'limga topshirish (ishchi + vaqt) -->
+    <div class="modal" id="modal-assign">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3><i class="fa-solid fa-people-arrows"></i> Ishni topshirish</h3>
+                <span class="close-modal" onclick="cancelAssign()">&times;</span>
+            </div>
+            <form id="form-assign">
+                <input type="hidden" id="assign-id">
+                <input type="hidden" id="assign-to-stage">
+                <input type="hidden" id="assign-from-stage">
+                <div class="assign-route" id="assign-route">
+                    <!-- JS: model va yo'nalish -->
+                </div>
+                <div class="form-group">
+                    <label>Qaysi ishchiga beriladi? *</label>
+                    <select id="assign-worker" required></select>
+                </div>
+                <div class="form-row">
+                    <div class="form-group col">
+                        <label>Topshirilayotgan soni (dona) *</label>
+                        <input type="number" id="assign-qty" min="1" required>
+                    </div>
+                    <div class="form-group col">
+                        <label>Berilgan vaqt *</label>
+                        <input type="datetime-local" id="assign-time" required>
+                    </div>
+                </div>
+                <button type="submit" class="btn btn-primary btn-block"><i class="fa-solid fa-paper-plane"></i> Topshirish</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Kanban: Ish tarixi (timeline) -->
+    <div class="modal" id="modal-history">
+        <div class="modal-content" style="max-width: 620px;">
+            <div class="modal-header">
+                <h3><i class="fa-solid fa-timeline"></i> Ish yo'li (tarix)</h3>
+                <span class="close-modal" onclick="closeModal('modal-history')">&times;</span>
+            </div>
+            <div id="history-head" class="history-head"></div>
+            <div id="history-timeline" class="history-timeline" style="max-height: 60vh; overflow-y: auto;"></div>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.6/Sortable.min.js"></script>
+    <!-- jsPDF + autotable (Mahsulot pasporti PDF) -->
+    <script src="https://cdn.jsdelivr.net/npm/jspdf@2.5.1/dist/jspdf.umd.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/jspdf-autotable@3.8.2/dist/jspdf.plugin.autotable.min.js"></script>
+    <!-- Navbar (app.js dan oldin yuklanadi) -->
+    <script src="shared/navbar.js"></script>
+    <script>if (window.renderNavbar) renderNavbar('sales');</script>
+    <!-- Asosiy ilova mantig'i -->
+    <script src="app.js?v=5.1"></script>
+    <!-- Three.js (3D Virtual Sex) — ES modules via importmap -->
+    <script type="importmap">
+    {
+      "imports": {
+        "three": "https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js",
+        "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/"
+      }
+    }
+    </script>
+    <script type="module" src="workshop3d.js?v=5.1"></script>
+
+    <!-- Install Guide Modal for iOS / Manual -->
+    <div class="modal" id="modal-install-guide">
+        <div class="modal-content" style="max-width: 400px; text-align: center;">
+            <div class="modal-header">
+                <h3><i class="fa-solid fa-mobile-screen"></i> Ilovani O'rnatish</h3>
+                <span class="close-modal" onclick="closeModal('modal-install-guide')">&times;</span>
+            </div>
+            <div style="padding: 15px 0;">
+                <p style="margin-bottom: 15px; color: var(--color-text-muted);">Sizning brauzeringiz avtomatik o'rnatishni qo'llab-quvvatlamaydi (masalan iOS Safari). Ilovani o'rnatish uchun quyidagilarni bajaring:</p>
+                
+                <div style="text-align: left; background: rgba(255,255,255,0.05); padding: 15px; border-radius: 8px;">
+                    <p style="margin-bottom: 10px;"><b>iPhone / iPad (Safari) da:</b></p>
+                    <ol style="margin-left: 20px; color: var(--color-text-muted); line-height: 1.5;">
+                        <li>Pastki menyudagi <b>Ulashish (Share <i class="fa-solid fa-arrow-up-from-bracket"></i>)</b> tugmasini bosing.</li>
+                        <li>Pastga tushib, <b>"Add to Home Screen" <i class="fa-solid fa-square-plus"></i></b> ni tanlang.</li>
+                        <li>Tepada <b>"Add"</b> ni bosing.</li>
+                    </ol>
+                    
+                    <p style="margin-top: 15px; margin-bottom: 10px;"><b>Android (Chrome) da:</b></p>
+                    <ol style="margin-left: 20px; color: var(--color-text-muted); line-height: 1.5;">
+                        <li>Tepadagi <b>3 nuqtani (<i class="fa-solid fa-ellipsis-vertical"></i>)</b> bosing.</li>
+                        <li><b>"Install app"</b> yoki <b>"Add to Home screen"</b> ni tanlang.</li>
+                    </ol>
+                </div>
+            </div>
+            <button class="btn btn-secondary btn-block" onclick="closeModal('modal-install-guide')">Tushunarli</button>
+        </div>
+    </div>
+
+    <!-- Supabase Setup Modal -->
+    <div class="modal" id="modal-supabase-setup">
+        <div class="modal-content" style="max-width: 650px;">
+            <div class="modal-header">
+                <h3><i class="fa-solid fa-database" style="color: #3ecf8e;"></i> Supabase Bulutli Tizim Sozlamalari</h3>
+                <span class="close-modal" onclick="closeModal('modal-supabase-setup')">&times;</span>
+            </div>
+            <div style="padding: 15px 0; display: flex; flex-direction: column; gap: 15px;">
+                <p style="color: var(--color-text-muted); font-size: 0.85rem; margin: 0; line-height: 1.4;">
+                    Tizim ma'lumotlarining xavfsiz saqlanishi va barcha qurilmalar o'rtasida sinxronlanishi uchun Supabase loyihangizda jadvallar yaratishingiz lozim. Quyidagi skriptni nusxalang va Supabase loyihangizning <b>SQL Editor</b> bo'limida bajarib, <b>Run</b> tugmasini bosing.
+                </p>
+                
+                <div style="background: rgba(255,255,255,0.05); padding: 12px; border-radius: 8px; border: 1px solid var(--border-color);">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+                        <span style="font-size: 0.8rem; font-weight: 600; color: white;">Jadvallarni Yaratish Skripti (SQL):</span>
+                        <button class="btn btn-xs btn-primary" onclick="copySupabaseSql()" style="font-size: 0.72rem; padding: 4px 8px; background: #3ecf8e; border: none; color: black; font-weight: 600;"><i class="fa-solid fa-copy"></i> Nusxalash</button>
+                    </div>
+                    <textarea id="supabase-sql-code" readonly style="width:100%; height: 200px; background: #0c0d14; border: 1px solid rgba(255,255,255,0.1); color: #3ecf8e; font-family: monospace; font-size: 0.75rem; padding: 10px; border-radius: 6px; resize: none;"></textarea>
+                </div>
+
+                <div style="background: rgba(62, 207, 142, 0.05); border: 1px dashed rgba(62, 207, 142, 0.3); padding: 12px; border-radius: 8px; font-size: 0.82rem; color: #3ecf8e;">
+                    <i class="fa-solid fa-circle-check" style="margin-right: 5px;"></i> Supabase integratsiyasi loyiha uchun faollashtirilgan. Ulanish parametrlari o'rnatilgan.
+                </div>
+            </div>
+            <div style="display: flex; gap: 10px;">
+                <button class="btn btn-secondary" style="flex: 1;" onclick="closeModal('modal-supabase-setup')">Yopish</button>
+                <button class="btn btn-primary" style="flex: 1.5; background: var(--color-prospect); border: none;" onclick="triggerManualSync()">Hozir Sinxronlash (Force Sync)</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Custom Premium Toast Container -->
+    <div id="custom-toast-container"></div>
+
+    <!-- Custom Premium Confirmation Modal -->
+    <div id="custom-confirm-modal" class="custom-modal-overlay" style="display: none;">
+        <div class="custom-modal-card">
+            <div class="custom-modal-header">
+                <div class="custom-modal-icon-container" id="custom-confirm-icon-container">
+                    <i class="fa-solid fa-circle-question" id="custom-confirm-icon"></i>
+                </div>
+                <h3 id="custom-confirm-title">Tasdiqlash</h3>
+                <button class="custom-modal-close-btn" onclick="closeCustomConfirm(false)">&times;</button>
+            </div>
+            <div class="custom-modal-body">
+                <p id="custom-confirm-message">Haqiqatan ham ushbu amalni bajarmoqchimisiz?</p>
+            </div>
+            <div class="custom-modal-footer">
+                <button id="custom-confirm-cancel" class="btn-secondary-modal" onclick="closeCustomConfirm(false)">Bekor qilish</button>
+                <button id="custom-confirm-ok" class="btn-primary-modal">Tasdiqlash</button>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
