@@ -1,10 +1,9 @@
 {
   "cleanUrls": true,
   "redirects": [
-    { "source": "/", "destination": "/home", "permanent": false }
+    { "source": "/", "destination": "/src/home", "permanent": false }
   ],
   "rewrites": [
-    { "source": "/home", "destination": "/src/home.html" },
     { "source": "/((?!src/).*)", "destination": "/src/$1" }
   ],
   "headers": [
