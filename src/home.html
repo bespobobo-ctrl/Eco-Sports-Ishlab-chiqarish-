@@ -8,11 +8,11 @@
     <!-- Google Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
     <!-- Font Awesome Icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <!-- CSS Style -->
-    <link rel="stylesheet" href="style2.css?v=premium1">
+    <link rel="stylesheet" href="style2.css?v=premium2">
     
     <!-- PWA Manifest & Meta -->
     <link rel="manifest" href="manifest.json">
@@ -107,6 +107,9 @@
                     <button class="sub-tab-btn active" data-subtab="showroom" id="sub-btn-showroom">
                         <i class="fa-solid fa-store"></i> Eco Sports Showroom
                     </button>
+                    <button class="sub-tab-btn" data-subtab="manual-model" id="sub-btn-manual-model">
+                        <i class="fa-solid fa-pen-to-square"></i> Modelni Qo'lda Kiritish
+                    </button>
                 </div>
 
                 <!-- Sub-tab 1: Model & AI Hisob (Visual AI Analyzer & Cost Worksheet) -->
@@ -130,7 +133,6 @@
                             border-bottom: 1px solid rgba(255, 255, 255, 0.05);
                             flex-wrap: wrap;
                         ">
-                            <span style="color: var(--color-text-muted); font-size: 0.85rem; font-weight: 500; margin-right: 8px;"><i class="fa-solid fa-filter"></i> Mahsulot turi bo'yicha filter:</span>
                             <button class="btn btn-xs filter-pill active" data-filter="All" style="border-radius: 20px; padding: 6px 14px; background: rgba(56, 189, 248, 0.15); color: var(--color-prospect); border: 1px solid rgba(56, 189, 248, 0.3);">Barchasi</button>
                             <button class="btn btn-xs filter-pill" data-filter="Futbolka" style="border-radius: 20px; padding: 6px 14px; background: rgba(255,255,255,0.03); color: var(--color-text-muted); border: 1px solid var(--border-color);">Futbolka</button>
                             <button class="btn btn-xs filter-pill" data-filter="Triko" style="border-radius: 20px; padding: 6px 14px; background: rgba(255,255,255,0.03); color: var(--color-text-muted); border: 1px solid var(--border-color);">Triko</button>
@@ -153,6 +155,1564 @@
                         <div id="showroom-empty-state" style="text-align: center; padding: 40px; color: var(--color-text-muted); display: none;">
                             <i class="fa-solid fa-folder-open fa-3x" style="margin-bottom: 15px; opacity: 0.5;"></i>
                             <p>Katalogda hali mahsulotlar yo'q. AI yordamida tahlil qilib "Showroomga Saqlash" tugmasini bosing.</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Sub-tab 3: Modelni Qo'lda Kiritish -->                <div class="sub-pane" id="sub-pane-manual-model">
+                    <style>
+                        /* Premium Accordion Styling */
+                        .manual-section-card {
+                            border: 1px solid var(--border-color);
+                            background: rgba(18, 19, 30, 0.45);
+                            border-radius: 14px;
+                            margin-bottom: 16px;
+                            transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+                            overflow: hidden;
+                            backdrop-filter: blur(10px);
+                            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+                        }
+                        .manual-section-card:hover {
+                            border-color: rgba(56, 189, 248, 0.25);
+                            background: rgba(24, 25, 38, 0.55);
+                        }
+                        .manual-section-card.active {
+                            border-color: rgba(56, 189, 248, 0.5);
+                            background: rgba(18, 19, 30, 0.75);
+                            box-shadow: 0 0 25px rgba(56, 189, 248, 0.12), inset 0 0 10px rgba(56, 189, 248, 0.03);
+                        }
+                        .manual-section-card.completed {
+                            border-color: rgba(52, 211, 153, 0.3);
+                            background: rgba(12, 13, 20, 0.5);
+                        }
+                        .manual-section-header {
+                            padding: 18px 24px;
+                            display: flex;
+                            justify-content: space-between;
+                            align-items: center;
+                            cursor: pointer;
+                            user-select: none;
+                            background: rgba(255, 255, 255, 0.005);
+                            transition: background 0.2s ease;
+                        }
+                        .manual-section-header:hover {
+                            background: rgba(255, 255, 255, 0.02);
+                        }
+                        .manual-section-title-wrap {
+                            display: flex;
+                            align-items: center;
+                            gap: 14px;
+                        }
+                        .step-number-badge {
+                            width: 32px;
+                            height: 32px;
+                            border-radius: 50%;
+                            background: rgba(255, 255, 255, 0.02);
+                            border: 1.5px solid var(--border-color);
+                            display: flex;
+                            align-items: center;
+                            justify-content: center;
+                            font-size: 0.85rem;
+                            font-weight: 800;
+                            color: var(--color-text-muted);
+                            transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+                        }
+                        .manual-section-card.active .step-number-badge {
+                            background: linear-gradient(135deg, var(--color-prospect), #0ea5e9);
+                            border-color: transparent;
+                            color: #000;
+                            box-shadow: 0 0 12px rgba(56, 189, 248, 0.5);
+                        }
+                        .manual-section-card.completed .step-number-badge {
+                            background: linear-gradient(135deg, var(--color-won), #059669);
+                            border-color: transparent;
+                            color: #000;
+                            box-shadow: 0 0 12px rgba(52, 211, 153, 0.4);
+                        }
+                        .manual-section-title {
+                            font-size: 1rem;
+                            font-weight: 700;
+                            color: var(--color-text-main);
+                            display: flex;
+                            align-items: center;
+                            gap: 10px;
+                            letter-spacing: 0.2px;
+                        }
+                        .manual-section-card.active .manual-section-title {
+                            color: #fff;
+                            text-shadow: 0 0 10px rgba(255, 255, 255, 0.1);
+                        }
+                        .step-header-info {
+                            display: flex;
+                            align-items: center;
+                            gap: 12px;
+                            margin-left: auto;
+                            margin-right: 16px;
+                            font-size: 0.8rem;
+                            color: var(--color-text-muted);
+                        }
+                        .step-summary-text {
+                            max-width: 320px;
+                            overflow: hidden;
+                            text-overflow: ellipsis;
+                            white-space: nowrap;
+                            color: var(--color-won);
+                            font-weight: 700;
+                            background: rgba(52, 211, 153, 0.08);
+                            padding: 4px 12px;
+                            border-radius: 20px;
+                            border: 1px solid rgba(52, 211, 153, 0.25);
+                            font-size: 0.72rem;
+                            box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+                        }
+                        .step-status-indicator {
+                            font-size: 0.7rem;
+                            font-weight: 800;
+                            padding: 4px 10px;
+                            border-radius: 20px;
+                            text-transform: uppercase;
+                            letter-spacing: 0.8px;
+                            box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+                        }
+                        .status-waiting {
+                            background: rgba(255, 255, 255, 0.02);
+                            color: var(--color-text-muted);
+                            border: 1px solid rgba(255, 255, 255, 0.05);
+                        }
+                        .status-filling {
+                            background: rgba(56, 189, 248, 0.12);
+                            color: var(--color-prospect);
+                            border: 1px solid rgba(56, 189, 248, 0.3);
+                            box-shadow: 0 0 8px rgba(56, 189, 248, 0.1);
+                        }
+                        .status-completed {
+                            background: rgba(52, 211, 153, 0.12);
+                            color: var(--color-won);
+                            border: 1px solid rgba(52, 211, 153, 0.3);
+                        }
+                        .manual-section-body {
+                            padding: 24px;
+                            border-top: 1px solid var(--border-color);
+                            background: rgba(0, 0, 0, 0.12);
+                            display: none;
+                        }
+                        
+                        @keyframes slideDownFade {
+                            from {
+                                opacity: 0;
+                                transform: translateY(-12px);
+                            }
+                            to {
+                                opacity: 1;
+                                transform: translateY(0);
+                            }
+                        }
+                        
+                        .manual-section-card.active .manual-section-body {
+                            display: block;
+                            animation: slideDownFade 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+                        }
+                        
+                        .manual-section-card.collapsed .manual-section-body {
+                            display: none;
+                        }
+                        
+                        /* Step 0 Product Selection Cards */
+                        .product-type-card {
+                            padding: 18px 12px;
+                            border-radius: 12px;
+                            border: 1px solid var(--border-color);
+                            background: rgba(255, 255, 255, 0.015);
+                            text-align: center;
+                            cursor: pointer;
+                            transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+                            display: flex;
+                            flex-direction: column;
+                            align-items: center;
+                            justify-content: center;
+                            position: relative;
+                            overflow: hidden;
+                        }
+                        .product-type-card:hover {
+                            border-color: rgba(56, 189, 248, 0.35);
+                            background: rgba(255, 255, 255, 0.035);
+                            transform: translateY(-3px);
+                            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
+                        }
+                        .product-type-card.active {
+                            border-color: transparent;
+                            background: linear-gradient(135deg, rgba(56, 189, 248, 0.12), rgba(192, 132, 252, 0.12));
+                            color: #fff;
+                            box-shadow: 0 0 20px rgba(56, 189, 248, 0.2), inset 0 0 0 1.5px var(--color-prospect);
+                            transform: translateY(-2px);
+                        }
+                        .product-type-card i {
+                            font-size: 1.6rem;
+                            margin-bottom: 10px;
+                            color: var(--color-text-muted);
+                            transition: all 0.3s ease;
+                        }
+                        .product-type-card.active i {
+                            color: var(--color-prospect);
+                            transform: scale(1.1);
+                            filter: drop-shadow(0 0 6px rgba(56, 189, 248, 0.6));
+                        }
+                        .product-type-card:hover i {
+                            color: var(--color-prospect);
+                        }
+                        
+                        /* Premium Grid Layout for options */
+                        .wizard-toggle-grid {
+                            display: grid;
+                            grid-template-columns: repeat(auto-fill, minmax(230px, 1fr));
+                            gap: 16px;
+                            margin-bottom: 20px;
+                        }
+                        
+                        /* Premium Toggle Card */
+                        .wizard-toggle-card {
+                            background: rgba(255, 255, 255, 0.015) !important;
+                            border: 1px solid var(--border-color) !important;
+                            border-radius: 12px !important;
+                            padding: 16px !important;
+                            display: flex;
+                            flex-direction: column;
+                            gap: 12px;
+                            transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+                            cursor: pointer;
+                            position: relative;
+                            overflow: hidden;
+                        }
+                        .wizard-toggle-card::before {
+                            content: '';
+                            position: absolute;
+                            top: 0;
+                            left: 0;
+                            width: 0%;
+                            height: 3px;
+                            background: linear-gradient(90deg, var(--color-prospect), var(--color-negotiation));
+                            transition: width 0.3s ease;
+                        }
+                        .wizard-toggle-card:hover {
+                            border-color: rgba(56, 189, 248, 0.3) !important;
+                            background: rgba(255, 255, 255, 0.035) !important;
+                            transform: translateY(-2px);
+                            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.25);
+                        }
+                        .wizard-toggle-card.active {
+                            background: linear-gradient(135deg, rgba(56, 189, 248, 0.06), rgba(255, 255, 255, 0.005)) !important;
+                            border-color: rgba(56, 189, 248, 0.45) !important;
+                            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3), 0 0 15px rgba(56, 189, 248, 0.12) !important;
+                        }
+                        .wizard-toggle-card.active::before {
+                            width: 100%;
+                        }
+                        
+                        /* Sub-section Headers inside Steps */
+                        .wizard-sub-header {
+                            font-size: 0.85rem;
+                            font-weight: 800;
+                            color: var(--color-prospect);
+                            text-transform: uppercase;
+                            letter-spacing: 1px;
+                            display: flex;
+                            align-items: center;
+                            gap: 8px;
+                            margin: 28px 0 16px;
+                            border-bottom: 1.5px dashed rgba(255, 255, 255, 0.08);
+                            padding-bottom: 8px;
+                            width: 100%;
+                        }
+                        .wizard-sub-header i {
+                            font-size: 0.95rem;
+                            filter: drop-shadow(0 0 4px rgba(56, 189, 248, 0.5));
+                        }
+                        .wizard-sub-header:first-of-type {
+                            margin-top: 4px;
+                        }
+                        
+                        /* Custom Checkboxes */
+                        .wizard-toggle-card input[type="checkbox"] {
+                            width: 18px;
+                            height: 18px;
+                            border-radius: 4px;
+                            border: 1.5px solid var(--border-color);
+                            background: rgba(0,0,0,0.4);
+                            cursor: pointer;
+                            transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+                            appearance: none;
+                            position: relative;
+                            display: flex;
+                            align-items: center;
+                            justify-content: center;
+                            margin: 0;
+                        }
+                        .wizard-toggle-card input[type="checkbox"]:checked {
+                            background: var(--color-prospect);
+                            border-color: var(--color-prospect);
+                            box-shadow: 0 0 8px rgba(56, 189, 248, 0.4);
+                        }
+                        .wizard-toggle-card input[type="checkbox"]:checked::after {
+                            content: '\f00c';
+                            font-family: 'Font Awesome 6 Free';
+                            font-weight: 900;
+                            color: #000;
+                            font-size: 0.75rem;
+                        }
+                        
+                        .wizard-toggle-card-header {
+                            display: flex;
+                            align-items: center;
+                            gap: 10px;
+                        }
+                        .wizard-toggle-card-header label {
+                            font-size: 0.85rem;
+                            font-weight: 700;
+                            color: var(--color-text-main);
+                            cursor: pointer;
+                            user-select: none;
+                            margin: 0;
+                            letter-spacing: 0.1px;
+                        }
+                        
+                        .wizard-toggle-card-body {
+                            display: flex;
+                            align-items: center;
+                            justify-content: space-between;
+                            gap: 8px;
+                            margin-top: auto;
+                        }
+                        .wizard-toggle-card-body input[type="number"] {
+                            width: 100%;
+                            padding: 8px 12px;
+                            border-radius: 8px;
+                            border: 1px solid var(--border-color);
+                            background: rgba(0,0,0,0.45) !important;
+                            color: #fff;
+                            font-weight: 700;
+                            text-align: right;
+                            font-size: 0.9rem;
+                            transition: all 0.2s ease;
+                        }
+                        .wizard-toggle-card-body input[type="number"]:focus {
+                            border-color: rgba(56, 189, 248, 0.6);
+                            background: rgba(0,0,0,0.65) !important;
+                            box-shadow: 0 0 10px rgba(56, 189, 248, 0.25);
+                        }
+                        .wizard-toggle-card-body input[type="number"]:disabled {
+                            opacity: 0.35;
+                            cursor: not-allowed;
+                        }
+                        .wizard-toggle-card-body .inputs-row {
+                            display: flex;
+                            align-items: center;
+                            gap: 6px;
+                            width: 100%;
+                        }
+                        .wizard-toggle-card-body .inputs-row input[type="number"] {
+                            padding: 6px 10px;
+                        }
+                        
+                        /* Horizontal Fabric Rows */
+                        .fabric-row {
+                            display: grid;
+                            grid-template-columns: 2.2fr 1.5fr 1.5fr auto;
+                            gap: 16px;
+                            align-items: flex-end;
+                            background: rgba(255, 255, 255, 0.015) !important;
+                            border: 1px solid var(--border-color) !important;
+                            border-radius: 12px;
+                            padding: 16px 20px !important;
+                            margin-top: 12px;
+                            transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+                        }
+                        .fabric-row:hover {
+                            border-color: rgba(56, 189, 248, 0.3) !important;
+                            background: rgba(255, 255, 255, 0.035) !important;
+                            box-shadow: 0 6px 20px rgba(0,0,0,0.25);
+                            transform: translateY(-1px);
+                        }
+                        
+                        /* Dashed Custom Add Bar */
+                        .custom-add-bar {
+                            display: flex;
+                            gap: 10px;
+                            margin-top: 16px;
+                            padding: 16px;
+                            background: rgba(0, 0, 0, 0.15);
+                            border: 1.5px dashed rgba(56, 189, 248, 0.25);
+                            border-radius: 12px;
+                            align-items: center;
+                        }
+                        
+                        .wizard-nav-row {
+                            display: flex;
+                            margin-top: 24px;
+                            border-top: 1px solid var(--border-color);
+                            padding-top: 20px;
+                        }
+
+                        /* ==========================================================================
+                           PREMIUM SHOWROOM DIRECT EDIT MODAL STYLES
+                           ========================================================================== */
+                        
+                        /* Premium Inputs & Selects inside Showroom Edit Modal */
+                        #modal-edit-catalog input[type="text"],
+                        #modal-edit-catalog input[type="number"],
+                        #modal-edit-catalog select,
+                        #modal-edit-catalog textarea {
+                            background: rgba(0, 0, 0, 0.4) !important;
+                            border: 1.5px solid rgba(255, 255, 255, 0.08) !important;
+                            color: #fff !important;
+                            border-radius: 10px !important;
+                            padding: 10px 12px !important;
+                            font-size: 0.9rem !important;
+                            font-weight: 500 !important;
+                            transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1) !important;
+                            box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.2) !important;
+                        }
+                        
+                        #modal-edit-catalog input[type="text"]:focus,
+                        #modal-edit-catalog input[type="number"]:focus,
+                        #modal-edit-catalog select:focus,
+                        #modal-edit-catalog textarea:focus {
+                            border-color: rgba(56, 189, 248, 0.5) !important;
+                            background: rgba(0, 0, 0, 0.6) !important;
+                            box-shadow: 0 0 12px rgba(56, 189, 248, 0.25), inset 0 1px 2px rgba(0,0,0,0.5) !important;
+                            outline: none !important;
+                        }
+                        
+                        /* Make Compact Inputs inside Tabs */
+                        #modal-edit-catalog .showroom-edit-tab-content input,
+                        #modal-edit-catalog .showroom-edit-tab-content select {
+                            padding: 8px 10px !important;
+                            font-size: 0.825rem !important;
+                        }
+                        
+                        /* Premium Image Preview Container */
+                        .edit-cat-image-preview-wrapper {
+                            position: relative;
+                            width: 100%;
+                            height: 200px;
+                            border-radius: 12px;
+                            overflow: hidden;
+                            border: 1.5px dashed rgba(255, 255, 255, 0.08);
+                            background: radial-gradient(circle at center, rgba(56, 189, 248, 0.08) 0%, rgba(0,0,0,0.4) 100%), rgba(10, 10, 15, 0.6);
+                            display: flex;
+                            justify-content: center;
+                            align-items: center;
+                            transition: all 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+                            box-shadow: 0 10px 25px rgba(0,0,0,0.3);
+                        }
+                        .edit-cat-image-preview-wrapper:hover {
+                            border-color: rgba(56, 189, 248, 0.3);
+                            box-shadow: 0 12px 30px rgba(0,0,0,0.45), 0 0 15px rgba(56, 189, 248, 0.05);
+                        }
+                        .edit-cat-image-preview-img {
+                            max-height: 90%;
+                            max-width: 90%;
+                            border-radius: 8px;
+                            object-fit: contain;
+                            z-index: 2;
+                            transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+                        }
+                        .edit-cat-image-preview-wrapper:hover .edit-cat-image-preview-img {
+                            transform: scale(1.03);
+                        }
+                        
+                        /* Overlay on Hover */
+                        .edit-cat-image-overlay {
+                            position: absolute;
+                            top: 0;
+                            left: 0;
+                            width: 100%;
+                            height: 100%;
+                            background: rgba(10, 10, 15, 0.7);
+                            backdrop-filter: blur(6px);
+                            display: flex;
+                            justify-content: center;
+                            align-items: center;
+                            opacity: 0;
+                            pointer-events: none;
+                            transition: opacity 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+                            z-index: 3;
+                        }
+                        .edit-cat-image-preview-wrapper:hover .edit-cat-image-overlay {
+                            opacity: 1;
+                            pointer-events: auto;
+                        }
+                        
+                        /* Overlay Buttons */
+                        .edit-cat-image-overlay-btn {
+                            background: rgba(248, 113, 113, 0.15) !important;
+                            border: 1px solid rgba(248, 113, 113, 0.4) !important;
+                            color: #f87171 !important;
+                            padding: 10px 18px !important;
+                            border-radius: 8px !important;
+                            font-size: 0.85rem !important;
+                            font-weight: 700 !important;
+                            cursor: pointer !important;
+                            display: flex !important;
+                            align-items: center !important;
+                            gap: 8px !important;
+                            transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1) !important;
+                        }
+                        .edit-cat-image-overlay-btn:hover {
+                            background: rgba(248, 113, 113, 0.35) !important;
+                            border-color: rgba(248, 113, 113, 0.7) !important;
+                            color: #fff !important;
+                            box-shadow: 0 0 15px rgba(248, 113, 113, 0.3) !important;
+                            transform: scale(1.05) !important;
+                        }
+                        
+                        /* Custom tab styling inside Showroom Edit Modal */
+                        .showroom-edit-tab-btn {
+                            flex: 1;
+                            padding: 10px 8px !important;
+                            background: none !important;
+                            border: none !important;
+                            border-bottom: 2px solid transparent !important;
+                            color: var(--color-text-muted) !important;
+                            font-size: 0.8rem !important;
+                            font-weight: 700 !important;
+                            cursor: pointer !important;
+                            white-space: nowrap !important;
+                            transition: all 0.2s ease !important;
+                            display: flex !important;
+                            align-items: center !important;
+                            justify-content: center !important;
+                            gap: 6px !important;
+                        }
+                        .showroom-edit-tab-btn:hover {
+                            color: #fff !important;
+                            background: rgba(255,255,255,0.02) !important;
+                        }
+                        .showroom-edit-tab-btn.active {
+                            border-bottom: 2px solid var(--color-prospect) !important;
+                            color: #fff !important;
+                            background: rgba(56, 189, 248, 0.05) !important;
+                        }
+                        
+                        /* Sticky bottom pricing bar */
+                        .summary-billing-bar {
+                            background: linear-gradient(90deg, rgba(255, 255, 255, 0.02), rgba(255, 255, 255, 0.005)) !important;
+                            border: 1px solid rgba(255, 255, 255, 0.05) !important;
+                            border-radius: 12px !important;
+                            padding: 14px 20px !important;
+                            box-shadow: inset 0 1px 1px rgba(255,255,255,0.02) !important;
+                        }
+                        
+                        /* Toggle card overrides to prevent collapsing */
+                        #modal-edit-catalog .wizard-toggle-card {
+                            display: flex !important;
+                            flex-direction: column !important;
+                            justify-content: space-between !important;
+                            background: rgba(255, 255, 255, 0.015) !important;
+                            border: 1.5px solid rgba(255, 255, 255, 0.03) !important;
+                            border-radius: 10px !important;
+                            padding: 10px 12px !important;
+                            gap: 6px !important;
+                            height: 78px !important;
+                            flex-shrink: 0 !important;
+                            overflow: visible !important;
+                            transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1) !important;
+                        }
+                        
+                        #modal-edit-catalog .wizard-toggle-card:hover {
+                            border-color: rgba(56, 189, 248, 0.2) !important;
+                            background: rgba(255, 255, 255, 0.03) !important;
+                            transform: translateY(-1px) !important;
+                        }
+                        
+                        /* Checkbox checked style overrides */
+                        #modal-edit-catalog .wizard-toggle-card.active {
+                            background: linear-gradient(135deg, rgba(56, 189, 248, 0.04), rgba(255, 255, 255, 0.002)) !important;
+                            border-color: rgba(56, 189, 248, 0.35) !important;
+                            box-shadow: 0 6px 15px rgba(0, 0, 0, 0.2), 0 0 10px rgba(56, 189, 248, 0.05) !important;
+                            opacity: 1 !important;
+                            filter: none !important;
+                        }
+                        
+                        /* Unchecked state style overrides: elegant, semi-transparent disabled look */
+                        #modal-edit-catalog .wizard-toggle-card:not(.active) {
+                            opacity: 0.45 !important;
+                            filter: grayscale(0.8) !important;
+                            background: rgba(0, 0, 0, 0.2) !important;
+                        }
+                        
+                        #modal-edit-catalog .wizard-toggle-card:not(.active) .wizard-toggle-card-body {
+                            pointer-events: none !important;
+                        }
+
+                        /* ==========================================================================
+                           PREMIUM SHOWROOM VIEWPORT STYLES
+                           ========================================================================== */
+
+                        /* Premium Segmented Controls (Sub-navigation) */
+                        .sub-nav-segmented {
+                            background-color: rgba(10, 10, 15, 0.6) !important;
+                            border: 1px solid rgba(255, 255, 255, 0.05) !important;
+                            padding: 5px !important;
+                            border-radius: 12px !important;
+                            box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.4), 0 4px 15px rgba(0, 0, 0, 0.25) !important;
+                            width: fit-content !important;
+                            margin: 0 auto 20px auto !important;
+                        }
+
+                        .sub-tab-btn {
+                            padding: 10px 22px !important;
+                            font-size: 0.85rem !important;
+                            font-weight: 700 !important;
+                            border-radius: 10px !important;
+                            background: rgba(255, 255, 255, 0.01) !important;
+                            color: var(--color-text-muted) !important;
+                            border: 1.5px solid transparent !important;
+                            transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1) !important;
+                            letter-spacing: 0.1px !important;
+                            display: inline-flex !important;
+                            align-items: center !important;
+                            gap: 8px !important;
+                        }
+
+                        .sub-tab-btn:hover {
+                            color: #fff !important;
+                            background-color: rgba(255, 255, 255, 0.04) !important;
+                        }
+
+                        .sub-tab-btn.active {
+                            background: rgba(56, 189, 248, 0.12) !important;
+                            color: var(--color-prospect) !important;
+                            border: 1.5px solid rgba(56, 189, 248, 0.35) !important;
+                            box-shadow: 0 0 15px rgba(56, 189, 248, 0.15) !important;
+                        }
+
+                        /* Premium Showroom Filter Bar and Filter Pills */
+                        .showroom-filter-bar {
+                            background: rgba(10, 10, 15, 0.4) !important;
+                            border-bottom: 1px solid rgba(255, 255, 255, 0.04) !important;
+                            padding: 18px 24px !important;
+                            border-radius: 16px 16px 0 0 !important;
+                            display: flex !important;
+                            justify-content: center !important;
+                            align-items: center !important;
+                            gap: 12px !important;
+                            flex-wrap: wrap !important;
+                        }
+                        
+                        .filter-pill {
+                            border-radius: 20px !important;
+                            padding: 6px 16px !important;
+                            font-size: 0.8rem !important;
+                            font-weight: 600 !important;
+                            cursor: pointer !important;
+                            transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1) !important;
+                            background: rgba(255, 255, 255, 0.02) !important;
+                            color: var(--color-text-muted) !important;
+                            border: 1px solid rgba(255, 255, 255, 0.05) !important;
+                            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1) !important;
+                        }
+                        .filter-pill:hover {
+                            background: rgba(255, 255, 255, 0.05) !important;
+                            color: #fff !important;
+                            border-color: rgba(255, 255, 255, 0.1) !important;
+                            transform: translateY(-1px) !important;
+                            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2) !important;
+                        }
+                        .filter-pill.active {
+                            background: linear-gradient(135deg, rgba(56, 189, 248, 0.2), rgba(56, 189, 248, 0.05)) !important;
+                            color: #fff !important;
+                            border-color: rgba(56, 189, 248, 0.45) !important;
+                            box-shadow: 0 4px 12px rgba(56, 189, 248, 0.2), 0 0 10px rgba(56, 189, 248, 0.08) !important;
+                        }
+
+                        /* Premium Showroom Card Styles */
+                        .showroom-card {
+                            background: linear-gradient(145deg, rgba(20, 20, 30, 0.65), rgba(10, 10, 15, 0.7)) !important;
+                            border: 1px solid rgba(255, 255, 255, 0.04) !important;
+                            border-radius: 16px !important;
+                            overflow: hidden;
+                            display: flex;
+                            flex-direction: column;
+                            transition: all 0.35s cubic-bezier(0.16, 1, 0.3, 1) !important;
+                            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.35) !important;
+                            position: relative;
+                        }
+                        .showroom-card:hover {
+                            transform: translateY(-5px) !important;
+                            border-color: rgba(56, 189, 248, 0.35) !important;
+                            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.5), 0 0 20px rgba(56, 189, 248, 0.08) !important;
+                        }
+                        
+                        /* Card Image container with ambient glow */
+                        .showroom-card-img-wrap {
+                            height: 220px;
+                            width: 100%;
+                            background: #12131e;
+                            overflow: hidden;
+                            position: relative;
+                            display: flex;
+                            align-items: center;
+                            justify-content: center;
+                            border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+                        }
+                        .showroom-card-img {
+                            width: 100%;
+                            height: 100%;
+                            object-fit: cover;
+                            transition: transform 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+                        }
+                        .showroom-card:hover .showroom-card-img {
+                            transform: scale(1.05);
+                        }
+                        
+                        /* Glass buttons on image */
+                        .showroom-img-action-btn {
+                            position: absolute;
+                            width: 34px;
+                            height: 34px;
+                            border-radius: 50%;
+                            display: flex;
+                            align-items: center;
+                            justify-content: center;
+                            cursor: pointer;
+                            transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+                            box-shadow: 0 4px 12px rgba(0,0,0,0.5);
+                            z-index: 10;
+                            border: 1px solid rgba(255,255,255,0.08);
+                            opacity: 0.8;
+                            transform: scale(0.95);
+                        }
+                        .showroom-card:hover .showroom-img-action-btn {
+                            opacity: 1;
+                            transform: scale(1);
+                        }
+                        
+                        .showroom-img-action-btn.delete {
+                            top: 12px;
+                            left: 12px;
+                            background: rgba(248, 113, 113, 0.15);
+                            border-color: rgba(248, 113, 113, 0.3);
+                            color: #f87171;
+                        }
+                        .showroom-img-action-btn.delete:hover {
+                            background: #ef4444;
+                            color: #fff;
+                            border-color: #ef4444;
+                            box-shadow: 0 0 12px rgba(239, 68, 68, 0.4);
+                        }
+                        
+                        .showroom-img-action-btn.upload {
+                            top: 12px;
+                            right: 12px;
+                            background: rgba(56, 189, 248, 0.15);
+                            border-color: rgba(56, 189, 248, 0.3);
+                            color: var(--color-prospect);
+                        }
+                        .showroom-img-action-btn.upload:hover {
+                            background: var(--color-prospect);
+                            color: #000;
+                            border-color: var(--color-prospect);
+                            box-shadow: 0 0 12px rgba(56, 189, 248, 0.4);
+                        }
+                        
+                        /* Pricing Grid inside showroom cards */
+                        .showroom-pricing-grid {
+                            display: grid;
+                            grid-template-columns: 1fr 1fr;
+                            gap: 10px;
+                            margin: 14px 0 16px;
+                        }
+                        
+                        .showroom-price-box {
+                            background: rgba(0, 0, 0, 0.25) !important;
+                            border: 1px solid rgba(255, 255, 255, 0.04) !important;
+                            padding: 10px 12px !important;
+                            border-radius: 10px !important;
+                            display: flex !important;
+                            flex-direction: column !important;
+                            gap: 4px !important;
+                            transition: all 0.25s ease !important;
+                        }
+                        .showroom-price-box:hover {
+                            background: rgba(255, 255, 255, 0.015) !important;
+                            border-color: rgba(255, 255, 255, 0.08) !important;
+                        }
+                        .showroom-price-box span {
+                            font-size: 0.725rem !important;
+                            color: var(--color-text-muted) !important;
+                            font-weight: 500 !important;
+                            text-transform: uppercase !important;
+                            letter-spacing: 0.5px !important;
+                        }
+                        .showroom-price-box strong {
+                            font-size: 0.95rem !important;
+                            color: #fff !important;
+                            font-weight: 700 !important;
+                        }
+                        .showroom-price-box.retail strong {
+                            color: var(--color-prospect) !important;
+                        }
+                        
+                        /* Profit badge styling */
+                        .showroom-profit-tag {
+                            display: inline-flex;
+                            align-items: center;
+                            gap: 4px;
+                            background: rgba(52, 211, 153, 0.08) !important;
+                            border: 1px solid rgba(52, 211, 153, 0.25) !important;
+                            color: var(--color-won) !important;
+                            padding: 4px 10px !important;
+                            border-radius: 20px !important;
+                            font-size: 0.725rem !important;
+                            font-weight: 700 !important;
+                            letter-spacing: 0.1px !important;
+                        }
+                        
+                        /* Buttons */
+                        .showroom-card-btn {
+                            display: flex !important;
+                            align-items: center !important;
+                            justify-content: center !important;
+                            gap: 8px !important;
+                            padding: 10px !important;
+                            border-radius: 10px !important;
+                            font-size: 0.85rem !important;
+                            font-weight: 700 !important;
+                            width: 100% !important;
+                            transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1) !important;
+                            cursor: pointer !important;
+                            border: none;
+                        }
+                        
+                        .showroom-card-btn.details {
+                            background: rgba(56, 189, 248, 0.08) !important;
+                            border: 1.5px solid rgba(56, 189, 248, 0.25) !important;
+                            color: var(--color-prospect) !important;
+                            margin-bottom: 8px;
+                        }
+                        .showroom-card-btn.details:hover {
+                            background: var(--color-prospect) !important;
+                            color: #000 !important;
+                            box-shadow: 0 0 15px rgba(56, 189, 248, 0.3) !important;
+                            transform: scale(1.01) !important;
+                        }
+                        
+                        .showroom-card-btn.edit {
+                            background: rgba(255, 255, 255, 0.02) !important;
+                            border: 1.5px solid rgba(255, 255, 255, 0.08) !important;
+                            color: #fff !important;
+                        }
+                        .showroom-card-btn.edit:hover {
+                            background: #fff !important;
+                            color: #000 !important;
+                            box-shadow: 0 0 15px rgba(255, 255, 255, 0.2) !important;
+                            transform: scale(1.01) !important;
+                        }
+
+                        /* Luxury design for Calculation details table in modal */
+                        #manual-details-body table {
+                            border-radius: 8px;
+                            overflow: hidden;
+                            margin: 10px 0;
+                            background: rgba(0, 0, 0, 0.2);
+                        }
+                        #manual-details-body th {
+                            background: rgba(255, 255, 255, 0.02);
+                            padding: 8px 12px !important;
+                            color: var(--color-text-muted);
+                            text-transform: uppercase;
+                            font-size: 0.7rem;
+                            letter-spacing: 0.5px;
+                        }
+                        #manual-details-body td {
+                            padding: 10px 12px !important;
+                            font-size: 0.8rem;
+                        }
+                    </style>
+
+                    <div class="layout-double-grid" style="margin-top: 16px;">
+                        <!-- Chap panel: Barcha kalkulyatsiya bo'limlari (Accordion) -->
+                        <div class="grid-left-large" style="display: flex; flex-direction: column; gap: 4px;">
+                            <form id="form-manual-model-wizard" onsubmit="return false;">
+                                
+                                <!-- Bo'lim 0: Mahsulot Turi va Nomi -->
+                                <div class="manual-section-card active" data-step="0" id="step-card-0">
+                                    <div class="manual-section-header">
+                                        <div class="manual-section-title-wrap">
+                                            <div class="step-number-badge">0</div>
+                                            <div class="manual-section-title">
+                                                <i class="fa-solid fa-shirt text-blue"></i>
+                                                <span>Mahsulot Turi va Model Nomi</span>
+                                            </div>
+                                        </div>
+                                        <div class="step-header-info">
+                                            <span class="step-summary-text" id="step-0-summary" style="display: none;"></span>
+                                            <span class="step-status-indicator status-filling" id="step-0-status">To'ldirilmoqda</span>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="manual-section-body">
+                                        <div class="form-group">
+                                            <label style="font-size: 0.85rem; font-weight: 600; margin-bottom: 12px; display: block; color: var(--color-text-main);">Qaysi mahsulot turi uchun tan narx aniqlamoqchisiz?</label>
+                                            <div class="product-type-grid" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(90px, 1fr)); gap: 10px; margin-bottom: 16px;">
+                                                <div class="product-type-card active" data-type="Triko">
+                                                    <i class="fa-solid fa-shirt"></i>
+                                                    <span style="font-size: 0.75rem; font-weight: 600;">Triko</span>
+                                                </div>
+                                                <div class="product-type-card" data-type="Futbolka">
+                                                    <i class="fa-solid fa-shirt"></i>
+                                                    <span style="font-size: 0.75rem; font-weight: 600;">Futbolka</span>
+                                                </div>
+                                                <div class="product-type-card" data-type="Shortik">
+                                                    <i class="fa-solid fa-shirt"></i>
+                                                    <span style="font-size: 0.75rem; font-weight: 600;">Shortik</span>
+                                                </div>
+                                                <div class="product-type-card" data-type="Sportifka">
+                                                    <i class="fa-solid fa-shirt"></i>
+                                                    <span style="font-size: 0.75rem; font-weight: 600;">Sportifka</span>
+                                                </div>
+                                                <div class="product-type-card" data-type="Kofta">
+                                                    <i class="fa-solid fa-shirt"></i>
+                                                    <span style="font-size: 0.75rem; font-weight: 600;">Kofta</span>
+                                                </div>
+                                                <div class="product-type-card" data-type="Bomber">
+                                                    <i class="fa-solid fa-shirt"></i>
+                                                    <span style="font-size: 0.75rem; font-weight: 600;">Bomber</span>
+                                                </div>
+                                                <div class="product-type-card" data-type="Talstofka">
+                                                    <i class="fa-solid fa-shirt"></i>
+                                                    <span style="font-size: 0.75rem; font-weight: 600;">Talstofka</span>
+                                                </div>
+                                            </div>
+                                            <input type="hidden" id="wizard-product-type" value="Triko">
+                                        </div>
+                                        
+                                        <div class="form-row">
+                                            <div class="form-group col" style="flex: 1;">
+                                                <label><i class="fa-solid fa-tag" style="color: var(--color-prospect);"></i> Model Nomi *</label>
+                                                <input type="text" id="wizard-model-name" required value="Eco Runner Triko" placeholder="Masalan: Eco Runner Triko">
+                                            </div>
+                                        </div>
+                                        
+                                        <div class="form-group" style="margin-bottom: 20px;">
+                                             <label><i class="fa-solid fa-image" style="color: var(--color-negotiation);"></i> Mahsulot Rasmi (ixtiyoriy)</label>
+                                             <div style="display: flex; align-items: center; gap: 16px; background: rgba(0,0,0,0.2); border: 1px solid var(--border-color); padding: 12px; border-radius: 8px;">
+                                                 <div style="position: relative;">
+                                                     <button type="button" class="btn btn-secondary btn-sm" style="pointer-events: none; padding: 8px 16px;">
+                                                         <i class="fa-solid fa-camera"></i> Rasm tanlash
+                                                     </button>
+                                                     <input type="file" id="wizard-model-file" accept="image/*" style="position: absolute; top:0; left:0; width:100%; height:100%; opacity:0; cursor:pointer;">
+                                                 </div>
+                                                 <div id="wizard-file-prompt" style="font-size: 0.75rem; color: var(--color-text-muted);">Rasm yuklash majburiy emas</div>
+                                                 
+                                                 <!-- Preview image container -->
+                                                 <div id="wizard-file-preview-container" style="display: none; align-items: center; gap: 12px;">
+                                                     <img id="wizard-file-preview" src="" style="height: 38px; width: 38px; border-radius: 4px; object-fit: cover; border: 1px solid var(--border-color);">
+                                                     <span id="wizard-file-name" style="font-size: 0.75rem; color: var(--color-text-main); max-width: 150px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;"></span>
+                                                     <button type="button" id="btn-remove-wizard-file" style="background:none; border:none; color:var(--color-red); cursor:pointer; font-size:0.9rem;"><i class="fa-solid fa-trash"></i></button>
+                                                 </div>
+                                             </div>
+                                             
+                                             <!-- Hidden inputs to store image data -->
+                                             <input type="hidden" id="wizard-model-image-base64" value="">
+                                             <input type="hidden" id="wizard-model-image" value="">
+                                        </div>
+                                        <input type="hidden" id="wizard-model-qty" value="1">
+
+                                        <div class="wizard-nav-row" style="justify-content: flex-end;">
+                                            <button type="button" class="btn btn-primary btn-next-step" data-next="1" style="padding: 10px 24px; font-weight: 600;">Kiyingisi <i class="fa-solid fa-arrow-right"></i></button>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Bo'lim 1: Matolar -->
+                                <div class="manual-section-card collapsed" data-step="1" id="step-card-1">
+                                    <div class="manual-section-header">
+                                        <div class="manual-section-title-wrap">
+                                            <div class="step-number-badge">1</div>
+                                            <div class="manual-section-title">
+                                                <i class="fa-solid fa-layer-group text-blue"></i>
+                                                <span>1-Bosqich: Matolar sarfi va narxi</span>
+                                            </div>
+                                        </div>
+                                        <div class="step-header-info">
+                                            <span class="step-summary-text" id="step-1-summary" style="display: none;"></span>
+                                            <span class="step-status-indicator status-waiting" id="step-1-status">Kutilmoqda</span>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="manual-section-body">
+                                        <div id="fabric-rows-container" style="display: flex; flex-direction: column; gap: 12px; margin-bottom: 16px;">
+                                            <!-- Dynamic Rows -->
+                                            <div class="fabric-row card-glass" data-index="0">
+                                                <div style="flex: 2; min-width: 150px;">
+                                                    <label style="font-size: 0.75rem; color: var(--color-text-muted); margin-bottom: 4px; display: block;">Mato Turi</label>
+                                                    <select class="fabric-type-select" style="width: 100%; padding: 8px; border-radius: 6px; border: 1px solid var(--border-color); background: #000; color: #fff;">
+                                                        <option value="Asosiy mato">Asosiy mato</option>
+                                                        <option value="Cho'ntak matosi">Cho'ntak matosi</option>
+                                                        <option value="Detal matosi">Detal matosi</option>
+                                                        <option value="Ribana / Manjet">Ribana / Manjet</option>
+                                                        <option value="Boshqa mato">Boshqa mato</option>
+                                                    </select>
+                                                </div>
+                                                <div style="flex: 1.5; min-width: 100px;">
+                                                    <label style="font-size: 0.75rem; color: var(--color-text-muted); margin-bottom: 4px; display: block;">1kg narxi (so'm)</label>
+                                                    <input type="number" class="fabric-price-input" value="150000" min="0" placeholder="0" style="width: 100%; padding: 8px; border-radius: 6px; border: 1px solid var(--border-color); background: #000; color: #fff;">
+                                                </div>
+                                                <div style="flex: 1.5; min-width: 100px;">
+                                                    <label style="font-size: 0.75rem; color: var(--color-text-muted); margin-bottom: 4px; display: block;">Sarfi (gramm)</label>
+                                                    <input type="number" class="fabric-consumption-input" value="350" min="0" placeholder="0" style="width: 100%; padding: 8px; border-radius: 6px; border: 1px solid var(--border-color); background: #000; color: #fff;">
+                                                </div>
+                                                <div style="width: 32px; text-align: center; padding-bottom: 8px;">
+                                                    <span style="opacity: 0.3; cursor: not-allowed; color: var(--color-red);"><i class="fa-solid fa-trash"></i></span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <button type="button" class="btn btn-secondary btn-sm" id="btn-add-fabric-row" style="padding: 8px 16px; font-size: 0.8rem;">
+                                            <i class="fa-solid fa-plus"></i> Qo'shimcha mato qo'shish
+                                        </button>
+                                        
+                                        <div class="wizard-nav-row" style="justify-content: space-between;">
+                                            <button type="button" class="btn btn-secondary btn-prev-step" data-prev="0" style="padding: 10px 20px;"><i class="fa-solid fa-arrow-left"></i> Ortga</button>
+                                            <button type="button" class="btn btn-primary btn-next-step" data-next="2" style="padding: 10px 20px; font-weight: 600;">Kiyingisi <i class="fa-solid fa-arrow-right"></i></button>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Bo'lim 2: Tashqi bezaklar -->
+                                <div class="manual-section-card collapsed" data-step="2" id="step-card-2">
+                                    <div class="manual-section-header">
+                                        <div class="manual-section-title-wrap">
+                                            <div class="step-number-badge">2</div>
+                                            <div class="manual-section-title">
+                                                <i class="fa-solid fa-palette text-blue"></i>
+                                                <span>2-Bosqich: Tashqi bezaklar va xizmatlar</span>
+                                            </div>
+                                        </div>
+                                        <div class="step-header-info">
+                                            <span class="step-summary-text" id="step-2-summary" style="display: none;"></span>
+                                            <span class="step-status-indicator status-waiting" id="step-2-status">Kutilmoqda</span>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="manual-section-body">
+                                         <div class="wizard-toggle-grid">
+                                             <div class="decoration-row wizard-toggle-card">
+                                                 <div class="wizard-toggle-card-header">
+                                                     <input type="checkbox" id="decor-kraska-active" class="decor-checkbox">
+                                                     <label for="decor-kraska-active">Kraska (Chop etish)</label>
+                                                 </div>
+                                                 <div class="wizard-toggle-card-body">
+                                                     <input type="number" id="decor-kraska-price" class="decor-price-input" value="3000" min="0" disabled>
+                                                     <span style="font-size: 0.8rem; color: var(--color-text-muted);">so'm</span>
+                                                 </div>
+                                             </div>
+                                             <div class="decoration-row wizard-toggle-card">
+                                                 <div class="wizard-toggle-card-header">
+                                                     <input type="checkbox" id="decor-press-active" class="decor-checkbox">
+                                                     <label for="decor-press-active">Press (Termotransfer)</label>
+                                                 </div>
+                                                 <div class="wizard-toggle-card-body">
+                                                     <input type="number" id="decor-press-price" class="decor-price-input" value="2000" min="0" disabled>
+                                                     <span style="font-size: 0.8rem; color: var(--color-text-muted);">so'm</span>
+                                                 </div>
+                                             </div>
+                                             <div class="decoration-row wizard-toggle-card">
+                                                 <div class="wizard-toggle-card-header">
+                                                     <input type="checkbox" id="decor-vishivka-active" class="decor-checkbox">
+                                                     <label for="decor-vishivka-active">Vishivka (Kashtachilik)</label>
+                                                 </div>
+                                                 <div class="wizard-toggle-card-body">
+                                                     <input type="number" id="decor-vishivka-price" class="decor-price-input" value="4000" min="0" disabled>
+                                                     <span style="font-size: 0.8rem; color: var(--color-text-muted);">so'm</span>
+                                                 </div>
+                                             </div>
+                                             <div class="decoration-row wizard-toggle-card">
+                                                 <div class="wizard-toggle-card-header">
+                                                     <input type="checkbox" id="decor-lazer-active" class="decor-checkbox">
+                                                     <label for="decor-lazer-active">Lazer xizmati</label>
+                                                 </div>
+                                                 <div class="wizard-toggle-card-body">
+                                                     <input type="number" id="decor-lazer-price" class="decor-price-input" value="5000" min="0" disabled>
+                                                     <span style="font-size: 0.8rem; color: var(--color-text-muted);">so'm</span>
+                                                 </div>
+                                             </div>
+                                         </div>
+                                        
+                                        <div class="wizard-nav-row" style="justify-content: space-between;">
+                                            <button type="button" class="btn btn-secondary btn-prev-step" data-prev="1" style="padding: 10px 20px;"><i class="fa-solid fa-arrow-left"></i> Ortga</button>
+                                            <button type="button" class="btn btn-primary btn-next-step" data-next="3" style="padding: 10px 20px; font-weight: 600;">Kiyingisi <i class="fa-solid fa-arrow-right"></i></button>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Bo'lim 3: Tikuv xarajatlari -->
+                                <div class="manual-section-card collapsed" data-step="3" id="step-card-3">
+                                    <div class="manual-section-header">
+                                        <div class="manual-section-title-wrap">
+                                            <div class="step-number-badge">3</div>
+                                            <div class="manual-section-title">
+                                                <i class="fa-solid fa-scissors text-blue"></i>
+                                                <span>3-Bosqich: Ishlab chiqarish va tikuv xarajatlari (dona boshiga)</span>
+                                            </div>
+                                        </div>
+                                        <div class="step-header-info">
+                                            <span class="step-summary-text" id="step-3-summary" style="display: none;"></span>
+                                            <span class="step-status-indicator status-waiting" id="step-3-status">Kutilmoqda</span>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="manual-section-body">
+                                         <div id="sewing-rows-container" class="wizard-toggle-grid">
+                                             <div class="sewing-row wizard-toggle-card" data-name="Chok">
+                                                 <div class="wizard-toggle-card-header">
+                                                     <input type="checkbox" checked class="sewing-checkbox" id="sewing-chok-active">
+                                                     <label for="sewing-chok-active">Chok</label>
+                                                 </div>
+                                                 <div class="wizard-toggle-card-body">
+                                                     <input type="number" class="sewing-price-input" value="500" min="0">
+                                                     <span style="font-size: 0.75rem; color: var(--color-text-muted);">so'm</span>
+                                                 </div>
+                                             </div>
+                                             <div class="sewing-row wizard-toggle-card" data-name="Overlok">
+                                                 <div class="wizard-toggle-card-header">
+                                                     <input type="checkbox" checked class="sewing-checkbox" id="sewing-overlok-active">
+                                                     <label for="sewing-overlok-active">Overlok</label>
+                                                 </div>
+                                                 <div class="wizard-toggle-card-body">
+                                                     <input type="number" class="sewing-price-input" value="600" min="0">
+                                                     <span style="font-size: 0.75rem; color: var(--color-text-muted);">so'm</span>
+                                                 </div>
+                                             </div>
+                                             <div class="sewing-row wizard-toggle-card" data-name="Raspashivalka">
+                                                 <div class="wizard-toggle-card-header">
+                                                     <input type="checkbox" class="sewing-checkbox" id="sewing-raspashivalka-active">
+                                                     <label for="sewing-raspashivalka-active">Raspashivalka</label>
+                                                 </div>
+                                                 <div class="wizard-toggle-card-body">
+                                                     <input type="number" class="sewing-price-input" value="800" min="0" disabled>
+                                                     <span style="font-size: 0.75rem; color: var(--color-text-muted);">so'm</span>
+                                                 </div>
+                                             </div>
+                                             <div class="sewing-row wizard-toggle-card" data-name="Cho'ntak">
+                                                 <div class="wizard-toggle-card-header">
+                                                     <input type="checkbox" class="sewing-checkbox" id="sewing-chontak-active">
+                                                     <label for="sewing-chontak-active">Cho'ntak tikuv</label>
+                                                 </div>
+                                                 <div class="wizard-toggle-card-body">
+                                                     <input type="number" class="sewing-price-input" value="400" min="0" disabled>
+                                                     <span style="font-size: 0.75rem; color: var(--color-text-muted);">so'm</span>
+                                                 </div>
+                                             </div>
+                                             <div class="sewing-row wizard-toggle-card" data-name="Bel poyish">
+                                                 <div class="wizard-toggle-card-header">
+                                                     <input type="checkbox" class="sewing-checkbox" id="sewing-bel-poyish-active">
+                                                     <label for="sewing-bel-poyish-active">Bel poyish</label>
+                                                 </div>
+                                                 <div class="wizard-toggle-card-body">
+                                                     <input type="number" class="sewing-price-input" value="1500" min="0" disabled>
+                                                     <span style="font-size: 0.75rem; color: var(--color-text-muted);">so'm</span>
+                                                 </div>
+                                             </div>
+                                             <div class="sewing-row wizard-toggle-card" data-name="Manjetchi">
+                                                 <div class="wizard-toggle-card-header">
+                                                     <input type="checkbox" class="sewing-checkbox" id="sewing-manjetchi-active">
+                                                     <label for="sewing-manjetchi-active">Manjetchi</label>
+                                                 </div>
+                                                 <div class="wizard-toggle-card-body">
+                                                     <input type="number" class="sewing-price-input" value="1000" min="0" disabled>
+                                                     <span style="font-size: 0.75rem; color: var(--color-text-muted);">so'm</span>
+                                                 </div>
+                                             </div>
+                                             <div class="sewing-row wizard-toggle-card" data-name="Pilototachi">
+                                                 <div class="wizard-toggle-card-header">
+                                                     <input type="checkbox" class="sewing-checkbox" id="sewing-pilototachi-active">
+                                                     <label for="sewing-pilototachi-active">Pilototachi</label>
+                                                 </div>
+                                                 <div class="wizard-toggle-card-body">
+                                                     <input type="number" class="sewing-price-input" value="1200" min="0" disabled>
+                                                     <span style="font-size: 0.75rem; color: var(--color-text-muted);">so'm</span>
+                                                 </div>
+                                             </div>
+                                         </div>
+                                         <div class="custom-add-bar">
+                                             <input type="text" id="custom-sewing-name" placeholder="Yangi tikuv xizmati..." style="flex: 2; padding: 8px; border-radius: 6px; border: 1px solid var(--border-color); background: #000; color: #fff; font-size: 0.85rem;">
+                                             <input type="number" id="custom-sewing-price" placeholder="Narxi" style="flex: 1; padding: 8px; border-radius: 6px; border: 1px solid var(--border-color); background: #000; color: #fff; font-size: 0.85rem; text-align: right;">
+                                             <button type="button" class="btn btn-secondary" id="btn-add-custom-sewing" style="padding: 8px 16px; font-weight: bold;"><i class="fa-solid fa-plus"></i> Qo'shish</button>
+                                         </div>
+                                        
+                                        <div class="wizard-nav-row" style="justify-content: space-between;">
+                                            <button type="button" class="btn btn-secondary btn-prev-step" data-prev="2" style="padding: 10px 20px;"><i class="fa-solid fa-arrow-left"></i> Ortga</button>
+                                            <button type="button" class="btn btn-primary btn-next-step" data-next="4" style="padding: 10px 20px; font-weight: 600;">Kiyingisi <i class="fa-solid fa-arrow-right"></i></button>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Bo'lim 4: Aksessuarlar va Ishxona xarajatlari -->
+                                <div class="manual-section-card collapsed" data-step="4" id="step-card-4">
+                                    <div class="manual-section-header">
+                                        <div class="manual-section-title-wrap">
+                                            <div class="step-number-badge">4</div>
+                                            <div class="manual-section-title">
+                                                <i class="fa-solid fa-puzzle-piece text-blue"></i>
+                                                <span>4-Bosqich: Aksessuarlar va Ishxona xarajatlari</span>
+                                            </div>
+                                        </div>
+                                        <div class="step-header-info">
+                                            <span class="step-summary-text" id="step-4-summary" style="display: none;"></span>
+                                            <span class="step-status-indicator status-waiting" id="step-4-status">Kutilmoqda</span>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="manual-section-body">
+                                        <!-- Aksessuarlar qismi -->
+                                        <div class="wizard-sub-header">
+                                            <i class="fa-solid fa-puzzle-piece"></i>
+                                            <span>Aksessuarlar (Furnituralar)</span>
+                                        </div>
+                                        
+                                        <div id="accessory-rows-container" class="wizard-toggle-grid">
+                                            <div class="accessory-row wizard-toggle-card" data-name="Bel arqoni">
+                                                <div class="wizard-toggle-card-header">
+                                                    <input type="checkbox" class="accessory-checkbox" id="acc-bel-arqoni-active">
+                                                    <label for="acc-bel-arqoni-active">Bel arqoni</label>
+                                                </div>
+                                                <div class="wizard-toggle-card-body">
+                                                    <input type="number" class="accessory-price-input" value="1500" min="0" disabled>
+                                                    <span style="font-size: 0.75rem; color: var(--color-text-muted);">x</span>
+                                                    <input type="number" class="accessory-qty-input" value="1" min="1" disabled style="text-align: center;">
+                                                    <span style="font-size: 0.75rem; color: var(--color-text-muted);">so'm</span>
+                                                </div>
+                                            </div>
+                                            <div class="accessory-row wizard-toggle-card" data-name="Cho'ntak zamogi">
+                                                <div class="wizard-toggle-card-header">
+                                                    <input type="checkbox" class="accessory-checkbox" id="acc-chontak-zamogi-active">
+                                                    <label for="acc-chontak-zamogi-active">Cho'ntak zamogi</label>
+                                                </div>
+                                                <div class="wizard-toggle-card-body">
+                                                    <input type="number" class="accessory-price-input" value="2000" min="0" disabled>
+                                                    <span style="font-size: 0.75rem; color: var(--color-text-muted);">x</span>
+                                                    <input type="number" class="accessory-qty-input" value="2" min="1" disabled style="text-align: center;">
+                                                    <span style="font-size: 0.75rem; color: var(--color-text-muted);">so'm</span>
+                                                </div>
+                                            </div>
+                                            <div class="accessory-row wizard-toggle-card" data-name="Oldi chintak zamogi">
+                                                <div class="wizard-toggle-card-header">
+                                                    <input type="checkbox" class="accessory-checkbox" id="acc-oldi-chintak-zamogi-active">
+                                                    <label for="acc-oldi-chintak-zamogi-active">Oldi chintak zamogi</label>
+                                                </div>
+                                                <div class="wizard-toggle-card-body">
+                                                    <input type="number" class="accessory-price-input" value="3500" min="0" disabled>
+                                                    <span style="font-size: 0.75rem; color: var(--color-text-muted);">x</span>
+                                                    <input type="number" class="accessory-qty-input" value="1" min="1" disabled style="text-align: center;">
+                                                    <span style="font-size: 0.75rem; color: var(--color-text-muted);">so'm</span>
+                                                </div>
+                                            </div>
+                                            <div class="accessory-row wizard-toggle-card" data-name="Logo/Emblema">
+                                                <div class="wizard-toggle-card-header">
+                                                    <input type="checkbox" class="accessory-checkbox" id="acc-logo-emblema-active">
+                                                    <label for="acc-logo-emblema-active">Logo / Emblema</label>
+                                                </div>
+                                                <div class="wizard-toggle-card-body">
+                                                    <input type="number" class="accessory-price-input" value="1200" min="0" disabled>
+                                                    <span style="font-size: 0.75rem; color: var(--color-text-muted);">x</span>
+                                                    <input type="number" class="accessory-qty-input" value="1" min="1" disabled style="text-align: center;">
+                                                    <span style="font-size: 0.75rem; color: var(--color-text-muted);">so'm</span>
+                                                </div>
+                                            </div>
+                                            <div class="accessory-row wizard-toggle-card" data-name="Vinil">
+                                                <div class="wizard-toggle-card-header">
+                                                    <input type="checkbox" class="accessory-checkbox" id="acc-vinil-active">
+                                                    <label for="acc-vinil-active">Vinil</label>
+                                                </div>
+                                                <div class="wizard-toggle-card-body">
+                                                    <input type="number" class="accessory-price-input" value="3000" min="0" disabled>
+                                                    <span style="font-size: 0.75rem; color: var(--color-text-muted);">x</span>
+                                                    <input type="number" class="accessory-qty-input" value="1" min="1" disabled style="text-align: center;">
+                                                    <span style="font-size: 0.75rem; color: var(--color-text-muted);">so'm</span>
+                                                </div>
+                                            </div>
+                                            <div class="accessory-row wizard-toggle-card" data-name="Rezinka" data-unit="gr">
+                                                <div class="wizard-toggle-card-header">
+                                                    <input type="checkbox" class="accessory-checkbox" id="acc-rezinka-active">
+                                                    <label for="acc-rezinka-active">Rezinka (Bel uchun)</label>
+                                                </div>
+                                                <div class="wizard-toggle-card-body">
+                                                    <input type="number" class="accessory-price-input" value="65000" min="0" disabled style="width: 80px;" title="1 kg narxi">
+                                                    <span style="font-size: 0.7rem; color: var(--color-text-muted);" title="1 kg narxi">so'm/kg</span>
+                                                    <span style="font-size: 0.75rem; color: var(--color-text-muted);">x</span>
+                                                    <input type="number" class="accessory-qty-input" value="45" min="1" disabled style="text-align: center; width: 55px;" title="Sarf og'irligi (gramm)">
+                                                    <span style="font-size: 0.7rem; color: var(--color-text-muted);" title="Sarf og'irligi (gramm)">gr</span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="custom-add-bar">
+                                            <input type="text" id="custom-accessory-name" placeholder="Aksessuar nomi..." style="flex: 2; padding: 8px; border-radius: 6px; border: 1px solid var(--border-color); background: #000; color: #fff; font-size: 0.85rem;">
+                                            <input type="number" id="custom-accessory-price" placeholder="Narxi" style="flex: 1.2; padding: 8px; border-radius: 6px; border: 1px solid var(--border-color); background: #000; color: #fff; font-size: 0.85rem; text-align: right;">
+                                            <select id="custom-accessory-unit" style="width: 75px; padding: 8px; border-radius: 6px; border: 1px solid var(--border-color); background: #000; color: #fff; font-size: 0.85rem;">
+                                                <option value="dona">dona</option>
+                                                <option value="gr">gr (kg)</option>
+                                            </select>
+                                            <input type="number" id="custom-accessory-qty" value="1" min="1" placeholder="Soni" style="width: 55px; padding: 8px; border-radius: 6px; border: 1px solid var(--border-color); background: #000; color: #fff; font-size: 0.85rem; text-align: center;">
+                                            <button type="button" class="btn btn-secondary" id="btn-add-custom-accessory" style="padding: 8px 16px;"><i class="fa-solid fa-plus"></i></button>
+                                        </div>
+
+                                        <!-- Ishxona xarajatlari qismi -->
+                                        <div class="wizard-sub-header">
+                                            <i class="fa-solid fa-building-user"></i>
+                                            <span>Ishxona xarajatlari va soliqlar (dona boshiga)</span>
+                                        </div>
+                                        
+                                        <div id="overhead-rows-container" class="wizard-toggle-grid">
+                                            <div class="overhead-row wizard-toggle-card" data-name="Elektr energiya">
+                                                <div class="wizard-toggle-card-header">
+                                                    <input type="checkbox" checked class="overhead-checkbox" id="oh-elektr-active">
+                                                    <label for="oh-elektr-active">Elektr energiya</label>
+                                                </div>
+                                                <div class="wizard-toggle-card-body">
+                                                    <input type="number" class="overhead-price-input" value="1000" min="0">
+                                                    <span style="font-size: 0.75rem; color: var(--color-text-muted);">so'm</span>
+                                                </div>
+                                            </div>
+                                            <div class="overhead-row wizard-toggle-card" data-name="Oziq-ovqat">
+                                                <div class="wizard-toggle-card-header">
+                                                    <input type="checkbox" checked class="overhead-checkbox" id="oh-oziq-ovqat-active">
+                                                    <label for="oh-oziq-ovqat-active">Oziq-ovqat xarajatlari</label>
+                                                </div>
+                                                <div class="wizard-toggle-card-body">
+                                                    <input type="number" class="overhead-price-input" value="1500" min="0">
+                                                    <span style="font-size: 0.75rem; color: var(--color-text-muted);">so'm</span>
+                                                </div>
+                                            </div>
+                                            <div class="overhead-row wizard-toggle-card" data-name="Yo'l kira">
+                                                <div class="wizard-toggle-card-header">
+                                                    <input type="checkbox" checked class="overhead-checkbox" id="oh-yol-kira-active">
+                                                    <label for="oh-yol-kira-active">Yo'l kira (Transport)</label>
+                                                </div>
+                                                <div class="wizard-toggle-card-body">
+                                                    <input type="number" class="overhead-price-input" value="500" min="0">
+                                                    <span style="font-size: 0.75rem; color: var(--color-text-muted);">so'm</span>
+                                                </div>
+                                            </div>
+                                            <div class="overhead-row wizard-toggle-card" data-name="NDS">
+                                                <div class="wizard-toggle-card-header">
+                                                    <input type="checkbox" class="overhead-checkbox" id="oh-nds-active">
+                                                    <label for="oh-nds-active">NDS (QQS)</label>
+                                                </div>
+                                                <div class="wizard-toggle-card-body">
+                                                    <input type="number" class="overhead-price-input" value="4000" min="0" disabled>
+                                                    <span style="font-size: 0.75rem; color: var(--color-text-muted);">so'm</span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        
+                                        <div class="custom-add-bar">
+                                            <input type="text" id="custom-overhead-name" placeholder="Yangi xarajat nomi..." style="flex: 2; padding: 8px; border-radius: 6px; border: 1px solid var(--border-color); background: #000; color: #fff; font-size: 0.85rem;">
+                                            <input type="number" id="custom-overhead-price" placeholder="Narxi" style="flex: 1; padding: 8px; border-radius: 6px; border: 1px solid var(--border-color); background: #000; color: #fff; font-size: 0.85rem; text-align: right;">
+                                            <button type="button" class="btn btn-secondary" id="btn-add-custom-overhead" style="padding: 8px 16px;"><i class="fa-solid fa-plus"></i></button>
+                                        </div>
+                                        
+                                        <div class="wizard-nav-row" style="justify-content: space-between;">
+                                            <button type="button" class="btn btn-secondary btn-prev-step" data-prev="3" style="padding: 10px 20px;"><i class="fa-solid fa-arrow-left"></i> Ortga</button>
+                                            <button type="button" class="btn btn-primary btn-next-step" data-next="5" style="padding: 10px 20px; font-weight: 600;">Kiyingisi <i class="fa-solid fa-arrow-right"></i></button>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Bo'lim 5: Qadoqlash xarajatlari -->
+                                <div class="manual-section-card collapsed" data-step="5" id="step-card-5">
+                                    <div class="manual-section-header">
+                                        <div class="manual-section-title-wrap">
+                                            <div class="step-number-badge">5</div>
+                                            <div class="manual-section-title">
+                                                <i class="fa-solid fa-box-open text-blue"></i>
+                                                <span>5-Bosqich: Qadoqlash xarajatlari</span>
+                                            </div>
+                                        </div>
+                                        <div class="step-header-info">
+                                            <span class="step-summary-text" id="step-5-summary" style="display: none;"></span>
+                                            <span class="step-status-indicator status-waiting" id="step-5-status">Kutilmoqda</span>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="manual-section-body">
+                                        <div id="packaging-rows-container" class="wizard-toggle-grid">
+                                            <div class="packaging-row wizard-toggle-card active" data-name="Biodegradable paket">
+                                                <div class="wizard-toggle-card-header">
+                                                    <input type="checkbox" checked class="packaging-checkbox" id="pack-bio-active">
+                                                    <label for="pack-bio-active">Biologik paket (Biodegradable)</label>
+                                                </div>
+                                                <div class="wizard-toggle-card-body">
+                                                    <input type="number" class="packaging-price-input" value="1500" min="0">
+                                                    <span style="font-size: 0.75rem; color: var(--color-text-muted);">so'm</span>
+                                                </div>
+                                            </div>
+                                            <div class="packaging-row wizard-toggle-card" data-name="Oddiy paket">
+                                                <div class="wizard-toggle-card-header">
+                                                    <input type="checkbox" class="packaging-checkbox" id="pack-standard-active">
+                                                    <label for="pack-standard-active">Oddiy polietilen paket</label>
+                                                </div>
+                                                <div class="wizard-toggle-card-body">
+                                                    <input type="number" class="packaging-price-input" value="800" min="0" disabled>
+                                                    <span style="font-size: 0.75rem; color: var(--color-text-muted);">so'm</span>
+                                                </div>
+                                            </div>
+                                            <div class="packaging-row wizard-toggle-card" data-name="Brendlangan quti">
+                                                <div class="wizard-toggle-card-header">
+                                                    <input type="checkbox" class="packaging-checkbox" id="pack-box-active">
+                                                    <label for="pack-box-active">Brendlangan quti (Karton)</label>
+                                                </div>
+                                                <div class="wizard-toggle-card-body">
+                                                    <input type="number" class="packaging-price-input" value="5000" min="0" disabled>
+                                                    <span style="font-size: 0.75rem; color: var(--color-text-muted);">so'm</span>
+                                                </div>
+                                            </div>
+                                            <div class="packaging-row wizard-toggle-card active" data-name="Dazmollash xizmati">
+                                                <div class="wizard-toggle-card-header">
+                                                    <input type="checkbox" checked class="packaging-checkbox" id="pack-ironing-active">
+                                                    <label for="pack-ironing-active">Dazmollash xizmati</label>
+                                                </div>
+                                                <div class="wizard-toggle-card-body">
+                                                    <input type="number" class="packaging-price-input" value="1500" min="0">
+                                                    <span style="font-size: 0.75rem; color: var(--color-text-muted);">so'm</span>
+                                                </div>
+                                            </div>
+                                            <div class="packaging-row wizard-toggle-card active" data-name="Qadoqlash xizmati">
+                                                <div class="wizard-toggle-card-header">
+                                                    <input type="checkbox" checked class="packaging-checkbox" id="pack-labor-active">
+                                                    <label for="pack-labor-active">Qadoqlash xizmati</label>
+                                                </div>
+                                                <div class="wizard-toggle-card-body">
+                                                    <input type="number" class="packaging-price-input" value="1000" min="0">
+                                                    <span style="font-size: 0.75rem; color: var(--color-text-muted);">so'm</span>
+                                                </div>
+                                            </div>
+                                            <div class="packaging-row wizard-toggle-card active" data-name="Etiketka">
+                                                <div class="wizard-toggle-card-header">
+                                                    <input type="checkbox" checked class="packaging-checkbox" id="pack-label-active">
+                                                    <label for="pack-label-active">Etiketka / Hangtag</label>
+                                                </div>
+                                                <div class="wizard-toggle-card-body">
+                                                    <input type="number" class="packaging-price-input" value="500" min="0">
+                                                    <span style="font-size: 0.75rem; color: var(--color-text-muted);">so'm</span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        
+                                        <div class="custom-add-bar">
+                                            <input type="text" id="custom-packaging-name" placeholder="Yangi qadoq turi..." style="flex: 2; padding: 8px; border-radius: 6px; border: 1px solid var(--border-color); background: #000; color: #fff; font-size: 0.85rem;">
+                                            <input type="number" id="custom-packaging-price" placeholder="Narxi" style="flex: 1; padding: 8px; border-radius: 6px; border: 1px solid var(--border-color); background: #000; color: #fff; font-size: 0.85rem; text-align: right;">
+                                            <button type="button" class="btn btn-secondary" id="btn-add-custom-packaging" style="padding: 8px 16px;"><i class="fa-solid fa-plus"></i></button>
+                                        </div>
+                                        
+                                        <div class="wizard-nav-row" style="justify-content: space-between;">
+                                            <button type="button" class="btn btn-secondary btn-prev-step" data-prev="4" style="padding: 10px 20px;"><i class="fa-solid fa-arrow-left"></i> Ortga</button>
+                                            <button type="button" class="btn btn-primary btn-next-step" data-next="6" style="padding: 10px 20px; font-weight: 600;">Kiyingisi <i class="fa-solid fa-arrow-right"></i></button>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Bo'lim 6: Yakuniy Narxlar va Izoh -->
+                                <div class="manual-section-card collapsed" data-step="6" id="step-card-6">
+                                    <div class="manual-section-header">
+                                        <div class="manual-section-title-wrap">
+                                            <div class="step-number-badge">6</div>
+                                            <div class="manual-section-title">
+                                                <i class="fa-solid fa-check-double text-blue"></i>
+                                                <span>6-Bosqich: Yakuniy Narxlar va Izoh</span>
+                                            </div>
+                                        </div>
+                                        <div class="step-header-info">
+                                            <span class="step-summary-text" id="step-6-summary" style="display: none;"></span>
+                                            <span class="step-status-indicator status-waiting" id="step-6-status">Kutilmoqda</span>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="manual-section-body">
+                                        <div class="card-glass" style="padding: 16px; background: rgba(255,255,255,0.02); margin-bottom: 16px; border-radius: 10px;">
+                                            <h4 style="margin: 0 0 12px; font-size: 0.9rem; color: var(--color-prospect);">Hisob-kitob natijasi:</h4>
+                                            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px; font-size: 0.85rem;">
+                                                <div>1 dona uchun Tannarx:</div>
+                                                <div style="text-align: right; font-weight: bold;" id="wizard-summary-tannarx">0 so'm</div>
+                                                <div>Jami ishlab chiqarish (<span id="wizard-summary-qty-label">1</span> dona):</div>
+                                                <div style="text-align: right; font-weight: bold;" id="wizard-summary-total-cost">0 so'm</div>
+                                            </div>
+                                        </div>
+                                        <div class="form-row">
+                                            <div class="form-group col">
+                                                <label><i class="fa-solid fa-tags" style="color: var(--color-won);"></i> Ulgurji Narxi (so'm) *</label>
+                                                <input type="number" id="wizard-wholesale-price" placeholder="0" min="0" style="padding: 10px; font-size: 1.1rem; font-weight: bold; color: var(--color-won);">
+                                                <small style="color: var(--color-text-muted); font-size: 0.7rem; display: block; margin-top: 4px;">Tavsiya etilgan (+35%): <span id="wizard-rec-wholesale">0</span> so'm</small>
+                                            </div>
+                                            <div class="form-group col">
+                                                <label><i class="fa-solid fa-store" style="color: var(--color-blue);"></i> Chakana Narxi (so'm) *</label>
+                                                <input type="number" id="wizard-retail-price" placeholder="0" min="0" style="padding: 10px; font-size: 1.1rem; font-weight: bold; color: var(--color-blue);">
+                                                <small style="color: var(--color-text-muted); font-size: 0.7rem; display: block; margin-top: 4px;">Tavsiya etilgan (+60%): <span id="wizard-rec-retail">0</span> so'm</small>
+                                            </div>
+                                        </div>
+                                        <div class="form-group">
+                                            <label><i class="fa-solid fa-align-left" style="color: var(--color-text-muted);"></i> Qo'shimcha Izoh</label>
+                                            <textarea id="wizard-note" rows="3" placeholder="Model haqida qo'shimcha ma'lumot..." style="width: 100%; padding: 10px; border: 1px solid var(--border-color); border-radius: 6px; background: rgba(0,0,0,0.2); color: var(--color-text-main); font-family: inherit; resize: vertical;"></textarea>
+                                        </div>
+                                        
+                                        <div class="wizard-nav-row" style="gap: 12px;">
+                                            <button type="button" class="btn btn-secondary btn-prev-step" data-prev="5" style="flex: 1; padding: 12px 24px;">
+                                                <i class="fa-solid fa-arrow-left"></i> Ortga
+                                            </button>
+                                            <button type="button" class="btn btn-won" id="wizard-submit-btn" style="flex: 2; padding: 12px 24px; font-size: 1rem; font-weight: 700;">
+                                                <i class="fa-solid fa-floppy-disk"></i> Modelni Showroomga Saqlash
+                                            </button>
+                                            <button type="button" class="btn btn-secondary" id="wizard-reset-all-btn" style="flex: 1; padding: 12px 24px;">
+                                                <i class="fa-solid fa-eraser"></i> Tozalash
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </form>
+                        </div>
+
+                        <!-- O'ng panel: Jonli Tannarx Hisoblagich -->
+                        <div class="grid-right-small">
+                            <div class="card-glass" style="height: auto; position: sticky; top: 16px;">
+                                <div class="card-glass-header">
+                                    <h3><i class="fa-solid fa-calculator text-blue"></i> Jonli Tannarx</h3>
+                                </div>
+                                <div style="padding: 16px; font-size: 0.85rem;">
+                                    <div style="text-align: center; padding: 16px 0; border-bottom: 1px solid var(--border-color); margin-bottom: 16px;">
+                                        <span style="font-size: 0.75rem; color: var(--color-text-muted); display: block; text-transform: uppercase; letter-spacing: 1px;">Jami Tannarx (1 dona)</span>
+                                        <span style="font-size: 1.8rem; font-weight: 800; color: var(--color-won); line-height: 1.2;" id="live-total-tannarx">0 so'm</span>
+                                    </div>
+                                    <div style="display: flex; flex-direction: column; gap: 12px;">
+                                        <div style="display: flex; justify-content: space-between; align-items: center; padding-bottom: 8px; border-bottom: 1px dashed rgba(255,255,255,0.05);">
+                                            <span style="color: var(--color-text-muted);"><i class="fa-solid fa-layer-group" style="width: 16px;"></i> 1. Matolar:</span>
+                                            <strong id="live-step-fabric">0 so'm</strong>
+                                        </div>
+                                        <div style="display: flex; justify-content: space-between; align-items: center; padding-bottom: 8px; border-bottom: 1px dashed rgba(255,255,255,0.05);">
+                                            <span style="color: var(--color-text-muted);"><i class="fa-solid fa-palette" style="width: 16px;"></i> 2. Bezaklar:</span>
+                                            <strong id="live-step-decor">0 so'm</strong>
+                                        </div>
+                                        <div style="display: flex; justify-content: space-between; align-items: center; padding-bottom: 8px; border-bottom: 1px dashed rgba(255,255,255,0.05);">
+                                            <span style="color: var(--color-text-muted);"><i class="fa-solid fa-scissors" style="width: 16px;"></i> 3. Tikuv:</span>
+                                            <strong id="live-step-sewing">0 so'm</strong>
+                                        </div>
+                                        <div style="display: flex; justify-content: space-between; align-items: center; padding-bottom: 8px; border-bottom: 1px dashed rgba(255,255,255,0.05);">
+                                            <span style="color: var(--color-text-muted);"><i class="fa-solid fa-puzzle-piece" style="width: 16px;"></i> 4. Aksessuarlar:</span>
+                                            <strong id="live-step-accessories">0 so'm</strong>
+                                        </div>
+                                        <div style="display: flex; justify-content: space-between; align-items: center; padding-bottom: 8px; border-bottom: 1px dashed rgba(255,255,255,0.05);">
+                                            <span style="color: var(--color-text-muted);"><i class="fa-solid fa-building-user" style="width: 16px;"></i> 5. Ishxona:</span>
+                                            <strong id="live-step-overhead">0 so'm</strong>
+                                        </div>
+                                        <div style="display: flex; justify-content: space-between; align-items: center; padding-bottom: 8px; border-bottom: 1px dashed rgba(255,255,255,0.05);">
+                                            <span style="color: var(--color-text-muted);"><i class="fa-solid fa-box-open" style="width: 16px;"></i> 6. Qadoqlash:</span>
+                                            <strong id="live-step-packaging">0 so'm</strong>
+                                        </div>
+                                    </div>
+                                    <div style="background: rgba(0,0,0,0.2); border-radius: 8px; padding: 10px; margin-top: 16px; border: 1px solid var(--border-color); font-size: 0.8rem; line-height: 1.5;">
+                                        <i class="fa-solid fa-lightbulb" style="color: #fbbf24; margin-right: 4px;"></i> Har bir bo'limda kiritilgan narxlar va miqdorlar bo'yicha jami summa hisoblab boriladi.
+                                    </div>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -977,54 +2537,177 @@
     </div>
 
     <div class="modal" id="modal-edit-catalog">
-        <div class="modal-content" style="max-width: 800px;">
-            <div class="modal-header">
-                <h3>Mahsulot Parametrlarini Tahrirlash</h3>
-                <span class="close-modal" id="close-edit-catalog-modal" onclick="closeModal('modal-edit-catalog')">&times;</span>
+        <div class="modal-content" style="max-width: 1100px; width: 95%; background: rgba(10, 10, 15, 0.95); border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 16px; box-shadow: 0 20px 40px rgba(0,0,0,0.5); backdrop-filter: blur(20px);">
+            <div class="modal-header" style="border-bottom: 1px solid rgba(255, 255, 255, 0.05); padding-bottom: 15px;">
+                <h3 style="color: #fff; font-size: 1.3rem; font-weight: 700; display: flex; align-items: center; gap: 8px; margin: 0;">
+                    <i class="fa-solid fa-pen-to-square text-blue" style="color: var(--color-prospect);"></i> 
+                    <span>Showroom: Model Parametrlarini Tahrirlash</span>
+                </h3>
+                <span class="close-modal" id="close-edit-catalog-modal" onclick="closeModal('modal-edit-catalog')" style="color: var(--color-text-muted); font-size: 1.5rem; cursor: pointer; transition: color 0.2s;">&times;</span>
             </div>
-            <div class="worksheet-inputs" style="max-height: 70vh; overflow-y: auto; padding-right: 10px;">
-                <input type="hidden" id="edit-cat-id">
-                
-                <h4 style="margin-bottom: 10px; color: var(--color-won);"><i class="fa-solid fa-list-check"></i> AI Aniqlagan parametrlar (Dona uchun)</h4>
-                <div class="form-row">
-                    <div class="form-group col"><label>Tikuv choklari</label><input type="number" id="edit-param-sew" value="0"></div>
-                    <div class="form-group col"><label>Overlok choklari</label><input type="number" id="edit-param-overlock" value="0"></div>
-                    <div class="form-group col"><label>Raspashivalka</label><input type="number" id="edit-param-flatlock" value="0"></div>
-                </div>
-                <div class="form-row">
-                    <div class="form-group col"><label>Bostiriq/Qayirib</label><input type="number" id="edit-param-folds" value="0"></div>
-                    <div class="form-group col"><label>Rangli mato ulash</label><input type="number" id="edit-param-inserts" value="0"></div>
-                    <div class="form-group col"><label>Kraska/Print yuzasi</label><input type="number" id="edit-param-paints" value="0"></div>
-                </div>
-                <div class="form-row">
-                    <div class="form-group col"><label>Aksessuarlar soni</label><input type="number" id="edit-param-accessories" value="0"></div>
-                    <div class="form-group col"><label>Mato sarfi (kg)</label><input type="number" id="edit-cost-fabric-qty" step="any" value="0"></div>
+            
+            <div class="modal-body-wrapper" style="display: grid; grid-template-columns: 1fr 1.2fr; gap: 20px; max-height: 65vh; overflow-y: auto; padding: 15px 5px; margin-top: 10px;">
+                <!-- Left Column: Basic Info & Pricing -->
+                <div style="background: rgba(255,255,255,0.01); border: 1px solid rgba(255,255,255,0.03); border-radius: 12px; padding: 16px; display: flex; flex-direction: column; gap: 14px;">
+                    <h4 style="margin: 0; font-size: 0.95rem; color: var(--color-prospect); border-bottom: 1px dashed rgba(255,255,255,0.08); padding-bottom: 8px;">
+                        <i class="fa-solid fa-info-circle"></i> Umumiy ma'lumotlar
+                    </h4>
+                    <input type="hidden" id="edit-cat-id">
+                    
+                    <div class="form-group" style="margin: 0; display: flex; flex-direction: column; gap: 4px;">
+                        <label style="color: var(--color-text-muted); font-size: 0.8rem; margin: 0;">Model nomi</label>
+                        <input type="text" id="edit-cat-name" style="width: 100%; padding: 10px; border-radius: 8px; border: 1px solid var(--border-color); background: #000; color: #fff; font-size: 0.9rem;">
+                    </div>
+                    
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+                        <div class="form-group" style="margin: 0; display: flex; flex-direction: column; gap: 4px;">
+                            <label style="color: var(--color-text-muted); font-size: 0.8rem; margin: 0;">Mahsulot turi</label>
+                            <select id="edit-cat-type" style="width: 100%; padding: 10px; border-radius: 8px; border: 1px solid var(--border-color); background: #000; color: #fff; font-size: 0.9rem;">
+                                <option value="Futbolka">Futbolka</option>
+                                <option value="Hudi">Hudi</option>
+                                <option value="Shim">Shim</option>
+                                <option value="Svitshot">Svitshot</option>
+                                <option value="Shorti">Shorti</option>
+                                <option value="Boshqa">Boshqa</option>
+                            </select>
+                        </div>
+                        <div class="form-group" style="margin: 0; display: flex; flex-direction: column; gap: 4px;">
+                            <label style="color: var(--color-text-muted); font-size: 0.8rem; margin: 0;">Buyurtma soni (dona)</label>
+                            <input type="number" id="edit-cat-qty" style="width: 100%; padding: 10px; border-radius: 8px; border: 1px solid var(--border-color); background: #000; color: #fff; font-size: 0.9rem; text-align: right;">
+                        </div>
+                    </div>
+
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+                        <div class="form-group" style="margin: 0; display: flex; flex-direction: column; gap: 4px;">
+                            <label style="color: var(--color-text-muted); font-size: 0.8rem; margin: 0;">Ulgurji narxi (so'm)</label>
+                            <input type="number" id="edit-cat-wholesale" style="width: 100%; padding: 10px; border-radius: 8px; border: 1px solid var(--border-color); background: #000; color: #fff; font-size: 0.9rem; text-align: right;">
+                        </div>
+                        <div class="form-group" style="margin: 0; display: flex; flex-direction: column; gap: 4px;">
+                            <label style="color: var(--color-text-muted); font-size: 0.8rem; margin: 0;">Chakana narxi (so'm)</label>
+                            <input type="number" id="edit-cat-retail" style="width: 100%; padding: 10px; border-radius: 8px; border: 1px solid var(--border-color); background: #000; color: #fff; font-size: 0.9rem; text-align: right;">
+                        </div>
+                    </div>
+
+                    <div class="form-group" style="margin: 0; display: flex; flex-direction: column; gap: 4px;">
+                        <label style="color: var(--color-text-muted); font-size: 0.8rem; margin: 0;">Rasm Yuklash / Havola (URL)</label>
+                        <div style="display: flex; gap: 8px; align-items: center; margin-bottom: 8px;">
+                            <input type="text" id="edit-cat-image-url" placeholder="https://..." style="flex: 1; padding: 10px; border-radius: 8px; border: 1px solid var(--border-color); background: #000; color: #fff; font-size: 0.85rem;">
+                            <button type="button" class="btn btn-secondary" onclick="document.getElementById('edit-cat-file-input').click()" style="padding: 10px; font-size: 0.85rem;"><i class="fa-solid fa-upload"></i> Fayl</button>
+                            <input type="file" id="edit-cat-file-input" accept="image/*" style="display: none;">
+                        </div>
+                        <input type="hidden" id="edit-cat-image-base64">
+                        
+                        <div id="edit-cat-image-preview-container" class="edit-cat-image-preview-wrapper" style="display: none;">
+                            <img id="edit-cat-image-preview" class="edit-cat-image-preview-img" src="">
+                            <div class="edit-cat-image-overlay">
+                                <button type="button" id="btn-remove-edit-cat-image" class="edit-cat-image-overlay-btn">
+                                    <i class="fa-solid fa-trash"></i> Rasmni o'chirish
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="form-group" style="margin: 0; display: flex; flex-direction: column; gap: 4px;">
+                        <label style="color: var(--color-text-muted); font-size: 0.8rem; margin: 0;">Izoh (Qaydlar)</label>
+                        <textarea id="edit-cat-note" rows="2" style="width: 100%; padding: 10px; border-radius: 8px; border: 1px solid var(--border-color); background: #000; color: #fff; font-size: 0.85rem; resize: none;"></textarea>
+                    </div>
                 </div>
 
-                <h4 style="margin: 20px 0 10px; color: var(--color-purple);"><i class="fa-solid fa-calculator"></i> Birlik narxlar va xarajatlar (UZS)</h4>
-                <div class="form-row">
-                    <div class="form-group col"><label>1 ta chok narxi</label><input type="number" id="edit-cost-sew" value="0"></div>
-                    <div class="form-group col"><label>1 ta overlok narxi</label><input type="number" id="edit-cost-overlock" value="0"></div>
-                    <div class="form-group col"><label>1 ta raspashivalka</label><input type="number" id="edit-cost-flatlock" value="0"></div>
-                </div>
-                <div class="form-row">
-                    <div class="form-group col"><label>1 ta bostiriq</label><input type="number" id="edit-cost-folds" value="0"></div>
-                    <div class="form-group col"><label>Rangli detal ulash</label><input type="number" id="edit-cost-inserts" value="0"></div>
-                    <div class="form-group col"><label>1 ta kraska bosish</label><input type="number" id="edit-cost-paints" value="0"></div>
-                </div>
-                <div class="form-row">
-                    <div class="form-group col"><label>Aksessuar donasi narxi</label><input type="number" id="edit-cost-accessories" value="0"></div>
-                    <div class="form-group col"><label>Mato 1 kg narxi</label><input type="number" id="edit-cost-fabric-price" value="0"></div>
-                </div>
-                <div class="form-row">
-                    <div class="form-group col"><label>Elektr energiya (dona)</label><input type="number" id="edit-cost-electricity" value="0"></div>
-                    <div class="form-group col"><label>Qadoqlov xarajati (dona)</label><input type="number" id="edit-cost-packaging" value="0"></div>
+                <!-- Right Column: Cost Details (Tabbed UI) -->
+                <div style="display: flex; flex-direction: column; height: 100%;">
+                    <!-- Tabs Header -->
+                    <div style="display: flex; border-bottom: 1px solid rgba(255,255,255,0.05); gap: 4px; padding-bottom: 8px; margin-bottom: 10px; overflow-x: auto;">
+                        <button type="button" class="showroom-edit-tab-btn active" data-tab="edit-tab-fabrics" style="flex: 1; padding: 8px; background: none; border: none; border-bottom: 2px solid var(--color-prospect); color: #fff; font-size: 0.8rem; font-weight: 600; cursor: pointer; white-space: nowrap;"><i class="fa-solid fa-shirt"></i> Matolar</button>
+                        <button type="button" class="showroom-edit-tab-btn" data-tab="edit-tab-decor-sewing" style="flex: 1; padding: 8px; background: none; border: none; border-bottom: 2px solid transparent; color: var(--color-text-muted); font-size: 0.8rem; font-weight: 600; cursor: pointer; white-space: nowrap;"><i class="fa-solid fa-scissors"></i> Tikuv & Bezak</button>
+                        <button type="button" class="showroom-edit-tab-btn" data-tab="edit-tab-accessories" style="flex: 1; padding: 8px; background: none; border: none; border-bottom: 2px solid transparent; color: var(--color-text-muted); font-size: 0.8rem; font-weight: 600; cursor: pointer; white-space: nowrap;"><i class="fa-solid fa-gem"></i> Aksessuarlar</button>
+                        <button type="button" class="showroom-edit-tab-btn" data-tab="edit-tab-overhead-packaging" style="flex: 1; padding: 8px; background: none; border: none; border-bottom: 2px solid transparent; color: var(--color-text-muted); font-size: 0.8rem; font-weight: 600; cursor: pointer; white-space: nowrap;"><i class="fa-solid fa-box-open"></i> Ishxona & Qadoq</button>
+                    </div>
+
+                    <!-- Tab Contents -->
+                    <div class="showroom-edit-tab-content active" id="edit-tab-fabrics" style="flex: 1;">
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+                            <span style="font-size: 0.85rem; color: var(--color-text-muted);">Mato harajatlarini hisoblash:</span>
+                            <button type="button" class="btn btn-secondary" id="btn-add-edit-fabric-row" style="padding: 5px 12px; font-size: 0.75rem; font-weight: 600;"><i class="fa-solid fa-plus"></i> Mato qo'shish</button>
+                        </div>
+                        <div id="edit-fabric-rows-container" style="display: flex; flex-direction: column; gap: 8px; max-height: 250px; overflow-y: auto; padding-right: 4px;">
+                            <!-- Dynamic fabric rows will go here -->
+                        </div>
+                    </div>
+
+                    <div class="showroom-edit-tab-content" id="edit-tab-decor-sewing" style="display: none; flex: 1;">
+                        <div style="font-size: 0.85rem; color: var(--color-text-muted); margin-bottom: 10px; font-weight: 600;">Bezaklar (Kraska/Print):</div>
+                        <div id="edit-decor-rows-container" class="wizard-toggle-grid" style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 15px;">
+                            <!-- Dynamic or static decors -->
+                        </div>
+                        <div style="font-size: 0.85rem; color: var(--color-text-muted); margin-bottom: 10px; font-weight: 600;">Tikuv xizmatlari (Dona uchun):</div>
+                        <div id="edit-sewing-rows-container" class="wizard-toggle-grid" style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px;">
+                            <!-- Dynamic or static sewing services -->
+                        </div>
+                    </div>
+
+                    <div class="showroom-edit-tab-content" id="edit-tab-accessories" style="display: none; flex: 1;">
+                        <div style="font-size: 0.85rem; color: var(--color-text-muted); margin-bottom: 10px; font-weight: 600;">Aksessuarlar ro'yxati:</div>
+                        <div id="edit-accessory-rows-container" class="wizard-toggle-grid" style="display: flex; flex-direction: column; gap: 8px; max-height: 220px; overflow-y: auto; padding-right: 4px; margin-bottom: 10px;">
+                            <!-- Dynamic or static accessories -->
+                        </div>
+                        
+                        <div style="display: flex; gap: 6px; background: rgba(0,0,0,0.15); padding: 8px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.03);">
+                            <input type="text" id="edit-custom-accessory-name" placeholder="Yangi aksessuar..." style="flex: 2; padding: 6px 10px; border-radius: 6px; border: 1px solid var(--border-color); background: #000; color: #fff; font-size: 0.8rem;">
+                            <select id="edit-custom-accessory-unit" style="flex: 1; padding: 6px 10px; border-radius: 6px; border: 1px solid var(--border-color); background: #000; color: #fff; font-size: 0.8rem;">
+                                <option value="dona">dona</option>
+                                <option value="gr">gram</option>
+                            </select>
+                            <input type="number" id="edit-custom-accessory-price" placeholder="Narxi" style="flex: 1; padding: 6px 10px; border-radius: 6px; border: 1px solid var(--border-color); background: #000; color: #fff; font-size: 0.8rem; text-align: right;">
+                            <input type="number" id="edit-custom-accessory-qty" placeholder="Miqdori" style="flex: 1; padding: 6px 10px; border-radius: 6px; border: 1px solid var(--border-color); background: #000; color: #fff; font-size: 0.8rem; text-align: right;">
+                            <button type="button" class="btn btn-secondary" id="btn-add-edit-custom-accessory" style="padding: 6px 12px; font-size: 0.8rem; border-radius: 6px;"><i class="fa-solid fa-plus"></i></button>
+                        </div>
+                    </div>
+
+                    <div class="showroom-edit-tab-content" id="edit-tab-overhead-packaging" style="display: none; flex: 1;">
+                        <div style="font-size: 0.85rem; color: var(--color-text-muted); margin-bottom: 10px; font-weight: 600;">Ishxona qo'shimcha xarajatlari:</div>
+                        <div id="edit-overhead-rows-container" class="wizard-toggle-grid" style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 15px;">
+                            <!-- Static overheads -->
+                        </div>
+                        <div style="font-size: 0.85rem; color: var(--color-text-muted); margin-bottom: 10px; font-weight: 600;">Qadoqlash xarajatlari:</div>
+                        <div id="edit-packaging-rows-container" class="wizard-toggle-grid" style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px; max-height: 150px; overflow-y: auto;">
+                            <!-- Static packaging + dynamic custom -->
+                        </div>
+                        
+                        <div style="display: flex; gap: 6px; background: rgba(0,0,0,0.15); padding: 8px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.03); margin-top: 8px;">
+                            <input type="text" id="edit-custom-packaging-name" placeholder="Yangi qadoq..." style="flex: 2; padding: 6px 10px; border-radius: 6px; border: 1px solid var(--border-color); background: #000; color: #fff; font-size: 0.8rem;">
+                            <input type="number" id="edit-custom-packaging-price" placeholder="Narxi" style="flex: 1; padding: 6px 10px; border-radius: 6px; border: 1px solid var(--border-color); background: #000; color: #fff; font-size: 0.8rem; text-align: right;">
+                            <button type="button" class="btn btn-secondary" id="btn-add-edit-custom-packaging" style="padding: 6px 12px; font-size: 0.8rem; border-radius: 6px;"><i class="fa-solid fa-plus"></i></button>
+                        </div>
+                    </div>
                 </div>
             </div>
             
-            <div style="margin-top: 20px; display: flex; gap: 10px; border-top: 1px solid rgba(255,255,255,0.1); padding-top: 15px;">
-                <button type="button" class="btn btn-secondary" style="flex: 1;" onclick="closeModal('modal-edit-catalog')">Bekor qilish</button>
-                <button type="button" class="btn btn-primary" style="flex: 2;" onclick="saveEditedCatalogItem()">O'zgarishlarni Saqlash</button>
+            <!-- Sticky bottom pricing bar & buttons -->
+            <div style="margin-top: 15px; border-top: 1px solid rgba(255,255,255,0.08); padding-top: 15px;">
+                <div class="summary-billing-bar" style="display: flex; justify-content: space-between; align-items: center; background: rgba(255, 255, 255, 0.02); border: 1px solid rgba(255, 255, 255, 0.05); padding: 12px 20px; border-radius: 10px; margin-bottom: 15px;">
+                    <div style="display: flex; gap: 20px;">
+                        <div>
+                            <span style="font-size: 0.75rem; color: var(--color-text-muted); display: block;">Mahsulot Tan Narxi (1 dona)</span>
+                            <strong id="edit-live-unit-cost" style="font-size: 1.25rem; color: var(--color-won);">0 so'm</strong>
+                        </div>
+                        <div style="border-left: 1px solid rgba(255,255,255,0.1); padding-left: 20px;">
+                            <span style="font-size: 0.75rem; color: var(--color-text-muted); display: block;">Jami Buyurtma Tannarxi</span>
+                            <strong id="edit-live-total-cost" style="font-size: 1.25rem; color: var(--color-prospect);">0 so'm</strong>
+                        </div>
+                    </div>
+                    <div style="display: flex; gap: 10px; font-size: 0.75rem; color: var(--color-text-muted);">
+                        <span>Matolar: <strong id="edit-summary-fabric" style="color: #fff;">0</strong></span> |
+                        <span>Bezak: <strong id="edit-summary-decor" style="color: #fff;">0</strong></span> |
+                        <span>Tikuv: <strong id="edit-summary-sewing" style="color: #fff;">0</strong></span> |
+                        <span>Aksessuar: <strong id="edit-summary-acc" style="color: #fff;">0</strong></span> |
+                        <span>Qadoq: <strong id="edit-summary-pack" style="color: #fff;">0</strong></span>
+                    </div>
+                </div>
+                
+                <div style="display: flex; gap: 10px;">
+                    <button type="button" class="btn btn-secondary" style="flex: 1; padding: 12px; font-weight: 600;" onclick="closeModal('modal-edit-catalog')"><i class="fa-solid fa-xmark"></i> Bekor qilish</button>
+                    <button type="button" class="btn btn-primary" id="btn-save-edited-catalog" style="flex: 2; padding: 12px; font-weight: 700; background: var(--color-won); border-color: var(--color-won); color: #000;" onclick="saveShowroomEditedCatalogItem()"><i class="fa-solid fa-floppy-disk"></i> O'zgarishlarni Saqlash</button>
+                </div>
             </div>
         </div>
     </div>
@@ -1161,7 +2844,7 @@
     <script src="shared/navbar.js"></script>
     <script>if (window.renderNavbar) renderNavbar('sales');</script>
     <!-- Asosiy ilova mantig'i -->
-    <script src="app.js?v=5.1"></script>
+    <script src="app.js?v=premium2"></script>
     <!-- Three.js (3D Virtual Sex) — ES modules via importmap -->
     <script type="importmap">
     {
@@ -1229,6 +2912,22 @@
             <div style="display: flex; gap: 10px;">
                 <button class="btn btn-secondary" style="flex: 1;" onclick="closeModal('modal-supabase-setup')">Yopish</button>
                 <button class="btn btn-primary" style="flex: 1.5; background: var(--color-prospect); border: none;" onclick="triggerManualSync()">Hozir Sinxronlash (Force Sync)</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Tannarx Hisob-kitob Batafsil Modali -->
+    <div class="modal" id="modal-manual-details">
+        <div class="modal-content" style="max-width: 650px;">
+            <div class="modal-header">
+                <h3><i class="fa-solid fa-calculator text-blue"></i> Tannarx Hisob-kitob Tafsilotlari</h3>
+                <span class="close" onclick="closeModal('modal-manual-details')">&times;</span>
+            </div>
+            <div class="modal-body" id="manual-details-body" style="padding: 16px; font-size: 0.9rem; line-height: 1.6; max-height: 70vh; overflow-y: auto;">
+                <!-- Filled dynamically by JS -->
+            </div>
+            <div class="modal-footer" style="padding: 12px 16px; display: flex; justify-content: flex-end;">
+                <button class="btn btn-secondary" onclick="closeModal('modal-manual-details')">Yopish</button>
             </div>
         </div>
     </div>
